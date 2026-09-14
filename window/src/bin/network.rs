@@ -15,6 +15,7 @@ fn execute() -> Result<(), String> {
     let endpoints = config::endpoints(&config)?;
     let experiment = config::experiment(&config)?;
     let tasks = config::tasks(&config)?;
+    let persistence = tron_window::persistence::settings(&config, tasks.is_some())?;
     if experiment == "accuracy" && tasks.is_some() {
         return Err("Accuracy uses its fixed dataset; omit tasks".into());
     }
@@ -60,7 +61,11 @@ fn execute() -> Result<(), String> {
         failed = result["execution_passed"] != true;
         report["accuracy"] = result;
     } else if let Some(tasks) = tasks {
-        let result = run(&mut workers, &tasks, limits)?;
+        let result = if let Some(settings) = &persistence {
+            tron_window::persistence::run(&mut workers, &tasks, limits, settings)?
+        } else {
+            run(&mut workers, &tasks, limits)?
+        };
         failed = result["failed"] != 0 || result["blocked"] != 0;
         report["task_run"] = result;
     } else {

@@ -83,3 +83,10 @@ The window crate consumes these APIs and keeps the experimental workloads.
 See [core integration](../window/CORE_INTEGRATION.md) for tests and scope.
 This runtime does not yet attach network state to encrypted TRON snapshots,
 implement model sharding, or establish physical energy savings.
+## Persistent network execution
+
+`network::run_persistent` adds an authenticated encrypted checkpoint journal.
+Completed records survive process restart; uncertain in-flight tasks fail closed
+and retain their reserved cost. See [persistence probes](../window/PERSISTENCE.md)
+for configuration, tested guarantees, rollback limits, and key requirements.
+This journal is separate from the original Tron snapshot API.

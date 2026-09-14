@@ -3,6 +3,19 @@ use std::process::Command;
 use tron_window::network::config;
 
 #[test]
+fn persistence_requires_custom_tasks_and_a_valid_key_file() {
+    assert!(tron_window::persistence::settings(&json!({"persistence":{}}), false).is_err());
+    assert!(tron_window::persistence::settings(
+        &json!({"persistence":{"directory":"x","key_file":"missing-key"}}),
+        true
+    )
+    .is_err());
+    assert!(tron_window::persistence::settings(&json!({}), false)
+        .unwrap()
+        .is_none());
+}
+
+#[test]
 fn accuracy_mode_is_explicit_and_malformed_task_lists_are_not_silently_ignored() {
     assert_eq!(config::experiment(&json!({})).unwrap(), "throughput");
     assert_eq!(

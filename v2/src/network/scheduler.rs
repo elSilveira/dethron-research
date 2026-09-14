@@ -1,61 +1,52 @@
 use super::{
-    dispatch::{execute, Job},
-    packet, quality, Limits, Task, Worker,
+    dispatch::{execute as dispatch, Job},
+    journal::Journal,
+    outcome::outcome,
+    packet, quality, recovery, Limits, Task, Worker,
 };
 use serde_json::{json, Value};
-use std::{collections::HashMap, time::Instant};
-
-fn outcome(response: &Value, task: &Task) -> Result<(String, u64), String> {
-    let data = &response["data"];
-    let tokens = data["evaluated_tokens"]
-        .as_u64()
-        .ok_or("Missing evaluated tokens")?;
-    if tokens == 0 || tokens > task.reservation() {
-        return Err("Invalid token accounting".into());
-    }
-    let outputs = data["outputs"].as_array().ok_or("Missing outputs")?;
-    if outputs.len() != 1 {
-        return Err("Expected exactly one output".into());
-    }
-    let output = &outputs[0];
-    let text = if task.candidates.is_empty() {
-        let ids = output["token_ids"]
-            .as_array()
-            .ok_or("Missing generated token IDs")?;
-        if ids.is_empty()
-            || ids.len() > task.max_new_tokens
-            || ids.iter().any(|id| id.as_u64().is_none())
-            || output["generated_tokens"].as_u64() != Some(ids.len() as u64)
-            || !matches!(output["finish_reason"].as_str(), Some("eos" | "length"))
-        {
-            return Err("Invalid generation evidence".into());
-        }
-        output["text"].as_str().ok_or("Missing generated text")?
-    } else {
-        let text = output["selected"]
-            .as_str()
-            .ok_or("Missing selected candidate")?;
-        if !task.candidates.iter().any(|c| c == text) {
-            return Err("Unknown candidate".into());
-        }
-        text
-    };
-    if text.len() > 4096 {
-        return Err("Output packet exceeds limit".into());
-    }
-    Ok((text.trim().into(), tokens))
-}
+use std::time::Instant;
 
 pub fn run(
     workers: &mut [Box<dyn Worker>],
     tasks: &[Task],
     limits: Limits,
 ) -> Result<Value, String> {
+    execute(workers, tasks, limits, None)
+}
+
+pub fn run_persistent(
+    workers: &mut [Box<dyn Worker>],
+    tasks: &[Task],
+    limits: Limits,
+    directory: &std::path::Path,
+    key: &[u8; 32],
+    backend_revision: &str,
+) -> Result<Value, String> {
+    packet::validate(tasks, workers.len(), limits)?;
+    let mut journal = Journal::open(directory, key, tasks, limits, backend_revision)?;
+    let mut report = execute(workers, tasks, limits, Some(&mut journal))?;
+    report["checkpoint_head"] = json!(journal.head());
+    Ok(report)
+}
+
+fn execute(
+    workers: &mut [Box<dyn Worker>],
+    tasks: &[Task],
+    limits: Limits,
+    mut journal: Option<&mut Journal>,
+) -> Result<Value, String> {
     packet::validate(tasks, workers.len(), limits)?;
     let origin = Instant::now();
-    let mut records = HashMap::<String, Value>::new();
-    let (mut spent, mut tokens, mut max_in_flight) = (0, 0, 0);
-    for wave in 0..32 {
+    let recovered = recovery::restore(&mut journal, tasks)?;
+    let recovered_records = recovered.records.len();
+    let mut records = recovered.records;
+    let (mut spent, mut tokens, mut max_in_flight) = (recovered.spent, recovered.tokens, 0);
+    for wave in recovered.wave..32 {
+        if records.len() == tasks.len() {
+            break;
+        }
+
         let ready: Vec<_> = tasks
             .iter()
             .enumerate()
@@ -95,7 +86,10 @@ pub fn run(
             }
             records.insert(task.id.clone(), record);
         }
-        let (completed, peak) = execute(workers, &jobs, origin);
+        let mut pending: Vec<String> = jobs.iter().map(|j| tasks[j.index].id.clone()).collect();
+        spent = reserved;
+        recovery::save(&mut journal, &records, spent, tokens, &pending, wave + 1)?;
+        let (completed, peak) = dispatch(workers, &jobs, origin);
         max_in_flight = max_in_flight.max(peak);
         for completion in completed {
             let job = &jobs[completion.job];
@@ -110,7 +104,7 @@ pub fn run(
                 .and_then(|r| outcome(r, task));
             match result {
                 Ok((output, count)) => {
-                    spent += count;
+                    spent = spent - task.reservation() + count;
                     tokens += count;
                     record["status"] = json!("completed");
                     record["output"] = json!(output);
@@ -123,13 +117,14 @@ pub fn run(
                     );
                 }
                 Err(error) => {
-                    spent += task.reservation();
                     record["status"] = json!("failed");
                     record["error"] = json!(error);
                     record["reserved_failure_tokens"] = json!(task.reservation());
                 }
             }
             records.insert(task.id.clone(), record);
+            pending.retain(|id| id != &task.id);
+            recovery::save(&mut journal, &records, spent, tokens, &pending, wave + 1)?;
         }
         if records.len() == tasks.len() {
             break;
@@ -144,7 +139,7 @@ pub fn run(
     let completed = count("completed");
     Ok(
         json!({"schema":1,"completed":completed,"failed":count("failed"),"blocked":count("blocked"),
-        "wall_seconds":seconds,"tasks_per_second":completed as f64 / seconds,
+        "recovered_records":recovered_records,"wall_seconds":seconds,"tasks_per_second":completed as f64 / seconds,
         "evaluated_tokens":tokens,"charged_tokens":spent,"token_budget":limits.token_budget,
         "accepted":records.iter().filter(|r| r["assessment"]["state"]=="accepted").count(),
         "max_in_flight":max_in_flight,"workers":workers.iter().map(|w| w.metadata()).collect::<Vec<_>>(),
