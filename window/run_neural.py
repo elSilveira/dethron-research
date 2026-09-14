@@ -18,7 +18,10 @@ def hashes():
     files = list((ROOT / "src").rglob("*.rs")) + list((ROOT / "neural_worker").glob("*.py"))
     files += list((ROOT / "neural_checks").glob("*.py"))
     files += [ROOT / "Cargo.toml", ROOT / "Cargo.lock", ROOT / "neural-requirements.lock.txt", Path(__file__).resolve()]
-    return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
+    core = ROOT.parent / "v2"
+    files += list((core / "src").rglob("*.rs")) + list((core / "tests").glob("*.rs"))
+    files += [core / "Cargo.toml", core / "Cargo.lock"]
+    return {os.path.relpath(p, ROOT): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(files)}
 
 
 def invoke(args, stdout, stderr, timeout):

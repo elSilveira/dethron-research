@@ -1,5 +1,9 @@
 # TRON Window
 
+The reusable worker network and evidence-validation runtime now live in `v2`;
+this directory retains workloads, probes, backend adapter, and dashboard.
+See [CORE_INTEGRATION.md](CORE_INTEGRATION.md) for the integration boundary.
+
 A local browser dashboard for the real Rust TRON prototype. All application
 files live here. The small Rust adapter depends on `../v2`; it calls the existing
 library and streams public events as each operation executes. The `v2` source

@@ -13,10 +13,22 @@ fn outcome(response: &Value, task: &Task) -> Result<(String, u64), String> {
     if tokens == 0 || tokens > task.reservation() {
         return Err("Invalid token accounting".into());
     }
-    let output = &data["outputs"][0];
+    let outputs = data["outputs"].as_array().ok_or("Missing outputs")?;
+    if outputs.len() != 1 {
+        return Err("Expected exactly one output".into());
+    }
+    let output = &outputs[0];
     let text = if task.candidates.is_empty() {
-        if output["generated_tokens"].as_u64().unwrap_or(0) > task.max_new_tokens as u64 {
-            return Err("Generation exceeds limit".into());
+        let ids = output["token_ids"]
+            .as_array()
+            .ok_or("Missing generated token IDs")?;
+        if ids.is_empty()
+            || ids.len() > task.max_new_tokens
+            || ids.iter().any(|id| id.as_u64().is_none())
+            || output["generated_tokens"].as_u64() != Some(ids.len() as u64)
+            || !matches!(output["finish_reason"].as_str(), Some("eos" | "length"))
+        {
+            return Err("Invalid generation evidence".into());
         }
         output["text"].as_str().ok_or("Missing generated text")?
     } else {

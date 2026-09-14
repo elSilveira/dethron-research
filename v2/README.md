@@ -73,3 +73,13 @@ The next performance experiment should compare strategy selection with the best
 fixed strategy on held-out repeated workloads, including evaluation and audit
 overhead. Persistent execution also needs an explicit key-storage and audit
 retention design before it becomes a durable service.
+
+## Evidence-aware worker runtime
+
+The core now exports `tron_v2::network` for bounded concurrent task execution,
+versioned source DNA, acceptance checks, and local/SSH worker connectors.
+`tron_v2::neural` provides resident process transport and model identity checks.
+The window crate consumes these APIs and keeps the experimental workloads.
+See [core integration](../window/CORE_INTEGRATION.md) for tests and scope.
+This runtime does not yet attach network state to encrypted TRON snapshots,
+implement model sharding, or establish physical energy savings.
