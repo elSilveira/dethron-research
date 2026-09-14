@@ -116,3 +116,5 @@ compressÃ£o sem perda, fragmentaÃ§Ã£o e retransmissÃ£o.
 RÃ¡dio pode fornecer comunicaÃ§Ã£o sem internet; continua exigindo transmissores,
 receptores, energia e um protocolo. Esta entrega nÃ£o implementa transporte por
 rÃ¡dio, operaÃ§Ã£o sem enlace, novos formatos quantizados nem economia de energia.
+
+Atualização: recuperação por réplicas verificadas disponível na API do v2. Consulte REPLICAS.md para uso, validação e limites. As limitações históricas acima sobre rollback são mitigadas nessa API somente com um head externo confiável.
