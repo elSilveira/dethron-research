@@ -43,6 +43,7 @@ def source_hashes():
     result = hashes()
     for path in [ROOT / "reconstruction_dashboard.py", ROOT / "server.py",
                  ROOT / "document_dataset.py", ROOT / "document_summary.py",
+                 ROOT / "document_audit.py", ROOT / "document_oracle.py",
                  *ROOT.joinpath("static").glob("reconstruction.*")]:
         result[str(path.relative_to(ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result

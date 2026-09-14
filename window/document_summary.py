@@ -1,16 +1,11 @@
 """Separate coverage, citation acceptance and abstention; preserve all failures."""
+from document_audit import audit
+
+
 def summarize(events):
-    if not events or events[-1].get("kind") != "complete":
-        raise ValueError("Incomplete document run")
-    documents = [e["data"] for e in events if e.get("kind") == "document"]
-    workers = [e["data"] for e in events if e.get("kind") == "worker"]
-    rows = [e["data"] for e in events if e.get("kind") == "case"]
-    if len(documents) != 1 or len(workers) != 1 or workers[0]["handshake"]["data"]["simulated"] is not False:
-        raise ValueError("Missing real model/document identity")
-    cases = documents[0]["cases"]
-    if len(rows) != 8 or [r["id"] for r in rows] != [c["id"] for c in cases]:
-        raise ValueError("Missing document cases")
+    cases, rows = audit(events)
     summary = {"cases": len(rows), "dna_correct": sum(r["dna_correct"] for r in rows),
+               "audit": "independent_raw_evidence_v1", "evaluation_scope": "development_diagnostic",
                "always_unknown_correct": sum(c["expected"] == "UNKNOWN" for c in cases)}
     for mode in ("full", "selected"):
         totals = dict(answer_correct=0, supported_correct=0, abstention_correct=0,
