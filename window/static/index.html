@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TRON Window · Live experiment</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="TRON Window home"><span class="brandmark">t<span>·</span></span><strong>TRON</strong><span class="brand-divider"></span><span>Window</span></a>
+    <div class="top-right"><span class="local-tag">LOCAL EXPERIMENT</span><span id="connection" class="connection"><i></i>Connecting</span></div>
+  </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="eyebrow">EXPERIMENT CONTROLS</div>
+      <h2>A small beginning.</h2>
+      <p class="muted">Follow one parent as it learns, selects a strategy, and passes knowledge to a child.</p>
+      <form id="controls">
+        <label for="cycles">Evolution cycles <span>1–100</span></label>
+        <input id="cycles" name="cycles" type="number" value="3" min="1" max="100" required>
+        <label for="pace">Time between steps</label>
+        <select id="pace" name="pace"><option value="350">350 ms · live walkthrough</option><option value="750">750 ms · take a closer look</option><option value="0">No delay · full speed</option></select>
+        <p class="field-note">Pacing slows the walkthrough. It is excluded from compute timings.</p>
+        <button id="start" class="primary" type="submit" disabled><span>▶</span> Start experiment</button>
+        <button id="stop" class="secondary" type="button" disabled><span>■</span> Stop run</button>
+      </form>
+      <p id="control-error" class="error" role="alert" hidden></p>
+      <div class="sidebar-rule"></div>
+      <div class="eyebrow">THE JOURNEY</div>
+      <ol id="journey" class="journey">
+        <li data-step="learn"><span>01</span><div>Learn<small>Store an actual result</small></div></li>
+        <li data-step="evolve"><span>02</span><div>Evolve<small>Measure candidate strategies</small></div></li>
+        <li data-step="compare"><span>03</span><div>Compare<small>Check eight unseen inputs</small></div></li>
+        <li data-step="inherit"><span>04</span><div>Inherit<small>Spawn, encrypt, restore</small></div></li>
+        <li data-step="verify"><span>05</span><div>Verify<small>Audit and encoding checks</small></div></li>
+      </ol>
+      <div class="sidebar-note"><span class="tiny-dot"></span><div>Real work, locally.<p>Classical CPU · Rust engine<br>Bounded integer factorization</p></div></div>
+    </aside>
+    <main>
+      <section class="page-heading">
+        <div><div class="eyebrow">OBSERVATORY / TRON V2</div><h1>Watch a TRON take shape.</h1><p>From the first learned result to the next generation. Every event comes from the running engine.</p></div>
+        <span id="run-status" class="status idle" role="status">Ready to begin</span>
+      </section>
+      <section class="metrics" aria-label="Live measurements">
+        <article class="metric"><span>Baseline work</span><strong id="baseline">—</strong><small>Divisions across measured inputs</small></article>
+        <article class="metric"><span>Evolved work <i class="tiny-dot green"></i></span><strong id="evolved">—</strong><small>Same inputs, selected strategy</small></article>
+        <article class="metric"><span>Net work saved</span><strong id="net">—</strong><small id="net-note">Includes candidate evaluation cost</small></article>
+        <article class="metric"><span>Correctness</span><strong id="correctness">Waiting</strong><small id="correctness-note">No inputs compared yet</small></article>
+      </section>
+      <section class="panel lifecycle-panel">
+        <div class="panel-heading"><div><h2>The lifecycle</h2><p id="stage-note">Start an experiment to bring the first TRON into view.</p></div><span class="tag">PARENT → CHILD</span></div>
+        <div class="lineage">
+          <article id="parent-node" class="tron-node"><div class="node-top"><span class="node-symbol">T<span>₀</span></span><div><h3>Parent TRON</h3><span class="muted">Generation 0</span></div><span id="parent-state" class="node-state">Awaiting birth</span></div><code id="parent-id">Identity assigned on creation</code><div class="node-stats"><span>Strategy <b id="strategy">—</b></span><span>Version <b id="version">—</b></span><span>Knowledge <b id="knowledge">—</b></span></div></article>
+          <div id="inherit-link" class="inherit-link"><span class="link-line"></span><span class="link-label">inherit knowledge</span><span class="link-arrow">→</span></div>
+          <article id="child-node" class="tron-node"><div class="node-top"><span class="node-symbol">T<span>₁</span></span><div><h3>Child TRON</h3><span class="muted">Generation 1</span></div><span id="child-state" class="node-state">Awaiting parent</span></div><code id="child-id">A distinct identity, shared knowledge</code><div class="node-stats"><span>Inherited <b id="inherited">—</b></span><span>Restored <b id="restored">—</b></span><span>Recall <b id="recall">—</b></span></div></article>
+        </div>
+        <div class="checks"><span id="audit-check">○ Audit pending</span><span id="snapshot-check">○ Checkpoint pending</span><span id="encoding-check">○ Encoding pending</span></div>
+      </section>
+      <div class="analysis-grid">
+        <section class="panel"><div class="panel-heading"><div><h2>Evolution, measured</h2><p>Promotion requires a lower validation cost.</p></div><span id="cycle-count" class="tag">0 CYCLES</span></div>
+          <div class="table-scroll"><table><thead><tr><th>Cycle</th><th>Strategy</th><th>Evaluation divisions</th><th>Decision</th></tr></thead><tbody id="evolution-body"><tr><td colspan="4" class="empty">Candidate evaluations will appear here.</td></tr></tbody></table></div>
+          <div class="panel-foot">Three fixed strategies. A plateau means no further promotion.</div>
+        </section>
+        <section class="panel"><div class="panel-heading"><div><h2>Work per input</h2><p>Division counts · shared linear scale</p></div><div class="legend"><span><i></i>Baseline</span><span><i class="green"></i>Evolved</span></div></div>
+          <div id="work-chart" class="work-chart"><p class="empty">Eight held-out inputs will be compared here.</p></div>
+          <div id="timing-note" class="panel-foot">Compute timings appear after a completed run.</div>
+        </section>
+      </div>
+      <section class="panel events-panel">
+        <div class="panel-heading"><div><h2>Inside the run <span id="event-count" class="count">0</span></h2><p>Live events, in execution order. Select one to inspect its public data.</p></div><div class="event-actions"><label class="sr-only" for="event-filter">Filter events</label><select id="event-filter"><option value="all">All events</option><option value="evolution">Evolution</option><option value="task">Workload</option><option value="lineage">Lineage & audit</option></select><button id="export-events" class="text-button" disabled>↓ Events</button><button id="export-report" class="text-button" disabled>↓ Report</button></div></div>
+        <div class="event-grid"><div id="event-list" class="event-list"><div class="empty event-empty"><span class="empty-symbol">⌁</span><h3>A clear view of every step.</h3><p>Start a run. Its activity will appear here as it happens.</p></div></div><aside class="inspector"><div class="eyebrow">EVENT INSPECTOR</div><h3 id="inspect-title">Nothing selected yet</h3><p id="inspect-note" class="muted">Choose an event from the timeline.</p><pre id="inspect-data">Public event data only.&#10;Private keys and payload openings stay in the engine.</pre></aside></div>
+      </section>
+      <footer><span id="run-id">No run started</span><span>Smoke experiment · no general speedup claim</span></footer>
+    </main>
+  </div>
+</body>
+</html>
