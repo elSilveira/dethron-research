@@ -4,6 +4,20 @@ import json
 INSTRUCTION = "Read the handbook evidence. Follow the question's relationships. If evidence is missing or contradicts itself, answer UNKNOWN. Return only JSON with keys answer (short name or UNKNOWN) and citations (section IDs supporting the whole reasoning path; empty for UNKNOWN). Do not add explanations."
 
 
+def atomic_text(case):
+    facts = {}
+    for route in case["routes"]:
+        query, = route["queries"]
+        frontier = {query["entity"]}
+        for relation in query["relations"]:
+            matches = [s for s in route["sources"] if s["context"] == "document"
+                       and s["revision"] == 1 and not s["revoked"]
+                       and s["entity"] in frontier and s["relation"] == relation]
+            facts.update((s["id"], s) for s in matches)
+            frontier = {s["target"] for s in matches}
+    return "\n".join(f"[{sid}] {s['entity']} --{s['relation']}--> {s['target']}." for sid, s in sorted(facts.items()))
+
+
 def inputs(case):
     selected = set()
     for route in case["routes"]:
@@ -17,7 +31,7 @@ def inputs(case):
             frontier = {s["target"] for s in matches}
     excerpt = "\n\n".join(f"[{sid}] {case['sections'][sid]}" for sid in sorted(selected))
     requests = {mode: {"op": "generate", "prompts": [f"{INSTRUCTION}\n\n{text}\n\nQuestion: {case['question']}\nJSON answer:"],
-                       "max_new_tokens": 256} for mode, text in (("full", case["document"]), ("selected", excerpt))}
+                       "max_new_tokens": 256} for mode, text in (("full", case["document"]), ("selected", excerpt), ("atomic", atomic_text(case)))}
     return excerpt, requests
 
 

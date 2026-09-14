@@ -2,12 +2,12 @@
 from document_audit import audit
 
 
-def summarize(events):
-    cases, rows = audit(events)
+def summarize(events, modes=("full", "selected")):
+    cases, rows = audit(events, modes)
     summary = {"cases": len(rows), "dna_correct": sum(r["dna_correct"] for r in rows),
                "audit": "independent_raw_evidence_v1", "evaluation_scope": "development_diagnostic",
                "always_unknown_correct": sum(c["expected"] == "UNKNOWN" for c in cases)}
-    for mode in ("full", "selected"):
+    for mode in modes:
         totals = dict(answer_correct=0, supported_correct=0, abstention_correct=0,
                       accepted=0, false_accepts=0, format_failures=0, truncated=0,
                       evaluated_tokens=0, seconds=0)

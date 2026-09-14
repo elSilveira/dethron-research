@@ -1,3 +1,4 @@
+pub mod atomic_probe;
 pub mod budget;
 pub mod document_probe;
 pub mod network;

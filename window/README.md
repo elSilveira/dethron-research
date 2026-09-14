@@ -1,5 +1,8 @@
 # TRON Window
 
+Experimento de unidades menores de evidência no v2: `python run_atomic.py`.
+Veja [ATOMIC_DNA.md](ATOMIC_DNA.md) para o resultado real e seus limites.
+
 Reconstrução DNA com modelo local e evidência visual: abra `/reconstruction`
 no dashboard. Consulte [RECONSTRUCTION_VISUAL.md](RECONSTRUCTION_VISUAL.md)
 para execução, resultados observados e limites da prova.

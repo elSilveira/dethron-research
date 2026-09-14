@@ -9,14 +9,15 @@ def require(condition, message):
         raise ValueError(message)
 
 
-def audit(events):
+def audit(events, modes=("full", "selected")):
     try:
-        return _audit(events)
+        require(modes in (("full", "selected"), ("selected", "atomic")), "Unsupported audit protocol")
+        return _audit(events, modes)
     except (KeyError, TypeError, IndexError, StopIteration, AttributeError) as error:
         raise ValueError("Malformed document evidence") from error
 
 
-def _audit(events):
+def _audit(events, expected_modes):
     require(bool(events) and events[-1].get("kind") == "complete", "Incomplete document run")
     require(sum(e.get("kind") == "complete" for e in events) == 1, "Duplicate completion")
     documents = [e["data"] for e in events if e.get("kind") == "document"]
@@ -38,7 +39,7 @@ def _audit(events):
         require(row["dna_correct"] is ((reference["conclusion"] or "UNKNOWN") == case["expected"]),
                 "Inconsistent DNA score")
         modes = row["modes"]
-        require(len(modes) == 2 and sorted(m["mode"] for m in modes) == ["full", "selected"],
+        require(len(modes) == 2 and sorted(m["mode"] for m in modes) == sorted(expected_modes),
                 "Expected exactly one execution per mode")
         for result in modes:
             require(result["request"] == requests[result["mode"]], "Changed prompt or generation controls")

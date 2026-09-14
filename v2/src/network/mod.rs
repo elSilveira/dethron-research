@@ -16,6 +16,7 @@ pub trait Worker: Send {
     fn execute(&mut self, request: Value) -> Result<Value, String>;
 }
 
+pub mod atomic;
 mod outcome;
 pub mod reconstruction;
 pub mod replica;
