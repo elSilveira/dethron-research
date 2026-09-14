@@ -9,6 +9,9 @@ from run_neural import ROOT, DEFAULT_MODEL, hashes, invoke
 
 
 def validate_events(events):
+    if any(e.get("kind") == "document" for e in events):
+        from document_summary import summarize
+        return summarize(events)
     workers = [e["data"] for e in events if e.get("kind") == "worker"]
     rows = [e["data"] for e in events if e.get("kind") == "case"]
     if (not events or events[-1].get("kind") != "complete" or len(workers) != 1
@@ -39,6 +42,7 @@ def validate_events(events):
 def source_hashes():
     result = hashes()
     for path in [ROOT / "reconstruction_dashboard.py", ROOT / "server.py",
+                 ROOT / "document_dataset.py", ROOT / "document_summary.py",
                  *ROOT.joinpath("static").glob("reconstruction.*")]:
         result[str(path.relative_to(ROOT))] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result
@@ -62,7 +66,9 @@ class ReconstructionManager:
                         break  # The worker may be writing its final line.
             return state
 
-    def start(self, device):
+    def start(self, device, experiment="routes"):
+        if experiment not in ("routes", "document"):
+            raise ValueError("Choose routes or document")
         if device not in ("cpu", "cuda"):
             raise ValueError("Choose cpu or cuda")
         with self.lock:
@@ -76,6 +82,10 @@ class ReconstructionManager:
             self.folder.mkdir(parents=True, exist_ok=False)
             config = {"workers": [{"name": device, "kind": "local", "device": device,
                                     "python": str(python), "model": str(DEFAULT_MODEL)}]}
+            config["experiment"] = experiment
+            if experiment == "document":
+                from document_dataset import dataset
+                config["dataset"] = dataset()
             (self.folder / "config.json").write_text(json.dumps(config), encoding="utf-8")
             self.state = {"status": "running", "run_id": run_id, "report": None, "error": None}
             self._save()
@@ -101,7 +111,7 @@ class ReconstructionManager:
             if sources != source_hashes():
                 raise ValueError("Sources changed during execution; rerun")
             report = {"run_id": folder.name, "summary": summary, "events": events, "manifest": manifest,
-                      "scope": "Real local model; controlled facts; ranking among three candidates; no free-text claim"}
+                      "scope": "Real local model; controlled facts; see requests for ranking or generated JSON mode"}
             (folder / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
             with self.lock:
                 self.state.update(status="completed", report=report)

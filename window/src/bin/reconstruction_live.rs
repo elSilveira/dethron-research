@@ -20,6 +20,21 @@ fn execute() -> Result<(), String> {
     emit("loading", json!({"message":"Loading local model"}))?;
     let mut worker = endpoints[0].start()?;
     emit("worker", worker.metadata())?;
+    if config["experiment"] == "document" {
+        let data = &config["dataset"];
+        emit("document", data.clone())?;
+        for case in data["cases"].as_array().ok_or("Missing document cases")? {
+            emit("case_started", json!({"id":case["id"]}))?;
+            emit(
+                "case",
+                tron_window::document_probe::execute(worker.as_mut(), case)?,
+            )?;
+        }
+        return emit(
+            "complete",
+            json!({"experiment":"document","real_model":true}),
+        );
+    }
     let nonce = tron_v2::crypto::hash(&tron_v2::crypto::random::<16>());
     for case in cases(&format!("object-{}", &nonce[..12])) {
         emit("case_started", json!({"id":case.id}))?;

@@ -3,6 +3,9 @@
 Reconstrução DNA com modelo local e evidência visual: abra `/reconstruction`
 no dashboard. Consulte [RECONSTRUCTION_VISUAL.md](RECONSTRUCTION_VISUAL.md)
 para execução, resultados observados e limites da prova.
+O modo **Documento · geração e citações** compara 16 gerações sobre um texto
+de dez seções; consulte [DOCUMENT_PROBE.md](DOCUMENT_PROBE.md) para o veredito
+e as validações ainda pendentes.
 
 The reusable worker network and evidence-validation runtime now live in `v2`;
 this directory retains workloads, probes, backend adapter, and dashboard.

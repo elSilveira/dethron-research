@@ -1,4 +1,5 @@
 pub mod budget;
+pub mod document_probe;
 pub mod network;
 pub mod neural;
 pub mod persistence;

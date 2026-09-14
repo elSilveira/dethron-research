@@ -1,3 +1,4 @@
+import {renderDocument} from '/reconstruction.document.mjs';
 const $ = id => document.getElementById(id);
 const names = {intact:['Duas rotas íntegras','Duas cadeias sustentam a mesma conclusão.'],lost_a:['Rota A removida','A rota B precisa sustentar a reconstrução sozinha.'],lost_essential:['Evidência indispensável removida','Nenhuma rota completa: a resposta deve ser UNKNOWN.'],conflict:['Rotas em conflito','Conclusões diferentes exigem abstenção.']};
 let token, signature;
@@ -31,22 +32,29 @@ async function poll() {
     const state=await response.json(); token=state.token;
     const rows=state.events.filter(e=>e.kind==='case').map(e=>e.data);
     const worker=state.events.find(e=>e.kind==='worker')?.data;
+    const document=state.events.find(e=>e.kind==='document')?.data;
     const statuses={idle:'Pronto para iniciar uma execução nova.',running:'Executando — build, carregamento e inferências reais.',completed:'Execução concluída · evidências disponíveis',failed:`Execução falhou: ${state.error}`};
     $('status').textContent=`${statuses[state.status]??state.status}${state.run_id?' · '+state.run_id:''}`;
     $('start').disabled=state.status==='running';$('device').disabled=state.status==='running';
+    $('experiment').disabled=state.status==='running';
     $('download').hidden=state.status!=='completed';
     $('progress').textContent=`${rows.length} / 4`;
     $('dna-score').textContent=rows.length?`${rows.filter(r=>r.dna_correct).length} / ${rows.length}`:'—';
     $('model-score').textContent=rows.length?`${rows.filter(r=>r.model_correct).length} / ${rows.length}`:'—';
     $('identity').textContent=worker?`Worker PID ${worker.handshake.pid} · ${worker.handshake.data.device}`:'Nenhum worker carregado';
-    const next=JSON.stringify([state.run_id,rows]); if(next!==signature){renderCases(rows);signature=next;}
+    const next=JSON.stringify([state.run_id,rows,state.status]); if(next!==signature){
+      if(document)renderDocument(state,document,rows);
+      else{renderCases(rows);$('document-panel').hidden=true;$('selected-metric').hidden=true;$('model-label').textContent='Escolha bruta do modelo';}
+      signature=next;
+    }
+    if(document){$('progress').textContent=`${rows.length} / 8`;$('model-score').textContent=rows.length?`${rows.filter(r=>r.modes[0].answer_correct).length} / ${rows.length}`:'—';}
     $('evidence').textContent=JSON.stringify(state.report??{run_id:state.run_id,worker,events:state.events},null,2);
   } catch(error) {$('status').textContent=`Sem conexão: ${error.message}`;$('start').disabled=true;}
 }
 $('start').addEventListener('click',async()=>{
   $('start').disabled=true;
   try {
-    const response=await fetch('/api/reconstruction/start',{method:'POST',headers:{'Content-Type':'application/json','X-Tron-Token':token},body:JSON.stringify({device:$('device').value})});
+    const response=await fetch('/api/reconstruction/start',{method:'POST',headers:{'Content-Type':'application/json','X-Tron-Token':token},body:JSON.stringify({device:$('device').value,experiment:$('experiment').value})});
     const data=await response.json();if(!response.ok)throw new Error(data.error);
     await poll();
   }catch(error){$('status').textContent=error.message;$('start').disabled=false;}

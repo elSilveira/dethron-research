@@ -7,6 +7,7 @@ from urllib.parse import urlsplit
 
 STATIC = Path(__file__).resolve().parent / "static"
 ASSETS = {"/reconstruction": ("reconstruction.html", "text/html"),
+          "/reconstruction.document.mjs": ("reconstruction.document.mjs", "text/javascript"),
           "/reconstruction.mjs": ("reconstruction.mjs", "text/javascript"),
           "/reconstruction.css": ("reconstruction.css", "text/css"),
           "/": ("index.html", "text/html"),
@@ -87,7 +88,7 @@ def create_server(manager, port=8765):
                 if not isinstance(data, dict):
                     raise ValueError("Expected a JSON object")
                 if self.path == "/api/reconstruction/start":
-                    return self.reply(202, reconstruction.start(data.get("device", "cuda")))
+                    return self.reply(202, reconstruction.start(data.get("device", "cuda"), data.get("experiment", "routes")))
                 if self.path == "/api/start":
                     return self.reply(202, manager.start(data.get("cycles", 3), data.get("delay_ms", 250)))
                 if self.path == "/api/stop":
