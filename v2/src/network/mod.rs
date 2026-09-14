@@ -17,4 +17,5 @@ pub trait Worker: Send {
 }
 
 mod outcome;
+pub mod reconstruction;
 pub mod replica;
