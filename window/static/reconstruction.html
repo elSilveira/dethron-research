@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRON Window · Reconstrução por DNA</title>
+<link rel="stylesheet" href="/reconstruction.css"><script type="module" src="/reconstruction.mjs"></script></head>
+<body>
+<header><a href="/">TRON <span>Window</span></a><span>Laboratório local · v2</span></header>
+<main>
+<p class="eyebrow">PERSISTÊNCIA → RECONSTRUÇÃO FUNCIONAL</p>
+<h1>O que sobrevive quando uma rota desaparece?</h1>
+<p class="intro">Observe o DNA reconstruir uma conclusão e compare com a escolha de um modelo real. Cada execução cria um objeto novo e remove evidências de forma controlada.</p>
+<section class="controls"><label>Processamento <select id="device"><option value="cuda">GPU local (CUDA)</option><option value="cpu">CPU local</option></select></label>
+<button id="start" disabled>Executar com modelo real</button><a id="download" hidden href="/api/reconstruction/report">Baixar evidências JSON ↗</a>
+<p id="status" role="status" aria-live="polite">Conectando ao window…</p></section>
+<section class="metrics"><article><span>Reconstrução DNA</span><strong id="dna-score">—</strong><small>Conclusão ou abstenção esperada</small></article>
+<article><span>Escolha bruta do modelo</span><strong id="model-score">—</strong><small>Erros permanecem visíveis</small></article>
+<article><span>Execução</span><strong id="progress">0 / 4</strong><small id="identity">Nenhum worker carregado</small></article></section>
+<div class="explanation"><strong>Como ler a prova</strong><p>Linhas mostram os fatos realmente enviados. O DNA calcula a conclusão sem resposta salva. O modelo escolhe entre Amber, Violet e UNKNOWN; a saída protegida só aceita sua escolha quando sustentada pelo DNA.</p></div>
+<section id="cases" aria-label="Cenários de perda de evidências"></section>
+<details><summary>Identidade do modelo e evidências da execução</summary><pre id="evidence">Aguardando execução.</pre></details>
+<footer>Fatos controlados, inferência real. Este teste não mede prosa livre, verdade externa, energia ou distribuição entre máquinas. Carregamento pode levar alguns minutos; execução tem prazo de 5 minutos após o build. Fechar a aba não cancela o teste.</footer>
+</main></body></html>

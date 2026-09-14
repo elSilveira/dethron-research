@@ -6,7 +6,10 @@ import secrets
 from urllib.parse import urlsplit
 
 STATIC = Path(__file__).resolve().parent / "static"
-ASSETS = {"/": ("index.html", "text/html"),
+ASSETS = {"/reconstruction": ("reconstruction.html", "text/html"),
+          "/reconstruction.mjs": ("reconstruction.mjs", "text/javascript"),
+          "/reconstruction.css": ("reconstruction.css", "text/css"),
+          "/": ("index.html", "text/html"),
           "/style.css": ("style.css", "text/css"),
           "/app.mjs": ("app.mjs", "text/javascript"),
           "/model.mjs": ("model.mjs", "text/javascript"),
@@ -14,6 +17,8 @@ ASSETS = {"/": ("index.html", "text/html"),
 
 
 def create_server(manager, port=8765):
+    from reconstruction_dashboard import ReconstructionManager
+    reconstruction = ReconstructionManager()
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
             super().setup()
@@ -45,6 +50,13 @@ def create_server(manager, port=8765):
             if not self.local():
                 return self.reply(403, {"error": "Local requests only"})
             path = urlsplit(self.path).path
+            if path == "/api/reconstruction/state":
+                return self.reply(200, dict(reconstruction.snapshot(), token=self.server.token))
+            if path == "/api/reconstruction/report":
+                state = reconstruction.snapshot()
+                if state["status"] != "completed":
+                    return self.reply(409, {"error": "No completed reconstruction report"})
+                return self.reply(200, state["report"], attachment="reconstruction-report.json")
             if path == "/api/state":
                 return self.reply(200, dict(manager.snapshot(), token=self.server.token))
             if path in ("/api/report", "/api/events"):
@@ -74,6 +86,8 @@ def create_server(manager, port=8765):
                 data = json.loads(self.rfile.read(size))
                 if not isinstance(data, dict):
                     raise ValueError("Expected a JSON object")
+                if self.path == "/api/reconstruction/start":
+                    return self.reply(202, reconstruction.start(data.get("device", "cuda")))
                 if self.path == "/api/start":
                     return self.reply(202, manager.start(data.get("cycles", 3), data.get("delay_ms", 250)))
                 if self.path == "/api/stop":

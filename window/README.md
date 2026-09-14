@@ -1,5 +1,9 @@
 # TRON Window
 
+Reconstrução DNA com modelo local e evidência visual: abra `/reconstruction`
+no dashboard. Consulte [RECONSTRUCTION_VISUAL.md](RECONSTRUCTION_VISUAL.md)
+para execução, resultados observados e limites da prova.
+
 The reusable worker network and evidence-validation runtime now live in `v2`;
 this directory retains workloads, probes, backend adapter, and dashboard.
 See [CORE_INTEGRATION.md](CORE_INTEGRATION.md) for the integration boundary.
