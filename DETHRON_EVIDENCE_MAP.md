@@ -115,6 +115,13 @@ foram adicionados; corpos históricos não foram reescritos como especificação
 
 ## Código histórico de gateway examinado estaticamente
 
+Os caminhos desta seção e o plano Genesis Gateway citado acima apontam para
+instantâneos históricos (`backup/`, `bkp-dethron/`, `Genesis-Protocol/`) que ficam
+**fora do repositório** por decisão registrada no `.gitignore` raiz: são cópias
+locais de código antigo, não parte da árvore reproduzível. Num clone limpo esses
+links não resolvem; a análise abaixo é documental e não é pré-requisito de G0–V1.
+
+
 - [Extensão P2P](backup/bitnet_extension/bitnet-p2p-gateway.js): DHT devolve lista
   vazia; descoberta WebRTC não estabelece troca de dados; envio contém logs.
 - [Genesis Gateway Service](bkp-dethron/Dethron/services/genesis_gateway_service.py):

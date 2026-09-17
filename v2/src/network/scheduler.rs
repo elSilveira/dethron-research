@@ -115,6 +115,10 @@ fn execute(
                         &output,
                         task.candidates.is_empty(),
                     );
+                    if job.packet.get("evidence_status").is_some() {
+                        record["decision"] =
+                            quality::decision(&job.packet, &record["assessment"], &output);
+                    }
                 }
                 Err(error) => {
                     record["status"] = json!("failed");

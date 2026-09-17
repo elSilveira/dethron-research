@@ -1,5 +1,9 @@
 # Documento maior: o que o teste permite concluir
 
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** Estudo de modelo/avaliação com escopo secundário. Seus resultados não demonstram conectividade mesh, autonomia da internet ou sobrevivência global. Preservar datas e limites dos experimentos abaixo. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
 O Window agora inclui **Documento · geração e citações** em `/reconstruction`.
 O texto é um manual controlado em inglês de 493 palavras, dez seções e 572 tokens
 antes das instruções. Há oito casos e duas gerações por caso: texto inteiro e

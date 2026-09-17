@@ -1,5 +1,9 @@
 # Confiança no harness: integridade primeiro, capacidade depois
 
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** Estudo de modelo/avaliação com escopo secundário. Seus resultados não demonstram conectividade mesh, autonomia da internet ou sobrevivência global. Preservar datas e limites dos experimentos abaixo. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
 O harness é útil como diagnóstico de desenvolvimento. Para sustentar alegações
 de capacidade, precisa passar por duas verificações separadas: o placar precisa
 estar correto, e o experimento precisa representar o uso pretendido.

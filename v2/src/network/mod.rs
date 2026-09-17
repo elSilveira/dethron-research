@@ -17,6 +17,13 @@ pub trait Worker: Send {
 }
 
 pub mod atomic;
+pub mod node_control;
+pub mod node_store;
+pub mod node_wire;
 mod outcome;
+pub mod recipe;
 pub mod reconstruction;
+pub mod recovery_dna;
+pub mod recovery_plan;
+pub mod regeneration;
 pub mod replica;

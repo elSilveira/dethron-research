@@ -1,5 +1,9 @@
 # Prova visual com modelo local
 
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** Estudo de modelo/avaliação com escopo secundário. Seus resultados não demonstram conectividade mesh, autonomia da internet ou sobrevivência global. Preservar datas e limites dos experimentos abaixo. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
 Inicie `python app.py` no window e abra `/reconstruction`, também acessível
 pelo link na barra lateral do dashboard original. Se usar outra porta, mantenha
 o mesmo caminho. Clique em **Executar com modelo real** e selecione CUDA ou CPU.

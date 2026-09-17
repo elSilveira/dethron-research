@@ -6,7 +6,10 @@ import secrets
 from urllib.parse import urlsplit
 
 STATIC = Path(__file__).resolve().parent / "static"
-ASSETS = {"/reconstruction": ("reconstruction.html", "text/html"),
+ASSETS = {"/survival": ("survival.html", "text/html"),
+          "/survival.mjs": ("survival.mjs", "text/javascript"),
+          "/survival.css": ("survival.css", "text/css"),
+          "/reconstruction": ("reconstruction.html", "text/html"),
           "/reconstruction.document.mjs": ("reconstruction.document.mjs", "text/javascript"),
           "/reconstruction.mjs": ("reconstruction.mjs", "text/javascript"),
           "/reconstruction.css": ("reconstruction.css", "text/css"),
@@ -20,6 +23,8 @@ ASSETS = {"/reconstruction": ("reconstruction.html", "text/html"),
 def create_server(manager, port=8765):
     from reconstruction_dashboard import ReconstructionManager
     reconstruction = ReconstructionManager()
+    from survival_dashboard import SurvivalManager
+    survival = SurvivalManager()
     class Handler(BaseHTTPRequestHandler):
         def setup(self):
             super().setup()
@@ -51,6 +56,13 @@ def create_server(manager, port=8765):
             if not self.local():
                 return self.reply(403, {"error": "Local requests only"})
             path = urlsplit(self.path).path
+            if path == "/api/survival/state":
+                return self.reply(200, dict(survival.snapshot(), token=self.server.token))
+            if path == "/api/survival/report":
+                state = survival.snapshot()
+                if state["status"] != "completed":
+                    return self.reply(409, {"error": "No completed survival report"})
+                return self.reply(200, state["report"], attachment="survival-report.json")
             if path == "/api/reconstruction/state":
                 return self.reply(200, dict(reconstruction.snapshot(), token=self.server.token))
             if path == "/api/reconstruction/report":
@@ -87,6 +99,10 @@ def create_server(manager, port=8765):
                 data = json.loads(self.rfile.read(size))
                 if not isinstance(data, dict):
                     raise ValueError("Expected a JSON object")
+                if self.path == "/api/survival/start":
+                    return self.reply(202, survival.start(data.get("runs", 3)))
+                if self.path == "/api/survival/stop":
+                    return self.reply(202, survival.stop())
                 if self.path == "/api/reconstruction/start":
                     return self.reply(202, reconstruction.start(data.get("device", "cuda"), data.get("experiment", "routes")))
                 if self.path == "/api/start":
@@ -104,6 +120,10 @@ def create_server(manager, port=8765):
         def log_message(self, *args):
             pass
 
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
+    class LocalServer(ThreadingHTTPServer):
+        def server_close(self):
+            survival.close()
+            super().server_close()
+    server = LocalServer(("127.0.0.1", port), Handler)
     server.token = secrets.token_hex(32)
     return server

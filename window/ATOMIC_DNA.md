@@ -1,5 +1,9 @@
 # Unidades menores de DNA: implementação e resultado
 
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** Estudo de modelo/avaliação com escopo secundário. Seus resultados não demonstram conectividade mesh, autonomia da internet ou sobrevivência global. Preservar datas e limites dos experimentos abaixo. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
 O v2 oferece `network::atomic::AtomicDna`. Cada unidade contém uma relação
 anotada, sua fonte, contexto, revisão e revogação. Seu hash inclui esses campos.
 Receitas referenciam unidades; um fato compartilhado é armazenado uma única vez.

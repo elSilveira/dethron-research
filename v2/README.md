@@ -1,9 +1,29 @@
 # TRON v2 prototype
 
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** A direção principal é a rede de mensagens recuperáveis entre gateways participantes. Antes de ampliar a implementação, seguir os critérios de utilidade, autonomia e comparação consolidados. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
 A Rust experiment in bounded strategy selection, inherited memoized knowledge,
 private audit commitments, encrypted snapshots, and ternary payload encoding.
 It runs integer factorization on classical hardware. It does not implement
 distributed language-model inference, source-code synthesis, or quantum computing.
+
+`v2` is the active implementation target. Other repository trees and root-level
+planning/scorer experiments provide historical reference; their results must not
+be attributed to this Rust implementation.
+
+Connected encrypted source-DNA recovery is documented in
+[CONNECTED_RECOVERY.md](CONNECTED_RECOVERY.md). It rebuilds task plans from
+verified linked units and surviving replicas before evidence selection/inference.
+
+Tasks may opt into [explicit evidence sufficiency](EVIDENCE_STATUS.md) with
+`{{evidence_status}}`. This connects recovered DNA to abstention guidance while
+preserving raw model answers and independent post-inference acceptance.
+
+Repeated DNA and memory evaluation is documented in
+[MEMORY_EVALUATION.md](MEMORY_EVALUATION.md). Its runner executes 10, 100 and 1,000
+fresh trials against the actual v2 APIs and records missing capabilities separately.
 
 From this directory, with Rust 1.89 or later and the locked dependencies cached:
 
@@ -90,3 +110,11 @@ Completed records survive process restart; uncertain in-flight tasks fail closed
 and retain their reserved cost. See [persistence probes](../window/PERSISTENCE.md)
 for configuration, tested guarantees, rollback limits, and key requirements.
 This journal is separate from the original Tron snapshot API.
+
+## Recipe replay and survivor regeneration
+
+Versioned recipes now reconstruct byte objects from connected encrypted inputs,
+verifying every intermediate state. A local regeneration experiment passed 20/20
+trials of one genesis expanding to 100 stores, then five survivors rebuilding 100.
+This uses full replication and an externally retained root and key; it does not
+yet implement autonomous distributed expansion. See [scope and results](SURVIVAL.md).

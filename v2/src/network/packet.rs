@@ -51,21 +51,30 @@ impl Task {
             })
             .collect();
         let dna = quality::inherit(self.dna.as_ref(), &parents)?;
-        let packet = json!({"schema":2,"id":self.id,"context":self.context,
+        let mut packet = json!({"schema":2,"id":self.id,"context":self.context,
             "revision":self.revision,"parents":parents,"instruction":self.prompt,
             "dna":dna.as_ref().map(Dna::value)});
+        let mut task_prompt = self.prompt.clone();
+        if task_prompt.contains("{{evidence_status}}") {
+            let dna = dna
+                .as_ref()
+                .ok_or("Evidence status requires structured DNA")?;
+            let (status, instruction) = quality::evidence_status(dna, &self.context, self.revision);
+            packet["evidence_status"] = status;
+            task_prompt = task_prompt.replace("{{evidence_status}}", &instruction);
+        }
         if packet.to_string().len() > limit {
             return Err("Context packet exceeds byte limit; no truncation".into());
         }
         let instruction = if let Some(dna) = &dna {
             let evidence = quality::evidence(dna, &self.context, self.revision);
-            if self.prompt.contains("{{evidence}}") {
-                self.prompt.replace("{{evidence}}", &evidence)
+            if task_prompt.contains("{{evidence}}") {
+                task_prompt.replace("{{evidence}}", &evidence)
             } else {
-                format!("Source evidence:\n{evidence}\n\n{}", self.prompt)
+                format!("Source evidence:\n{evidence}\n\n{task_prompt}")
             }
         } else {
-            self.prompt.clone()
+            task_prompt
         };
         let prompt = if parents.is_empty() {
             instruction
