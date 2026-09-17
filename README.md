@@ -75,6 +75,8 @@ Armazenamento eficiente e computação compartilhada são objetivos adicionais.
 - [V1 — recibo de volta](window/V1_RECEIPT_RETURN.md): a prova de saída chega à
   origem por qualquer relé, sem origem e destino online ao mesmo tempo; pendência
   de prova visível quando o relé visitado não a tem.
+- [V2 — reprodução por estranho](window/V2_REPRODUCTION.md): roteiro, pré-requisitos,
+  executor único e resultados esperados para reproduzir G0–V1 a partir do clone.
 
 Comandos de reprodução já disponíveis, na raiz:
 

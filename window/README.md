@@ -1,5 +1,8 @@
 # TRON Window
 
+V2 preparado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com
+`run_v2_reproduction.py` como executor único; aguarda outra pessoa em outra máquina.
+
 V1 executado: [custódia, prova de entrada e pendência](V1_CUSTODY.md) e
 [recibo de volta a uma origem que nunca esteve online com o destino](V1_RECEIPT_RETURN.md).
 

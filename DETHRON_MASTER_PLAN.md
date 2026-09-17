@@ -558,8 +558,12 @@ Toda decisão deve indicar qual hipótese foi afetada e quais componentes contin
 e [recibo de volta a uma origem que nunca esteve online com o destino](window/V1_RECEIPT_RETURN.md).
 A lacuna registrada em todos os marcos — o recibo não retornava à origem offline —
 está fechada no escopo de laboratório. Próxima fatia: **V2, reprodução por
-estranho**. Ainda não foi demonstrada vantagem própria do Dethron, e a versão 7
-deixa de exigir isso para continuar.
+estranho**, com [roteiro, pré-requisitos e resultados esperados](window/V2_REPRODUCTION.md)
+e o executor `window/run_v2_reproduction.py`. Em 17/09/2026 o repositório passou a
+ser clonável: um clone limpo nesta máquina reproduziu a suíte rápida, e os oito
+caminhos reais passaram na árvore commitada; a execução por outra pessoa em outra
+máquina ainda não aconteceu. Ainda não foi demonstrada vantagem própria do
+Dethron, e a versão 7 deixa de exigir isso para continuar.
 Os critérios usados para concluir G0 foram:
 
 1. Especificação curta do serviço, limites e perfil de contatos.
