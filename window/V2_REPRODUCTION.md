@@ -116,7 +116,10 @@ Reticulum/LXMF de verdade em `127.0.0.1`, grava um diretório em
 | `test_v1_return_reference.py` | `v1_return_scoped_pass` | 332 s |
 
 Cada linha deve terminar com `PASS` e a última linha deve ser
-`V2 PASS - summary: ...`. Os tempos de referência foram medidos na máquina de
+`V2 PASS - summary: ...`. **Nenhuma janela de console deve abrir** durante a
+execução; os processos dos experimentos rodam ocultos. Se janelas piscarem,
+anote quando e relate — isso aconteceu na máquina de origem antes de uma correção
+e é um dado útil. Os tempos de referência foram medidos na máquina de
 origem; **até o dobro** é normal em máquina mais lenta. Um caminho que passe do
 triplo do tempo de referência ou trave por mais de 15 minutos sem imprimir nada
 deve ser interrompido com `Ctrl+C` e relatado.

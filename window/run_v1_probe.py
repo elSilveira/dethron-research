@@ -10,7 +10,7 @@ import sys
 import time
 import traceback
 
-from g3_process import alive
+from g3_process import QUIET, alive
 from v1_audit import EXPECTED, audit
 from v1_scenario import PROFILE, run_case
 
@@ -21,7 +21,7 @@ def sweep(root):
         pid = json.loads(handle.read_text())['pid']
         if alive(pid):
             subprocess.run(['taskkill', '/F', '/PID', str(pid)] if os.name == 'nt'
-                           else ['kill', '-9', str(pid)], capture_output=True)
+                           else ['kill', '-9', str(pid)], capture_output=True, creationflags=QUIET)
             killed.append(pid)
     return killed
 

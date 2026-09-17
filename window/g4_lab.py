@@ -6,7 +6,7 @@ import subprocess
 import sys
 import time
 
-from g3_process import Daemon, alive
+from g3_process import QUIET, Daemon, alive
 from g4_contract import bridge_command, config_text, isolated
 from g4_sockets import endpoints
 
@@ -109,7 +109,7 @@ class Lab:
         for pid in self.bridge_pids():
             if alive(pid):
                 subprocess.run(['taskkill', '/F', '/PID', str(pid)] if os.name == 'nt'
-                               else ['kill', '-9', str(pid)], capture_output=True)
+                               else ['kill', '-9', str(pid)], capture_output=True, creationflags=QUIET)
                 stopped.append(pid)
         if stopped:
             self.record('bridges_reaped', pids=stopped)

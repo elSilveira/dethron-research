@@ -2,6 +2,8 @@
 import os
 import subprocess
 
+QUIET = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+
 
 class Unavailable(RuntimeError):
     """The evidence tool fails loudly; a silent empty answer would fake the proof."""
@@ -12,7 +14,7 @@ def endpoints(pids):
     wanted = {int(pid) for pid in pids}
     if os.name != 'nt':
         raise Unavailable('endpoint evidence is only implemented for Windows netstat')
-    probe = subprocess.run(['netstat', '-ano'], capture_output=True, text=True)
+    probe = subprocess.run(['netstat', '-ano'], capture_output=True, text=True, creationflags=QUIET)
     if probe.returncode != 0 or 'TCP' not in probe.stdout:
         raise Unavailable(f'netstat produced no usable output: {probe.returncode}')
     rows = []

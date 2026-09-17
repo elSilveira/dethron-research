@@ -11,7 +11,7 @@ import time
 import traceback
 
 from g3_audit import audit
-from g3_process import alive
+from g3_process import QUIET, alive
 
 PHASES = ('seed', '1', '2', 'deliver')
 
@@ -33,7 +33,7 @@ def sweep(root):
         pid = json.loads(handle.read_text())['pid']
         if alive(pid):
             subprocess.run(['taskkill', '/F', '/PID', str(pid)] if os.name == 'nt'
-                           else ['kill', '-9', str(pid)], capture_output=True)
+                           else ['kill', '-9', str(pid)], capture_output=True, creationflags=QUIET)
             stopped.append(pid)
     return stopped
 

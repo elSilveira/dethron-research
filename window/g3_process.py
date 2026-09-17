@@ -9,7 +9,10 @@ import time
 
 from gateway_contract import config_text
 
-DETACHED = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0
+# A node gets its own hidden console: it outlives its supervisor, and console programs it spawns
+# (Reticulum's pipe bridges) inherit that console instead of opening a visible window each.
+HIDDEN = (subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP) if os.name == 'nt' else 0
+QUIET = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
 LIVENESS_SECONDS = 2  # a liveness probe costs a subprocess; do not run one every poll
 
 
@@ -22,7 +25,7 @@ def lines(path):
 def alive(pid):
     if os.name == 'nt':
         probe = subprocess.run(['tasklist', '/FI', f'PID eq {pid}', '/NH', '/FO', 'CSV'],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, creationflags=QUIET)
         return f'"{pid}"' in probe.stdout
     try:
         os.kill(pid, 0)
@@ -62,7 +65,7 @@ class Daemon:
              (self.home/'stderr.log').open('w', encoding='utf-8') as err:
             process = subprocess.Popen([sys.executable, script, str(self.home), self.name],
                                        stdin=subprocess.DEVNULL, stdout=out, stderr=err,
-                                       creationflags=DETACHED, close_fds=True,
+                                       creationflags=HIDDEN, close_fds=True,
                                        start_new_session=os.name != 'nt')
         self.process = process  # detached on purpose; hold it so finalization stays quiet
         self.pid, self.launcher = process.pid, process.pid
@@ -142,4 +145,4 @@ class Daemon:
             time.sleep(.25)
         for pid in {self.pid, self.launcher} - {None}:
             subprocess.run(['taskkill', '/F', '/PID', str(pid)] if os.name == 'nt'
-                           else ['kill', '-9', str(pid)], capture_output=True)
+                           else ['kill', '-9', str(pid)], capture_output=True, creationflags=QUIET)
