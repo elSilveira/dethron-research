@@ -146,6 +146,18 @@ Os documentos em `window/*.md` apontam para diretórios `results/…` da máquin
 original; esses links **não existem no seu clone** até você rodar o passo 4, e
 mesmo então terão outros nomes. Isso é esperado e está declarado neles.
 
+## Se algo falhar
+
+Rode, na mesma pasta:
+
+```powershell
+window\.venv-gateway\Scripts\python.exe window\v2_diagnose.py
+```
+
+Ele grava um arquivo de texto com o ambiente, o nome e o traceback de cada teste
+que falhou, e o erro registrado no experimento que não passou. O caminho aparece
+na última linha. Envie esse arquivo: ele costuma bastar para o diagnóstico.
+
 ## O que enviar de volta
 
 1. O arquivo `window\results\v2-...\summary.json` (o caminho aparece na última
