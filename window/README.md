@@ -1,5 +1,33 @@
 # TRON Window
 
+V1 executado: [custódia, prova de entrada e pendência](V1_CUSTODY.md) e
+[recibo de volta a uma origem que nunca esteve online com o destino](V1_RECEIPT_RETURN.md).
+
+G4 executado: [entrega sem a pilha IP, cortes e limites](G4_INDEPENDENCE.md).
+
+G3 executado: [gerações de nós e supervisores, controles e limites](G3_GENERATIONS.md).
+
+G2 encerrado: [partes complementares, comparação ampliada e limites](G2_PARTS.md).
+
+G1 validado no laboratório: [caixa persistente, recibos, controles e avaliação
+antes de avançar](G1_INTEGRATION.md).
+
+G0 executado com Reticulum/LXMF real: [requisito, resultados, reprodução e
+decisão de arquitetura](G0_REFERENCE.md). Mensagens completas sobreviveram ao
+crash dos propagadores; a primeira composição de partes foi executada em G2.
+
+<!-- dethron-doc-context-20260915 -->
+> **Contexto atualizado - 15/09/2026.** A direção principal é a rede de mensagens recuperáveis entre gateways participantes. Antes de ampliar a implementação, seguir os critérios de utilidade, autonomia e comparação consolidados. [Índice atual](../README.md) - [Plano de decisão](../DETHRON_VALIDATION_PLAN.md) - [Evidências](../DETHRON_EVIDENCE_MAP.md).
+<!-- /dethron-doc-context-20260915 -->
+
+Utilidade, diferenciação e comparação de respostas em quatro modos:
+`python window/run_comparison.py` a partir da raiz do repositório.
+Veja [direção, protocolo e próximos passos](RESPONSE_COMPARISON.md).
+
+Sobrevivência com **20 processos reais**, armazenamento persistente e reparo por
+TCP local: abra `/survival` ou execute `python window/run_survival.py --runs 3`
+a partir da raiz do repositório. Veja [validação ponto a ponto](PROCESS_SURVIVAL.md).
+
 Experimento de unidades menores de evidência no v2: `python run_atomic.py`.
 Veja [ATOMIC_DNA.md](ATOMIC_DNA.md) para o resultado real e seus limites.
 

@@ -1,0 +1,7 @@
+cffi==2.1.1
+cryptography==50.0.1
+lxmf==1.1.1
+pycparser==3.0
+pyserial==3.5
+rns==1.5.4
+typing_extensions==4.16.0

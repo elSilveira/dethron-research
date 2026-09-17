@@ -3,5 +3,6 @@ results/
 __pycache__/
 *.pyc
 .venv-neural/
+.venv-gateway/
 .cache/
 private/

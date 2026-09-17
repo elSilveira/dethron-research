@@ -1,0 +1,35 @@
+# Caches and compiled artifacts
+__pycache__/
+*.pyc
+*.pyo
+target/
+
+# Virtual environments
+.venv*/
+venv*/
+
+# Experiment artifacts: contain disposable lab keys and are reproduced by the probes
+window/results/
+window/private/
+window/.cache/
+
+# Session transcripts and personal notes
+codex-session-*.md
+1.md
+
+# Historical snapshots kept locally, not part of the reproducible tree
+backup/
+bkp-dethron/
+Deepthron/
+Genesis-Lib/
+Genesis-Protocol/
+Genesis-CLI/
+Genesis-SDK/
+genesis-protocol-unveiled-page/
+
+# Editor and OS noise
+.pytest_cache/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

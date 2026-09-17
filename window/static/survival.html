@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TRON Window · Sobrevivência real</title>
+<link rel="stylesheet" href="/reconstruction.css"><link rel="stylesheet" href="/survival.css">
+<script type="module" src="/survival.mjs"></script></head>
+<body>
+<header><a href="/">TRON <span>Window</span></a><a href="/reconstruction">Probes de respostas do modelo →</a></header>
+<main>
+<p class="eyebrow">V2 · PROCESSOS INDEPENDENTES · DADOS NO DISCO</p>
+<h1>O que 5% da rede consegue reconstruir?</h1>
+<p class="intro">Um gênesis, vinte serviços locais e uma perda real de dezenove processos. O supervisor observa os serviços, cria substitutos e verifica o objeto reconstruído em cada destino.</p>
+<section class="controls">
+<label>Execuções <select id="runs"><option value="1">1 · inspecionar uma execução</option><option value="3" selected>3 · variar gênesis e sobrevivente</option><option value="10">10 · repetir a validação</option></select></label>
+<button id="start" disabled>Executar probe real</button><button id="stop" disabled>Parar e preservar evidências</button>
+<a id="download" hidden href="/api/survival/report">Baixar relatório público JSON ↓</a>
+<p id="status" role="status" aria-live="polite">Conectando ao Window…</p>
+</section>
+<section class="metrics">
+<article><span>Execuções auditadas</span><strong id="passed">—</strong><small>Verificadas a partir dos eventos e hashes</small></article>
+<article><span>Sobrevivência observada</span><strong id="survivors">—</strong><small>Um serviço completo entre vinte</small></article>
+<article><span>Detecção + reposição</span><strong id="repair-time">—</strong><small>Tempo medido do ciclo do supervisor</small></article>
+</section>
+<section class="explanation"><strong>Onde estamos</strong>
+<p>Antes: nós representados por estruturas em memória. Agora: processos com PID próprio, comunicação TCP local, identidade persistente e conteúdo cifrado no disco. O reparo só termina após ler e verificar cada substituto.</p>
+<p><strong>Por que 5% basta aqui:</strong> cada nó guarda uma cópia completa dos dados necessários. A chave e a referência inicial ficam com o controlador. Os hashes conferem o resultado; os dados sobreviventes permitem reconstruí-lo.</p>
+<p>Este probe mede armazenamento e reconstrução exata de um objeto pequeno. Não executa inferência neural, não testa máquinas diferentes nem expansão ilimitada. A receita tem três operações fixas; elas não representam aprendizado.</p>
+</section>
+<section class="explorer">
+<aside><label>Execução inspecionada <select id="trial"><option value="0">Execução 1</option></select></label>
+<h2>Validação ponto a ponto</h2><nav id="steps" aria-label="Etapas medidas"></nav></aside>
+<article class="detail">
+<p class="eyebrow" id="step-number">AGUARDANDO EVIDÊNCIAS</p><h2 id="step-title">Nenhuma etapa executada</h2>
+<p id="explanation">Inicie o probe. Os resultados aparecem quando cada operação termina.</p>
+<label id="node-phase-control" hidden>Observação dos serviços <select id="node-phase"><option value="after">Depois do reparo verificado</option><option value="before">Antes do reparo · consulta de disponibilidade</option></select></label>
+<div id="nodes" aria-label="Observações registradas dos processos"></div>
+<div id="facts"></div>
+<section id="object-panel" hidden><h3>Objeto efetivamente reconstruído</h3><pre id="object"></pre><p class="proof" id="hash"></p></section>
+<details><summary>Dados brutos desta etapa</summary><pre id="raw">Nenhum evento.</pre></details>
+</article>
+</section>
+<footer>O probe cria apenas processos e diretórios próprios. Ao terminar, encerra seus serviços; a tela mantém as observações registradas, não um monitor de serviços ainda ativos. Os testes negativos finais retiram uma unidade de todos os nós para demonstrar a falha correta. Os arquivos continuam disponíveis para auditoria. Chaves locais não entram no relatório público. Prazo total: 10 minutos, com cancelamento e preservação dos eventos parciais.</footer>
+</main></body></html>
