@@ -30,6 +30,9 @@ EXPECTED = {
     'test_v1_reference.py': 'v1_custody_scoped_pass',
     'test_v1_return_reference.py': 'v1_return_scoped_pass',
 }
+# Longest artifact path the probes create below the repository root (V1 return, 64-hex resource).
+ARTIFACT_SUFFIX = len(r'\window\results\gateway-v1-return-0000000000000000000\proof_pending\D\rns\storage\resources')+1+64
+WINDOWS_MAX_PATH = 260
 REFERENCE_SECONDS = {'test_gateway_reference.py': 208, 'test_g1_reference.py': 31, 'test_g2_reference.py': 185,
                      'test_g2_comparison_reference.py': 754, 'test_g3_reference.py': 432,
                      'test_g4_reference.py': 167, 'test_v1_reference.py': 213, 'test_v1_return_reference.py': 332}
@@ -43,19 +46,41 @@ def flag_of(test):
     return flags[0]
 
 
-def environment():
-    versions = {name: importlib.metadata.version(name) for name in PINNED}
+def long_paths_enabled():
+    """Windows only lifts the 260-character limit when this registry value is 1."""
+    try:
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SYSTEM\CurrentControlSet\Control\FileSystem') as key:
+            return winreg.QueryValueEx(key, 'LongPathsEnabled')[0] == 1
+    except Exception:
+        return False
+
+
+def path_problems(root, long_paths=None):
+    """A clone in a long path fails every real run with FileNotFoundError inside rns/storage."""
     problems = []
+    if any(ch.isspace() or ch in '"\'' for ch in str(root)):
+        problems.append(f'repository path must have no spaces or quotes: {root}')
+    longest = len(str(root))+ARTIFACT_SUFFIX
+    enabled = long_paths_enabled() if long_paths is None else long_paths
+    if os.name == 'nt' and longest >= WINDOWS_MAX_PATH and not enabled:
+        problems.append(f'repository path too long: artifacts would reach {longest} characters, '
+                        f'Windows allows {WINDOWS_MAX_PATH-1}; clone into a short path such as C:\\dethron')
+    return problems
+
+
+def environment(root=ROOT):
+    versions = {name: importlib.metadata.version(name) for name in PINNED}
+    problems = path_problems(root)
     if versions != PINNED:
         problems.append(f'pinned packages differ: {versions}')
     if sys.version_info[:2] != (3, 10):
         problems.append(f'python {platform.python_version()} is not 3.10.x (the only version exercised)')
-    if any(ch.isspace() or ch in '"\'' for ch in str(ROOT)):
-        problems.append(f'repository path must have no spaces or quotes: {ROOT}')
     if os.name != 'nt':
         problems.append('G4 endpoint evidence requires Windows netstat; other systems are untested')
     return {'python': platform.python_version(), 'platform': platform.platform(), 'packages': versions,
-            'root': str(ROOT), 'problems': problems}
+            'root': str(root), 'root_length': len(str(root)), 'longest_artifact_path': len(str(root))+ARTIFACT_SUFFIX,
+            'problems': problems}
 
 
 def unittest_run(pattern=None, env=None, timeout=3600):
@@ -114,6 +139,13 @@ def main(argv):
     out.mkdir(parents=True)
     summary = {'environment': environment(), 'fast': None, 'references': {}, 'started': time.time()}
     print('environment:', json.dumps(summary['environment']), flush=True)
+    if summary['environment']['problems']:
+        # Running would only produce eight timeouts; stop while the cause is still readable.
+        (out/'summary.json').write_text(json.dumps({**summary, 'verdict': 'v2_fail'}, indent=2))
+        for problem in summary['environment']['problems']:
+            print('PROBLEM:', problem, flush=True)
+        print(f"V2 FAIL - environment not acceptable; summary: {out/'summary.json'}", flush=True)
+        return 1
     summary['fast'] = fast_suite(no_survival)
     for name, row in summary['fast'].items():
         print(f"fast {name:22} ran={row['ran']} skipped={row['skipped']} {'PASS' if row['pass'] else 'FAIL'} {row['seconds']}s", flush=True)

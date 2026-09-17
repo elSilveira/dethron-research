@@ -23,7 +23,7 @@ uma cópia antiga deste projeto na máquina, use uma pasta nova.
 | Python | **3.10.x**, no PATH como `python` (foi executado com 3.10.11) | `python --version` |
 | Git | qualquer versão recente | `git --version` |
 | Rust (`cargo`) | **opcional**: só os 15 testes do *survival* precisam dele | `cargo --version`; sem ele, use `--no-survival` |
-| Caminho do clone | **sem espaços, aspas ou acentos**, por exemplo `C:\dethron` | A ponte do G4 recusa caminhos com espaço |
+| Caminho do clone | **curto (até 100 caracteres) e sem espaços, aspas ou acentos**, por exemplo `C:\dethron` | O Windows limita caminhos a 260 caracteres e os artefatos dos experimentos acrescentam cerca de 150; a ponte do G4 recusa espaços. O executor mede isso e para antes de rodar se o caminho for longo |
 | Rede | internet apenas para o `pip install`; os experimentos usam só `127.0.0.1` | O Firewall do Windows pode perguntar sobre `python.exe`: permitir |
 | Espaço | ~300 MB (ambiente virtual e artefatos) | — |
 
@@ -85,6 +85,13 @@ pode levar alguns minutos.
 
 Se **um único** teste falhar, repita o comando uma vez com a máquina ociosa. Se
 falhar de novo, é reprovação: relate a saída completa.
+
+A primeira linha impressa, `environment: {...}`, deve terminar com `"problems": []`.
+Se aparecer `PROBLEM: repository path too long`, o clone está num caminho longo
+demais: mova-o para algo como `C:\dethron` e recomece do passo 2. Esse caso foi
+observado na máquina de origem: um clone em caminho de 135 caracteres passou a
+suíte rápida e reprovou **os oito** experimentos reais com `inconclusive`, porque
+o Reticulum não conseguia gravar em `rns\storage`.
 
 ## Passo 4 — os oito caminhos de reprodução real
 

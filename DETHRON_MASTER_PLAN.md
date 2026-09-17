@@ -561,8 +561,12 @@ está fechada no escopo de laboratório. Próxima fatia: **V2, reprodução por
 estranho**, com [roteiro, pré-requisitos e resultados esperados](window/V2_REPRODUCTION.md)
 e o executor `window/run_v2_reproduction.py`. Em 17/09/2026 o repositório passou a
 ser clonável: um clone limpo nesta máquina reproduziu a suíte rápida, e os oito
-caminhos reais passaram na árvore commitada; a execução por outra pessoa em outra
-máquina ainda não aconteceu. Ainda não foi demonstrada vantagem própria do
+caminhos reais passaram na árvore commitada. O mesmo comando a partir de um clone
+em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
+caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor
+passou a medir o caminho e recusar antes de rodar, e o roteiro exige caminho curto
+— um pré-requisito que a árvore de trabalho jamais revelaria. A execução por outra
+pessoa em outra máquina ainda não aconteceu. Ainda não foi demonstrada vantagem própria do
 Dethron, e a versão 7 deixa de exigir isso para continuar.
 Os critérios usados para concluir G0 foram:
 
