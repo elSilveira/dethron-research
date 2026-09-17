@@ -6,7 +6,7 @@ import unittest
 WINDOW = Path(__file__).resolve().parents[1]
 import sys
 sys.path.insert(0, str(WINDOW))
-from run_v2_reproduction import (ARTIFACT_SUFFIX, EXPECTED, PINNED, REFERENCE_SECONDS,  # noqa: E402
+from run_v2_reproduction import (ARTIFACT_SUFFIX, EXPECTED, FAST_EXPECTED, PINNED, REFERENCE_SECONDS,  # noqa: E402
                                  WINDOWS_MAX_PATH, flag_of, path_problems)
 
 
@@ -35,6 +35,24 @@ class ExpectationTableTests(unittest.TestCase):
 
     def test_reference_durations_cover_every_test(self):
         self.assertEqual(set(REFERENCE_SECONDS), set(EXPECTED))
+
+
+class GuideConsistencyTests(unittest.TestCase):
+    """The stranger's guide must quote exactly what the runner expects."""
+
+    def setUp(self):
+        self.guide = (WINDOW/'V2_REPRODUCTION.md').read_text(encoding='utf-8')
+
+    def test_fast_suite_counts_in_the_guide_match_the_runner(self):
+        full, subset = FAST_EXPECTED['full'], FAST_EXPECTED['subset']
+        self.assertIn(f'ran={full[0]} skipped={full[1]} PASS', self.guide)
+        self.assertIn(f'ran={subset[0]} skipped={subset[1]} PASS', self.guide)
+        self.assertIn(f'{full[0]} e {full[1]}, ou {subset[0]} e {subset[1]}', self.guide)
+
+    def test_every_verdict_and_reference_time_is_in_the_guide(self):
+        for test, verdict in EXPECTED.items():
+            with self.subTest(test=test):
+                self.assertIn(f'| `{test}` | `{verdict}` | {REFERENCE_SECONDS[test]} s |', self.guide)
 
 
 class PathProblemTests(unittest.TestCase):

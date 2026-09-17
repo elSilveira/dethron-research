@@ -72,7 +72,7 @@ Sem Rust instalado, acrescente `--no-survival`.
 **Esperado, com Rust:**
 
 ```
-fast full                   ran=168 skipped=8 PASS
+fast full                   ran=173 skipped=8 PASS
 V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
 ```
 
@@ -126,7 +126,7 @@ deve ser interrompido com `Ctrl+C` e relatado.
 **Idêntico ao esperado, senão é reprovação:**
 
 - as oito strings de veredito e o `V2 PASS` final;
-- as contagens da suíte rápida: 168 e 8, ou 107 e 8 sem Rust;
+- as contagens da suíte rápida: 173 e 8, ou 107 e 8 sem Rust;
 - dentro de cada `report.json`, os resultados de cenário: quais completaram,
   as listas de pendência, a rota da prova, a presença da recusa, zero endpoints
   IP nos cenários isolados do G4 e pelo menos um na linha de base `ip`.
