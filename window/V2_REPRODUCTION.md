@@ -35,7 +35,7 @@ o atalho da Microsoft Store não serve para criar o ambiente virtual.
 Em PowerShell:
 
 ```powershell
-git clone <URL-DO-REPOSITORIO> C:\dethron
+git clone https://github.com/elSilveira/dethron.git C:\dethron
 cd C:\dethron
 git log --oneline -1
 ```
