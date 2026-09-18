@@ -77,6 +77,9 @@ Armazenamento eficiente e computação compartilhada são objetivos adicionais.
   de prova visível quando o relé visitado não a tem.
 - [V2 — reprodução por estranho](window/V2_REPRODUCTION.md): roteiro, pré-requisitos,
   executor único e resultados esperados para reproduzir G0–V1 a partir do clone.
+- [V3a — bancada multi-máquina](window/V3A_BENCH.md): cronograma pré-declarado,
+  encontro por instante sem canal vivo, janela surda e verificada, entrega entre
+  máquinas fisicamente distintas.
 
 Comandos de reprodução já disponíveis, na raiz:
 

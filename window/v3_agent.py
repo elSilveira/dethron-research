@@ -13,6 +13,8 @@ run where somebody steered a machine mid-window fails instead of passing quietly
 import hashlib
 import json
 from pathlib import Path
+import platform
+import socket
 import time
 
 from v3_schedule import digest, validate
@@ -40,6 +42,24 @@ class Agent:
         self.evidence = self.home/'evidence.jsonl'
         self.schedule, self.plan = None, None
 
+    def describe_host(self):
+        """What this machine is, so an audit can tell two machines from two folders.
+
+        Written once, before the window, because a claim about distinct machines that
+        rests on the operator's word is not evidence.
+        """
+        addresses = set()
+        try:
+            hostname = socket.gethostname()
+            for info in socket.getaddrinfo(hostname, None):
+                addresses.add(info[4][0])
+        except Exception:
+            hostname = None
+        facts = {'hostname': hostname, 'node': platform.node(), 'system': platform.platform(),
+                 'processor': platform.processor(), 'addresses': sorted(addresses)}
+        (self.home/'host.json').write_text(json.dumps(facts, indent=2), encoding='utf-8')
+        return facts
+
     def record(self, event, **values):
         row = {'event': event, 'machine': self.machine, 'wall': time.time(), **values}
         with self.evidence.open('a', encoding='utf-8') as stream:
@@ -61,7 +81,7 @@ class Agent:
             raise ValueError(f'{self.machine}: schedule does not match its declared digest')
         self.schedule = schedule
         self.record('loaded', digest=plan['digests'][self.machine], steps=len(schedule['steps']),
-                    window_seconds=schedule['window_seconds'])
+                    window_seconds=schedule['window_seconds'], host=self.describe_host())
         return schedule
 
     def wait_for_start(self, timeout=600):

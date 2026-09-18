@@ -81,13 +81,20 @@ def distinct_machines(root, manifest, reports):
     facts['reported_hosts'] = hosts
     if facts['loopback']:
         raise ValueError('the recipient reached the relay over loopback: this is a single host')
-    names = {json.dumps(one.get('hostname')) for one in hosts.values()}
-    if len(hosts) == len(reports) and len(names) == len(reports):
-        facts['evidenced'] = True
+    if len(hosts) != len(reports):
+        facts['evidenced'] = False
+        facts['reason'] = ('the agents did not record their host identity, so distinctness rests '
+                           'on the non-loopback address and on the operator, not on this evidence')
         return facts
-    facts['evidenced'] = False
-    facts['reason'] = ('the agents did not record their host identity, so distinctness rests on '
-                       'the non-loopback address and on the operator, not on this evidence')
+    names = {one.get('hostname') for one in hosts.values()}
+    if len(names) != len(reports):
+        raise ValueError(f'the machines report the same host identity: {sorted(names)}')
+    # The relay address must belong to the relay machine and to no other, which is what
+    # separates two machines from two folders on one.
+    owners = sorted(name for name, one in hosts.items() if host in (one.get('addresses') or []))
+    if owners != ['alpha']:
+        raise ValueError(f'the relay address {host} belongs to {owners or "no machine that reported"}')
+    facts.update(evidenced=True, hostnames=sorted(names), relay_owner='alpha')
     return facts
 
 

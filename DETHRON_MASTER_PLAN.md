@@ -576,7 +576,12 @@ teste que avisa quando a montante consertar. Depois das correções, a execuçã
 **passou** em 18/09/2026: veredito `v2_pass` em 58,0 minutos, oito caminhos com o
 veredito declarado e a suíte verde. **V2 está fechado** no escopo do seu critério —
 reprodução em máquina independente por quem não escreveu o código, seguindo apenas
-o documento; não por um estranho sem contato com o autor. Próxima fatia: V3. O mesmo
+o documento; não por um estranho sem contato com o autor. **V3a executado** em
+18/09/2026: [duas máquinas distintas](window/V3A_BENCH.md), janelas abertas com
+0,007 s de diferença sem canal vivo, canal de controle lacrado nas duas e objeto
+entregue e auditado. A ressalva de host único sai dos marcos anteriores quanto a
+processo e sistema de arquivos, não quanto a meio físico. Próxima fatia: V3b, com
+enlace serial não-IP. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor

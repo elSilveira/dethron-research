@@ -1,6 +1,9 @@
 # TRON Window
 
-V2 preparado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com
+V3a executado: [bancada em duas máquinas, janelas abertas com 7 ms de diferença
+sem canal vivo](V3A_BENCH.md).
+
+V2 aprovado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com
 `run_v2_reproduction.py` como executor único; aguarda outra pessoa em outra máquina.
 
 V1 executado: [custódia, prova de entrada e pendência](V1_CUSTODY.md) e
