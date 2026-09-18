@@ -140,8 +140,9 @@ não do experimento, e continua a ser reportado à montante; `dethron_gateway/lx
 reinstala o cálculo do próprio LXMF sem a divisão do log, e `test_lxmf_stamp.py`
 falha quando a montante corrigir, para que o contorno possa ser removido.
 
-Com o contorno, as **seis transferências passam na primeira tentativa** e nenhum
-nó deixa `stderr` não vazio — antes, quatro das seis precisavam de segunda
+Com o contorno, a segunda máquina passou o G3 em 663 s, e aqui as **seis
+transferências passam na primeira tentativa** sem nenhum
+nó deixando `stderr` não vazio — antes, quatro das seis precisavam de segunda
 tentativa e vários nós registravam o `traceback`. A espera por rota permaneceu,
 por razão própria: uma sincronização pedida antes de existir rota custa 12 minutos
 de adiamento no LXMF, o que nenhum prazo do G3 alcançaria. Os prazos, medidos só

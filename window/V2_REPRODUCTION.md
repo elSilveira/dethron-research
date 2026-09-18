@@ -116,7 +116,7 @@ Reticulum/LXMF de verdade em `127.0.0.1`, grava um diretório em
 | `test_g1_reference.py` | `meets_g1_lab_contract` | 31 s |
 | `test_g2_reference.py` | `meets_g2_scoped_contract` | 185 s |
 | `test_g2_comparison_reference.py` | `g2_scoped_pass` | 754 s |
-| `test_g3_reference.py` | `g3_scoped_pass` | 432 s |
+| `test_g3_reference.py` | `g3_scoped_pass` | 295 s |
 | `test_g4_reference.py` | `g4_scoped_pass` | 167 s |
 | `test_v1_reference.py` | `v1_custody_scoped_pass` | 213 s |
 | `test_v1_return_reference.py` | `v1_return_scoped_pass` | 332 s |
@@ -126,7 +126,9 @@ Cada linha deve terminar com `PASS` e a última linha deve ser
 execução; os processos dos experimentos rodam ocultos. Se janelas piscarem,
 anote quando e relate — isso aconteceu na máquina de origem antes de uma correção
 e é um dado útil. Os tempos de referência foram medidos na máquina de
-origem; **até o dobro** é normal em máquina mais lenta. Um caminho que passe do
+origem. Numa segunda máquina já validada, os mesmos caminhos levaram de 1,0 a
+2,3 vezes esses valores — o G3, por exemplo, 663 s contra 295 s. **Até o triplo**
+não indica problema. Um caminho que passe do
 triplo do tempo de referência ou trave por mais de 15 minutos sem imprimir nada
 deve ser interrompido com `Ctrl+C` e relatado.
 
@@ -151,6 +153,21 @@ deve ser interrompido com `Ctrl+C` e relatado.
 Os documentos em `window/*.md` apontam para diretórios `results/…` da máquina
 original; esses links **não existem no seu clone** até você rodar o passo 4, e
 mesmo então terão outros nomes. Isso é esperado e está declarado neles.
+
+## Primeira execução real, 17/09/2026
+
+A primeira execução deste roteiro numa segunda máquina **reprovou**, e vale
+registrar o que ela encontrou, porque é para isso que o marco existe:
+
+| O que falhou | Causa | Onde ficou a correção |
+| --- | --- | --- |
+| Dois testes da suíte | `cargo` ausente, e o executor exigia `--no-survival` manual | O executor detecta `cargo` sozinho |
+| G3, `inconclusive` | Defeito do LXMF 1.1.1: um carimbo válido descartado por `ZeroDivisionError` numa linha de log, matando em silêncio a chave de peering | [G3](G3_GENERATIONS.md) e `dethron_gateway/lxmf_stamp.py` |
+| Repetir o G3 pelo roteiro | A instrução usava `$env:` do PowerShell; no cmd a variável não é definida e o teste **se pula reportando `OK`** | `--only <marco>`, sem variável de ambiente |
+
+Os outros sete caminhos reproduziram com veredito idêntico na primeira tentativa.
+Depois das correções, o G3 também passou na segunda máquina, em 663 s. Falta a
+execução completa numa única passada para fechar o marco.
 
 ## Repetir um marco isolado
 

@@ -37,7 +37,7 @@ EXPECTED = {
 ARTIFACT_SUFFIX = len(r'\window\results\gateway-v1-return-0000000000000000000\proof_pending\D\rns\storage\resources')+1+64
 WINDOWS_MAX_PATH = 260
 REFERENCE_SECONDS = {'test_gateway_reference.py': 208, 'test_g1_reference.py': 31, 'test_g2_reference.py': 185,
-                     'test_g2_comparison_reference.py': 754, 'test_g3_reference.py': 432,
+                     'test_g2_comparison_reference.py': 754, 'test_g3_reference.py': 295,
                      'test_g4_reference.py': 167, 'test_v1_reference.py': 213, 'test_v1_return_reference.py': 332}
 
 

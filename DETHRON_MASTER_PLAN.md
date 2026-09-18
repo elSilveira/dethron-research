@@ -571,8 +571,9 @@ válido com `ZeroDivisionError` quando ele termina dentro de um tique do relógi
 matando em silêncio a *thread* que gera a chave de peering e adiando toda
 sincronização. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
 que passaram por sorte de temporização. Todos corrigidos ou contornados, com
-teste que avisa quando a montante consertar; a reexecução do G3 na segunda
-máquina é o que fecha o marco. O mesmo
+teste que avisa quando a montante consertar. Depois das correções, o G3 também
+reproduziu na segunda máquina: **os oito caminhos já reproduziram fora desta
+máquina**, ainda não numa única passada, que é o que fecha o marco. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor
