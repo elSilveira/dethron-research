@@ -1,7 +1,8 @@
 # TRON Window
 
 V3a executado: [bancada em duas máquinas, janelas abertas com 7 ms de diferença
-sem canal vivo](V3A_BENCH.md).
+sem canal vivo](V3A_BENCH.md). Para montar duas máquinas do zero:
+[preparação passo a passo](V3_SETUP.md).
 
 V2 aprovado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com
 `run_v2_reproduction.py` como executor único; aguarda outra pessoa em outra máquina.

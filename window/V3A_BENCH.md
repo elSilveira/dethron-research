@@ -113,6 +113,9 @@ operador hostil não poderia ter preparado a bancada de má-fé.
 
 ## Reprodução
 
+Preparar duas máquinas do zero: [V3_SETUP.md](V3_SETUP.md), com o teste de rede que
+separa firewall de bancada e a leitura do relatório.
+
 A partir da raiz, nas duas máquinas, com o ambiente fixado em
 [G0](G0_REFERENCE.md#reprodução). Na máquina do relé, descubra o IP local com
 `ipconfig` e use uma pasta **nova** a cada rodada:
