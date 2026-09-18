@@ -2,8 +2,9 @@
 
 Read-only over the artifacts. Re-runs only the fast suite, to name the failures.
 
-    window/.venv-gateway/Scripts/python.exe window/v2_diagnose.py
+    window/.venv-gateway/Scripts/python.exe window/v2_diagnose.py [--no-suite]
 
+--no-suite skips re-running the test suite, when only the failed experiment matters.
 Writes window/results/v2-diagnosis-<timestamp>.txt and prints its path.
 """
 import importlib.metadata
@@ -76,6 +77,42 @@ def fast_suite(out):
         out.extend(block.strip().splitlines()[:30])
 
 
+def node_evidence(out, folder):
+    """Per node: what it reported, what it refused, and what Reticulum logged."""
+    homes = sorted(p for p in folder.rglob('events.jsonl'))
+    out.append('')
+    out.append(f'node homes with events: {len(homes)}')
+    for events in homes[:12]:
+        home = events.parent
+        rows = []
+        for line in events.read_text(encoding='utf-8', errors='replace').splitlines():
+            try:
+                rows.append(json.loads(line))
+            except ValueError:
+                continue
+        kinds = {}
+        for row in rows:
+            kinds[row.get('event')] = kinds.get(row.get('event'), 0)+1
+        out.append('-'*70)
+        out.append(f'{home.relative_to(folder)}: {kinds}')
+        for row in rows:
+            if row.get('event') in ('error', 'rejected', 'refused', 'send_failed', 'direct_failed'):
+                out.append('  ! '+json.dumps(row)[:200])
+        logfile = home/'rns'/'logfile'
+        if logfile.exists():
+            lines = logfile.read_text(encoding='utf-8', errors='replace').splitlines()
+            notable = [l for l in lines if any(k in l for k in ('Error', 'error', 'Warning', 'failed', 'timeout',
+                                                                'Timeout', 'closed', 'No path', 'unreachable'))]
+            out.append(f'  rns logfile: {len(lines)} lines, {len(notable)} notable')
+            for line in notable[-8:]:
+                out.append('    '+line[:190])
+        stderr = home/'stderr.log'
+        if stderr.exists() and stderr.stat().st_size:
+            out.append('  stderr:')
+            for line in stderr.read_text(encoding='utf-8', errors='replace').strip().splitlines()[-6:]:
+                out.append('    '+line[:190])
+
+
 def milestone(out, pattern, title):
     section(out, title)
     folder = latest(pattern)
@@ -100,6 +137,7 @@ def milestone(out, pattern, title):
             out.append(f"{key}: phases completed {phases}, seconds {round(value.get('seconds', 0), 1)}")
         elif isinstance(value, dict) and 'audit' in value:
             out.append(f"{key}: completed={value.get('completed')} seconds={round(value.get('seconds', 0), 1)}")
+    node_evidence(out, folder)
     for log in sorted(folder.rglob('phase-*.log'))[:6]:
         lines = log.read_text(encoding='utf-8', errors='replace').strip().splitlines()
         out.append('-'*70)
@@ -123,7 +161,8 @@ def main():
     section(out, 'LAST V2 SUMMARY')
     out.append(str(summary/'summary.json') if summary else 'none found')
     milestone(out, 'gateway-g3-*', 'G3 ARTIFACT (the path that failed)')
-    fast_suite(out)
+    if '--no-suite' not in sys.argv:
+        fast_suite(out)
     target = BASE/'results'/f'v2-diagnosis-{time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())}.txt'
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text('\n'.join(out), encoding='utf-8')
