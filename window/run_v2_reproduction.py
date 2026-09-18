@@ -38,6 +38,16 @@ REFERENCE_SECONDS = {'test_gateway_reference.py': 208, 'test_g1_reference.py': 3
                      'test_g4_reference.py': 167, 'test_v1_reference.py': 213, 'test_v1_return_reference.py': 332}
 
 
+def cargo_available():
+    """The survival tests build a Rust binary; without cargo they fail confusingly."""
+    try:
+        quiet = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+        return subprocess.run(['cargo', '--version'], capture_output=True,
+                              timeout=60, creationflags=quiet).returncode == 0
+    except Exception:
+        return False
+
+
 def flag_of(test):
     source = (BASE/'tests'/test).read_text(encoding='utf-8')
     flags = re.findall(r"""os\.environ\.get\(["'](RUN_[A-Z0-9_]+)["']\)""", source)
@@ -134,10 +144,16 @@ def reference(test):
 
 
 def main(argv):
-    fast_only, no_survival = '--fast-only' in argv, '--no-survival' in argv
+    fast_only = '--fast-only' in argv
+    cargo = cargo_available()
+    no_survival = '--no-survival' in argv or not cargo
+    if not cargo:
+        print('note: cargo not found, so the 15 survival tests that build a Rust binary are '
+              'excluded; everything else runs normally', flush=True)
     out = BASE/'results'/f'v2-{time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())}'
     out.mkdir(parents=True)
-    summary = {'environment': environment(), 'fast': None, 'references': {}, 'started': time.time()}
+    summary = {'environment': {**environment(), 'cargo': cargo, 'survival_excluded': no_survival},
+               'fast': None, 'references': {}, 'started': time.time()}
     print('environment:', json.dumps(summary['environment']), flush=True)
     if summary['environment']['problems']:
         # Running would only produce eight timeouts; stop while the cause is still readable.

@@ -22,7 +22,7 @@ uma cópia antiga deste projeto na máquina, use uma pasta nova.
 | Sistema | Windows 10 ou 11 | A evidência do G4 usa `netstat`; outros sistemas não foram exercitados |
 | Python | **3.10.x**, no PATH como `python` (foi executado com 3.10.11) | `python --version` |
 | Git | qualquer versão recente | `git --version` |
-| Rust (`cargo`) | **opcional**: só os 15 testes do *survival* precisam dele | `cargo --version`; sem ele, use `--no-survival` |
+| Rust (`cargo`) | **opcional**: só os 15 testes do *survival* precisam dele | `cargo --version`; sem ele o executor detecta e os exclui sozinho |
 | Caminho do clone | **curto (até 100 caracteres) e sem espaços, aspas ou acentos**, por exemplo `C:\dethron` | O Windows limita caminhos a 260 caracteres e os artefatos dos experimentos acrescentam cerca de 150; a ponte do G4 recusa espaços. O executor mede isso e para antes de rodar se o caminho for longo |
 | Rede | internet apenas para o `pip install`; os experimentos usam só `127.0.0.1` | O Firewall do Windows pode perguntar sobre `python.exe`: permitir |
 | Espaço | ~300 MB (ambiente virtual e artefatos) | — |
@@ -67,8 +67,6 @@ Qualquer outra versão é reprovação do passo: não continue, relate.
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-only
 ```
 
-Sem Rust instalado, acrescente `--no-survival`.
-
 **Esperado, com Rust:**
 
 ```
@@ -76,7 +74,8 @@ fast full                   ran=173 skipped=8 PASS
 V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
 ```
 
-**Esperado, sem Rust:** seis linhas `fast test_...  PASS`, uma linha
+**Sem Rust**, a primeira linha será `note: cargo not found...` e o esperado passa a
+ser seis linhas `fast test_...  PASS`, uma linha
 `fast subset total  ran=107 skipped=8 PASS` e `V2 PASS`.
 
 Os 8 pulados são os testes de reprodução real, que só rodam no passo 4. Leva
@@ -99,7 +98,7 @@ o Reticulum não conseguia gravar em `rns\storage`.
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py
 ```
 
-Sem Rust, acrescente `--no-survival`. O comando repete a suíte rápida e depois
+O comando repete a suíte rápida e depois
 executa, um por vez, os oito experimentos reais. Cada um sobe processos
 Reticulum/LXMF de verdade em `127.0.0.1`, grava um diretório em
 `window\results\` e produz um veredito. **Esperado**, na ordem:

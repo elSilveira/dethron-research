@@ -16,7 +16,7 @@ from g3_process import QUIET, alive
 PHASES = ('seed', '1', '2', 'deliver')
 
 
-def supervise(base, root, phase, mode, timeout=900):
+def supervise(base, root, phase, mode, timeout=1800):
     result = subprocess.run([sys.executable, str(base/'g3_supervisor.py'), str(root), phase, mode],
                             capture_output=True, text=True, timeout=timeout,
                             env={**os.environ, 'PYTHONPATH': str(base)})

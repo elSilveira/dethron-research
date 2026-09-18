@@ -10,7 +10,7 @@ import unittest
 class GenerationReferenceTests(unittest.TestCase):
     def test_all_originals_and_supervisors_replaced_and_loss_control(self):
         script = Path(__file__).resolve().parents[1]/'run_g3_probe.py'
-        result = subprocess.run([sys.executable, str(script)], capture_output=True, text=True, timeout=2400)
+        result = subprocess.run([sys.executable, str(script)], capture_output=True, text=True, timeout=7200)
         self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
         report = json.loads(result.stdout.splitlines()[-1])
         self.assertEqual(report['verdict'], 'g3_scoped_pass')

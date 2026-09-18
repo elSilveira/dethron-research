@@ -561,7 +561,13 @@ está fechada no escopo de laboratório. Próxima fatia: **V2, reprodução por
 estranho**, com [roteiro, pré-requisitos e resultados esperados](window/V2_REPRODUCTION.md)
 e o executor `window/run_v2_reproduction.py`. Em 17/09/2026 o repositório passou a
 ser clonável: um clone limpo nesta máquina reproduziu a suíte rápida, e os oito
-caminhos reais passaram na árvore commitada. O mesmo comando a partir de um clone
+caminhos reais passaram na árvore commitada. Em 17/09/2026 o V2 foi executado por
+outra pessoa em outra máquina pela primeira vez e **reprovou**, com sete dos oito
+caminhos reproduzindo veredito idêntico. Os dois defeitos expostos eram do
+laboratório, não da máquina: a suíte exigia Rust sem detectar sua ausência, e o
+handover do G3 pedia a sincronização uma única vez antes de esperar parado. Ambos
+corrigidos; a reexecução do G3 na segunda máquina é o que fecha o marco. O mesmo
+comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor
 passou a medir o caminho e recusar antes de rodar, e o roteiro exige caminho curto

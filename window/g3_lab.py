@@ -71,39 +71,55 @@ class Lab:
                     inventory=status['inventory'])
         return status
 
-    def handover(self, old, new, inventory, timeout=180):
-        """The successor starts empty and may only receive the data over the network."""
+    def handover(self, old, new, inventory, timeout=300, retry=20):
+        """The successor starts empty and may only receive the data over the network.
+
+        LXMF peers sync repeatedly; autopeer is off here, so a single announce and
+        sync can miss while paths are still settling. Ask again until the deadline
+        instead of waiting on one attempt.
+        """
         if new.status()['stored'] != 0:
             raise ValueError(f'{new.name}: successor is not empty')
-        new.request('announce')
-        time.sleep(2)
-        old.request('peer', peer=self.public(new), timeout=60)
-        deadline = time.monotonic()+timeout
+        deadline, attempts, next_attempt = time.monotonic()+timeout, 0, 0.0
         while time.monotonic() < deadline:
+            if time.monotonic() >= next_attempt:
+                new.request('announce')
+                time.sleep(2)
+                old.request('peer', peer=self.public(new), timeout=60)
+                attempts += 1
+                next_attempt = time.monotonic()+retry
             status = new.status()
             # The stored file appears before the router finishes indexing it; wait for both views.
             if status['inventory'] == inventory and status['stored'] == len(inventory):
                 self.record('handover', old=old.name, new=new.name, stored=status['stored'],
-                            inventory=inventory)
+                            inventory=inventory, attempts=attempts)
                 return status
             time.sleep(.5)
-        raise TimeoutError(f'{old.name}->{new.name}: declared data never arrived over the network')
+        raise TimeoutError(f'{old.name}->{new.name}: declared data never arrived over the network '
+                           f'after {attempts} sync attempts in {timeout}s')
 
-    def fetch(self, receiver, relay, source, limit=256, timeout=90):
-        relay.request('announce')
-        time.sleep(2)
-        receiver.request('fetch', source=source, propagation=relay.info['propagation'],
-                         limit_kb=limit, timeout=60)
-        deadline = time.monotonic()+timeout
+    def fetch(self, receiver, relay, source, limit=256, timeout=180, retry=25):
+        """A fetch that fails while paths settle is retried, not treated as a verdict."""
+        deadline, attempts, failures, next_attempt = time.monotonic()+timeout, 0, 0, 0.0
         while time.monotonic() < deadline:
+            if time.monotonic() >= next_attempt:
+                relay.request('announce')
+                time.sleep(2)
+                receiver.request('fetch', source=source, propagation=relay.info['propagation'],
+                                 limit_kb=limit, timeout=60)
+                attempts += 1
+                next_attempt = time.monotonic()+retry
             state = receiver.status()
             if state['sync'] == 7:
-                self.record('fetched', relay=relay.name, receiver=state['receiver'])
+                self.record('fetched', relay=relay.name, receiver=state['receiver'],
+                            attempts=attempts, failures=failures)
                 return state['receiver']
             if state['sync'] >= 240:
-                raise ValueError(f'native fetch failure: {state["sync"]}')
+                failures += 1
+                next_attempt = 0.0
             time.sleep(.25)
-        raise TimeoutError('native fetch timeout')
+        raise TimeoutError(f'native fetch from {relay.name} did not complete after {attempts} '
+                           f'attempts ({failures} native failures) in {timeout}s')
 
     def shutdown(self):
         """Only the final phase stops the survivors; a supervisor exit must not."""

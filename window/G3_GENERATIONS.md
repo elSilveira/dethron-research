@@ -102,6 +102,25 @@ continua em `results/gateway-g3-1789612781500495200`. A mesma passagem também
 reduziu o custo do canal: a prova de vida de um nó abria um subprocesso a cada
 50 ms de espera e passou a rodar a cada dois segundos.
 
+### O que a reprodução em outra máquina encontrou
+
+Em 17/09/2026, a primeira execução do [V2](V2_REPRODUCTION.md) numa segunda
+máquina reprovou o G3 com `B0->B1: declared data never arrived over the network`,
+enquanto os outros sete caminhos reproduziram com veredito idêntico. A causa não
+era lentidão: o laboratório anunciava o sucessor, esperava dois segundos, pedia a
+sincronização **uma única vez** e depois aguardava 180 s parado. Com
+`autopeer=False` ninguém repõe esse pedido, embora no LXMF real os pares
+sincronizem repetidamente; a única tentativa se perdeu e o resto foi espera inútil.
+
+O handover e a busca passaram a repetir o pedido até o prazo, registrando quantas
+tentativas foram necessárias. O dado que isso revelou é o mais instrutivo: na
+máquina de origem, **quatro das seis transferências usam a segunda tentativa**,
+porque a sincronização leva de 20 a 24 s contra um intervalo de repetição de 20 s.
+O desenho de tentativa única já era marginal aqui e passava por folga; em outra
+máquina, tombou. Os prazos do G3, medidos só em hardware rápido, foram ampliados.
+A rodada com a correção passou em 194,8 s no cenário completo e 187,8 s no
+cenário de recurso retirado.
+
 - Testes G3 rápidos no ambiente fixado: **9 passaram, 1 opt-in pulado**.
 - `unittest discover -s window/tests` no ambiente fixado: **115 passaram,
   5 opt-in pulados**.
