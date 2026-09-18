@@ -572,9 +572,11 @@ matando em silêncio a *thread* que gera a chave de peering e adiando toda
 sincronização. A frequência depende da granularidade do relógio da máquina, o que
 explica por que parecia problema local; aumentar o custo do carimbo não resolve. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
 que passaram por sorte de temporização. Todos corrigidos ou contornados, com
-teste que avisa quando a montante consertar. Depois das correções, o G3 também
-reproduziu na segunda máquina: **os oito caminhos já reproduziram fora desta
-máquina**, ainda não numa única passada, que é o que fecha o marco. O mesmo
+teste que avisa quando a montante consertar. Depois das correções, a execução completa numa única passada
+**passou** em 18/09/2026: veredito `v2_pass` em 58,0 minutos, oito caminhos com o
+veredito declarado e a suíte verde. **V2 está fechado** no escopo do seu critério —
+reprodução em máquina independente por quem não escreveu o código, seguindo apenas
+o documento; não por um estranho sem contato com o autor. Próxima fatia: V3. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor

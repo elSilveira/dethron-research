@@ -77,13 +77,13 @@ window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-onl
 **Esperado, com Rust:**
 
 ```
-fast full                   ran=182 skipped=8 PASS
+fast full                   ran=203 skipped=8 PASS
 V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
 ```
 
 **Sem Rust**, a primeira linha será `note: cargo not found...` e o esperado passa a
 ser seis linhas `fast test_...  PASS`, uma linha
-`fast subset total  ran=113 skipped=8 PASS` e `V2 PASS`.
+`fast subset total  ran=133 skipped=8 PASS` e `V2 PASS`.
 
 Os 8 pulados são os testes de reprodução real, que só rodam no passo 4. Leva
 cerca de 40 segundos com Rust já compilado; a primeira compilação do *survival*
@@ -137,7 +137,7 @@ deve ser interrompido com `Ctrl+C` e relatado.
 **Idêntico ao esperado, senão é reprovação:**
 
 - as oito strings de veredito e o `V2 PASS` final;
-- as contagens da suíte rápida: 182 e 8, ou 113 e 8 sem Rust;
+- as contagens da suíte rápida: 203 e 8, ou 133 e 8 sem Rust;
 - dentro de cada `report.json`, os resultados de cenário: quais completaram,
   as listas de pendência, a rota da prova, a presença da recusa, zero endpoints
   IP nos cenários isolados do G4 e pelo menos um na linha de base `ip`.
@@ -153,6 +153,38 @@ deve ser interrompido com `Ctrl+C` e relatado.
 Os documentos em `window/*.md` apontam para diretórios `results/…` da máquina
 original; esses links **não existem no seu clone** até você rodar o passo 4, e
 mesmo então terão outros nomes. Isso é esperado e está declarado neles.
+
+## Resultado: aprovado em 18/09/2026
+
+A execução completa numa segunda máquina, numa única passada, **passou**:
+veredito `v2_pass` em 58,0 minutos, com os oito caminhos produzindo o veredito
+declarado e a suíte em 113 e 8 — o `cargo` estava ausente e o executor o detectou
+sozinho, como deve.
+
+| Caminho | Veredito | Tempo | Referência |
+| --- | --- | --- | --- |
+| `test_gateway_reference.py` | `meets_scoped_requirement` | 214,8 s | 208 s |
+| `test_g1_reference.py` | `meets_g1_lab_contract` | 30,1 s | 31 s |
+| `test_g2_reference.py` | `meets_g2_scoped_contract` | 181,0 s | 185 s |
+| `test_g2_comparison_reference.py` | `g2_scoped_pass` | 744,6 s | 754 s |
+| `test_g3_reference.py` | `g3_scoped_pass` | 704,1 s | 295 s |
+| `test_g4_reference.py` | `g4_scoped_pass` | 366,6 s | 167 s |
+| `test_v1_reference.py` | `v1_custody_scoped_pass` | 501,9 s | 213 s |
+| `test_v1_return_reference.py` | `v1_return_scoped_pass` | 658,6 s | 332 s |
+
+O código executado foi o commit `1e2d190`, deduzido das contagens da suíte e das
+expectativas registradas no resumo; o executor **não gravava** qual commit rodava,
+o que é uma falha do instrumento e não do resultado. Desde então ele grava, e o
+resumo falha de forma visível se o `git` não responder.
+
+### O que este resultado é, e o que não é
+
+É reprodução em máquina independente, por quem não escreveu o código, seguindo
+apenas o documento. Não é reprodução por um estranho no sentido estrito: quem
+executou é o autor do projeto, teve contato com quem escreveu o código e, na
+primeira tentativa, precisou de explicação fora do roteiro — o que por este
+próprio critério foi uma reprovação, registrada abaixo. Esta passada testou o
+roteiro já corrigido e não exigiu ajuda.
 
 ## Primeira execução real, 17/09/2026
 

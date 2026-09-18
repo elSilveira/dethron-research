@@ -22,7 +22,7 @@ BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
 PINNED = {'rns': '1.5.4', 'lxmf': '1.1.1', 'cryptography': '50.0.1'}
 # Measured on the committed tree: the whole suite, and the Rust-free subset by pattern.
-FAST_EXPECTED = {'full': (182, 8), 'subset': (113, 8)}
+FAST_EXPECTED = {'full': (203, 8), 'subset': (133, 8)}
 EXPECTED = {
     'test_gateway_reference.py': 'meets_scoped_requirement',
     'test_g1_reference.py': 'meets_g1_lab_contract',
@@ -51,6 +51,23 @@ def select(argv):
         names = sorted(test.replace('test_', '').replace('_reference.py', '') for test in EXPECTED)
         raise SystemExit(f'--only {wanted!r} matches nothing; available: {", ".join(names)}')
     return chosen
+
+
+def commit():
+    """Which code produced this result. Without it a summary cannot be compared."""
+    try:
+        quiet = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
+        result = subprocess.run(['git', '-C', str(ROOT), 'log', '--format=%H %s', '-1'],
+                                capture_output=True, text=True, timeout=60, creationflags=quiet)
+        if result.returncode != 0:
+            # Silence here would leave a result that cannot be tied to any code.
+            return {'head': None, 'error': result.stderr.strip().splitlines()[:2]}
+        dirty = subprocess.run(['git', '-C', str(ROOT), 'status', '--porcelain'],
+                               capture_output=True, text=True, timeout=60, creationflags=quiet)
+        return {'head': result.stdout.strip(),
+                'modified': len([l for l in dirty.stdout.splitlines() if l.strip()])}
+    except Exception as exc:
+        return {'head': None, 'error': repr(exc)}
 
 
 def cargo_available():
@@ -105,7 +122,7 @@ def environment(root=ROOT):
         problems.append('G4 endpoint evidence requires Windows netstat; other systems are untested')
     return {'python': platform.python_version(), 'platform': platform.platform(), 'packages': versions,
             'root': str(root), 'root_length': len(str(root)), 'longest_artifact_path': len(str(root))+ARTIFACT_SUFFIX,
-            'problems': problems}
+            'commit': commit(), 'problems': problems}
 
 
 def unittest_run(pattern=None, env=None, timeout=3600):
@@ -133,7 +150,7 @@ def fast_suite(no_survival):
     rows = {}
     # test_lxmf_* covers the stamp workaround, which matters most where the suite is trimmed.
     for pattern in ('test_gateway_*.py', 'test_g1_*.py', 'test_g2_*.py', 'test_g3_*.py',
-                    'test_g4_*.py', 'test_v1_*.py', 'test_lxmf_*.py'):
+                    'test_g4_*.py', 'test_v1_*.py', 'test_v3_*.py', 'test_lxmf_*.py'):
         rows[pattern] = unittest_run(pattern, env=env)
         rows[pattern]['pass'] = rows[pattern]['ok']
     total = (sum(r['ran'] or 0 for r in rows.values()), sum(r['skipped'] for r in rows.values()))

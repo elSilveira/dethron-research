@@ -14,8 +14,9 @@ verificável, com a trilha V1–V3; G5 e G7 ficam adiados, G8 e G9 após aceita�
 externa. V1 está executado nas duas metades:
 [custódia, prova de entrada e pendência](window/V1_CUSTODY.md) e
 [recibo de volta sem contato direto](window/V1_RECEIPT_RETURN.md).
-V2 tem [roteiro e resultados esperados](window/V2_REPRODUCTION.md) e aguarda a
-execução por outra pessoa em outra máquina.
+V2 está [aprovado em máquina independente](window/V2_REPRODUCTION.md): passada
+completa em 58 minutos, oito caminhos com o veredito declarado. V3 começou pelo
+contrato de cronograma e pelo agente local.
 Ver [plano mestre](DETHRON_MASTER_PLAN.md).
 A visão está na [direção](DETHRON_NETWORK_DIRECTION.md)
 e as garantias de autonomia no [contrato](DETHRON_AUTONOMY_CONTRACT.md).

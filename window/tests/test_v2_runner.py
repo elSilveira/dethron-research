@@ -7,7 +7,7 @@ WINDOW = Path(__file__).resolve().parents[1]
 import sys
 sys.path.insert(0, str(WINDOW))
 from run_v2_reproduction import (ARTIFACT_SUFFIX, EXPECTED, FAST_EXPECTED, PINNED, REFERENCE_SECONDS,  # noqa: E402
-                                 WINDOWS_MAX_PATH, flag_of, path_problems, select)
+                                 WINDOWS_MAX_PATH, environment, flag_of, path_problems, select)
 
 
 class ExpectationTableTests(unittest.TestCase):
@@ -53,6 +53,18 @@ class GuideConsistencyTests(unittest.TestCase):
         for test, verdict in EXPECTED.items():
             with self.subTest(test=test):
                 self.assertIn(f'| `{test}` | `{verdict}` | {REFERENCE_SECONDS[test]} s |', self.guide)
+
+
+class ProvenanceTests(unittest.TestCase):
+    """A summary that does not name its commit cannot be compared with another machine's."""
+
+    def test_the_environment_names_the_commit_and_whether_the_tree_was_clean(self):
+        found = environment()
+        self.assertIn('commit', found)
+        self.assertIn('head', found['commit'])
+        if found['commit']['head']:
+            self.assertRegex(found['commit']['head'], r'^[0-9a-f]{40} ')
+            self.assertIsInstance(found['commit']['modified'], int)
 
 
 class SelectionTests(unittest.TestCase):
