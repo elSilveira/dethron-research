@@ -567,9 +567,10 @@ caminhos reproduzindo veredito idêntico. As falhas expostas não eram da máqui
 a suíte exigia Rust sem detectar sua ausência, o roteiro usava sintaxe que só
 funciona no PowerShell e reportava verde para um teste que se pulou, e o G3
 esbarrava num defeito do **LXMF 1.1.1** — `generate_stamp` descarta um carimbo
-válido com `ZeroDivisionError` quando ele termina dentro de um tique do relógio,
+válido com `ZeroDivisionError` quando a busca termina sem o relógio avançar,
 matando em silêncio a *thread* que gera a chave de peering e adiando toda
-sincronização. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
+sincronização. A frequência depende da granularidade do relógio da máquina, o que
+explica por que parecia problema local; aumentar o custo do carimbo não resolve. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
 que passaram por sorte de temporização. Todos corrigidos ou contornados, com
 teste que avisa quando a montante consertar. Depois das correções, o G3 também
 reproduziu na segunda máquina: **os oito caminhos já reproduziram fora desta

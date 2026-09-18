@@ -121,11 +121,21 @@ a coletar o `stderr` dos nós.
 ### A causa real: um resultado válido descartado por uma linha de log
 
 `LXStamper.generate_stamp` calcula o carimbo e, em seguida, avalia
-`speed = rounds/duration` apenas para escrever uma linha de depuração. No Windows
-`time.time()` tem resolução de 15,6 ms, e o bloco de trabalho de peering usa só 25
-rodadas de expansão: com custo baixo o carimbo termina dentro de um único tique,
-`duration` é 0,0 e um `ZeroDivisionError` joga fora um resultado que já estava
-correto.
+`speed = rounds/duration` apenas para escrever uma linha de depuração. O
+`duration` cronometra só a busca — `start_time` é tomado depois da expansão do
+bloco — e com custo baixo essa busca termina em dezenas de microssegundos.
+Sempre que `time.time()` não avança nesse intervalo, `duration` é 0,0 e um
+`ZeroDivisionError` joga fora um resultado que já estava correto.
+
+A frequência depende da granularidade do relógio da máquina, que no Windows varia
+conforme o que mais está rodando: `get_clock_info` informa 15,6 ms, enquanto o
+passo observado nesta máquina é de 0,36 ms. Medido com a função da montante,
+o custo 1 levantou a exceção em **12 de 12** execuções e o custo 8 em nenhuma;
+na segunda máquina, todas levantaram. Daí a aparência de problema local.
+
+Aumentar `peering_cost` não resolve: apenas encurta as chances — ainda falhou uma
+vez em doze no custo 12 — e cobra trabalho real, cerca de 100 ms no custo 14 e
+800 ms no custo 18 por chave de peering.
 
 O estrago é silencioso porque o `LXMPeer` gera a chave de peering em uma *thread*
 secundária. Ela morre, a chave nunca é definida, `peering_key_ready()` permanece
