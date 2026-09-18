@@ -22,7 +22,7 @@ BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
 PINNED = {'rns': '1.5.4', 'lxmf': '1.1.1', 'cryptography': '50.0.1'}
 # Measured on the committed tree: the whole suite, and the Rust-free subset by pattern.
-FAST_EXPECTED = {'full': (176, 8), 'subset': (107, 8)}
+FAST_EXPECTED = {'full': (182, 8), 'subset': (113, 8)}
 EXPECTED = {
     'test_gateway_reference.py': 'meets_scoped_requirement',
     'test_g1_reference.py': 'meets_g1_lab_contract',
@@ -131,7 +131,9 @@ def fast_suite(no_survival):
         row['pass'] = row['ok'] and (row['ran'], row['skipped']) == want
         return {'full': row}
     rows = {}
-    for pattern in ('test_gateway_*.py', 'test_g1_*.py', 'test_g2_*.py', 'test_g3_*.py', 'test_g4_*.py', 'test_v1_*.py'):
+    # test_lxmf_* covers the stamp workaround, which matters most where the suite is trimmed.
+    for pattern in ('test_gateway_*.py', 'test_g1_*.py', 'test_g2_*.py', 'test_g3_*.py',
+                    'test_g4_*.py', 'test_v1_*.py', 'test_lxmf_*.py'):
         rows[pattern] = unittest_run(pattern, env=env)
         rows[pattern]['pass'] = rows[pattern]['ok']
     total = (sum(r['ran'] or 0 for r in rows.values()), sum(r['skipped'] for r in rows.values()))

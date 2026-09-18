@@ -113,13 +113,40 @@ sincronização **uma única vez** e depois aguardava 180 s parado. Com
 sincronizem repetidamente; a única tentativa se perdeu e o resto foi espera inútil.
 
 O handover e a busca passaram a repetir o pedido até o prazo, registrando quantas
-tentativas foram necessárias. O dado que isso revelou é o mais instrutivo: na
-máquina de origem, **quatro das seis transferências usam a segunda tentativa**,
-porque a sincronização leva de 20 a 24 s contra um intervalo de repetição de 20 s.
-O desenho de tentativa única já era marginal aqui e passava por folga; em outra
-máquina, tombou. Os prazos do G3, medidos só em hardware rápido, foram ampliados.
-A rodada com a correção passou em 194,8 s no cenário completo e 187,8 s no
-cenário de recurso retirado.
+tentativas foram necessárias — e a repetição **não resolveu**: a segunda máquina
+falhou de novo, agora com `após 12 tentativas em 300 s`. Essa correção tratou um
+sintoma; a causa estava em outro lugar, e só apareceu quando o diagnóstico passou
+a coletar o `stderr` dos nós.
+
+### A causa real: um resultado válido descartado por uma linha de log
+
+`LXStamper.generate_stamp` calcula o carimbo e, em seguida, avalia
+`speed = rounds/duration` apenas para escrever uma linha de depuração. No Windows
+`time.time()` tem resolução de 15,6 ms, e o bloco de trabalho de peering usa só 25
+rodadas de expansão: com custo baixo o carimbo termina dentro de um único tique,
+`duration` é 0,0 e um `ZeroDivisionError` joga fora um resultado que já estava
+correto.
+
+O estrago é silencioso porque o `LXMPeer` gera a chave de peering em uma *thread*
+secundária. Ela morre, a chave nunca é definida, `peering_key_ready()` permanece
+falsa, **toda** sincronização é adiada "since a peering key has not been generated
+yet", e o handover expira sem nada na linha do tempo que explique. É por isso que
+repetir o pedido não adiantou: cada repetição batia no mesmo adiamento.
+
+O mesmo `traceback` está nos artefatos **desta** máquina, em rodadas que passaram:
+aqui a corrida com o tique do relógio às vezes se resolvia a tempo e a chave era
+gerada na tentativa seguinte. Na outra máquina, nunca. O defeito é do LXMF 1.1.1,
+não do experimento, e continua a ser reportado à montante; `dethron_gateway/lxmf_stamp.py`
+reinstala o cálculo do próprio LXMF sem a divisão do log, e `test_lxmf_stamp.py`
+falha quando a montante corrigir, para que o contorno possa ser removido.
+
+Com o contorno, as **seis transferências passam na primeira tentativa** e nenhum
+nó deixa `stderr` não vazio — antes, quatro das seis precisavam de segunda
+tentativa e vários nós registravam o `traceback`. A espera por rota permaneceu,
+por razão própria: uma sincronização pedida antes de existir rota custa 12 minutos
+de adiamento no LXMF, o que nenhum prazo do G3 alcançaria. Os prazos, medidos só
+em hardware rápido, também foram ampliados. A rodada com tudo corrigido passou em
+294,8 s.
 
 - Testes G3 rápidos no ambiente fixado: **9 passaram, 1 opt-in pulado**.
 - `unittest discover -s window/tests` no ambiente fixado: **115 passaram,

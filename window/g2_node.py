@@ -10,6 +10,7 @@ import time
 import LXMF
 import RNS
 
+from dethron_gateway import lxmf_stamp
 from g2_receiver import Receiver
 
 
@@ -22,6 +23,8 @@ def main():
         with lock:
             print(json.dumps({"event": event, "time": time.time(), **values}), flush=True)
 
+    # A stamp discarded by a log line silently stops peering; install before router work.
+    stamp_defect = lxmf_stamp.install()
     RNS.Reticulum(configdir=str(home/"rns"), loglevel=3, logdest=RNS.LOG_FILE)
     key = home/"identity"
     identity = RNS.Identity.from_file(str(key)) if key.exists() else RNS.Identity()
@@ -37,7 +40,7 @@ def main():
         router.register_delivery_callback(receiver.receive)
     if role in "ABC":
         router.enable_propagation()
-    emit("ready", destination=source.hash.hex(), public_key=identity.get_public_key().hex(),
+    emit("ready", stamp_workaround=stamp_defect, destination=source.hash.hex(), public_key=identity.get_public_key().hex(),
          propagation=router.propagation_destination.hash.hex())
     for line in sys.stdin:
         try:

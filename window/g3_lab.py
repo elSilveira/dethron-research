@@ -8,6 +8,8 @@ from g3_process import Daemon
 from gateway_scenario import ports
 
 PUBLIC = ('destination', 'public_key', 'propagation')
+# A sync asked before a path exists costs LXMPeer.SYNC_BACKOFF_STEP; test_g3_peering guards this.
+HANDOVER_TIMEOUT, HANDOVER_RETRY, PATH_WAIT = 300, 30, 45
 
 
 class Lab:
@@ -71,7 +73,7 @@ class Lab:
                     inventory=status['inventory'])
         return status
 
-    def handover(self, old, new, inventory, timeout=300, retry=20):
+    def handover(self, old, new, inventory, timeout=HANDOVER_TIMEOUT, retry=HANDOVER_RETRY):
         """The successor starts empty and may only receive the data over the network.
 
         LXMF peers sync repeatedly; autopeer is off here, so a single announce and
@@ -85,8 +87,10 @@ class Lab:
             if time.monotonic() >= next_attempt:
                 new.request('announce')
                 time.sleep(2)
-                old.request('peer', peer=self.public(new), timeout=60)
+                answer = old.request('peer', peer=self.public(new), path_wait=PATH_WAIT, timeout=120)
                 attempts += 1
+                if not answer.get('path'):
+                    self.record('peer_without_path', old=old.name, new=new.name, attempt=attempts)
                 next_attempt = time.monotonic()+retry
             status = new.status()
             # The stored file appears before the router finishes indexing it; wait for both views.

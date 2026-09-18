@@ -13,6 +13,7 @@ import LXMF
 import RNS
 
 from dethron_gateway import custody
+from dethron_gateway import lxmf_stamp
 from g2_receiver import Receiver
 from g3_process import lines
 import v1_handlers as handlers
@@ -47,6 +48,8 @@ def main():
         with lock, events.open('a', encoding='utf-8') as stream:
             stream.write(json.dumps({'event': event, 'time': time.time(), **values})+'\n')
 
+    # A stamp discarded by a log line silently stops peering; install before router work.
+    stamp_defect = lxmf_stamp.install()
     RNS.Reticulum(configdir=str(home/'rns'), loglevel=3, logdest=RNS.LOG_FILE)
     identity = load_identity(home, settings, emit)
     router = LXMF.LXMRouter(identity=identity, storagepath=str(home), autopeer=False,
@@ -133,7 +136,7 @@ def main():
 
     commands = home/'commands.jsonl'
     seen = len(lines(commands))
-    emit('ready', pid=os.getpid(), destination=source.hash.hex(),
+    emit('ready', stamp_workaround=stamp_defect, pid=os.getpid(), destination=source.hash.hex(),
          public_key=identity.get_public_key().hex(), propagation=router.propagation_destination.hash.hex())
     while True:
         pending = lines(commands)

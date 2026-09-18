@@ -77,13 +77,13 @@ window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-onl
 **Esperado, com Rust:**
 
 ```
-fast full                   ran=176 skipped=8 PASS
+fast full                   ran=182 skipped=8 PASS
 V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
 ```
 
 **Sem Rust**, a primeira linha será `note: cargo not found...` e o esperado passa a
 ser seis linhas `fast test_...  PASS`, uma linha
-`fast subset total  ran=107 skipped=8 PASS` e `V2 PASS`.
+`fast subset total  ran=113 skipped=8 PASS` e `V2 PASS`.
 
 Os 8 pulados são os testes de reprodução real, que só rodam no passo 4. Leva
 cerca de 40 segundos com Rust já compilado; a primeira compilação do *survival*
@@ -135,7 +135,7 @@ deve ser interrompido com `Ctrl+C` e relatado.
 **Idêntico ao esperado, senão é reprovação:**
 
 - as oito strings de veredito e o `V2 PASS` final;
-- as contagens da suíte rápida: 176 e 8, ou 107 e 8 sem Rust;
+- as contagens da suíte rápida: 182 e 8, ou 113 e 8 sem Rust;
 - dentro de cada `report.json`, os resultados de cenário: quais completaram,
   as listas de pendência, a rota da prova, a presença da recusa, zero endpoints
   IP nos cenários isolados do G4 e pelo menos um na linha de base `ip`.

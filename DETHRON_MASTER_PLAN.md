@@ -563,10 +563,16 @@ e o executor `window/run_v2_reproduction.py`. Em 17/09/2026 o repositório passo
 ser clonável: um clone limpo nesta máquina reproduziu a suíte rápida, e os oito
 caminhos reais passaram na árvore commitada. Em 17/09/2026 o V2 foi executado por
 outra pessoa em outra máquina pela primeira vez e **reprovou**, com sete dos oito
-caminhos reproduzindo veredito idêntico. Os dois defeitos expostos eram do
-laboratório, não da máquina: a suíte exigia Rust sem detectar sua ausência, e o
-handover do G3 pedia a sincronização uma única vez antes de esperar parado. Ambos
-corrigidos; a reexecução do G3 na segunda máquina é o que fecha o marco. O mesmo
+caminhos reproduzindo veredito idêntico. As falhas expostas não eram da máquina:
+a suíte exigia Rust sem detectar sua ausência, o roteiro usava sintaxe que só
+funciona no PowerShell e reportava verde para um teste que se pulou, e o G3
+esbarrava num defeito do **LXMF 1.1.1** — `generate_stamp` descarta um carimbo
+válido com `ZeroDivisionError` quando ele termina dentro de um tique do relógio,
+matando em silêncio a *thread* que gera a chave de peering e adiando toda
+sincronização. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
+que passaram por sorte de temporização. Todos corrigidos ou contornados, com
+teste que avisa quando a montante consertar; a reexecução do G3 na segunda
+máquina é o que fecha o marco. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor

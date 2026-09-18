@@ -11,6 +11,7 @@ import time
 import LXMF
 import RNS
 
+from dethron_gateway import lxmf_stamp
 from g2_receiver import Receiver
 from g3_process import lines
 
@@ -44,6 +45,8 @@ def main():
         with lock, events.open('a', encoding='utf-8') as stream:
             stream.write(json.dumps({'event': event, 'time': time.time(), **values})+'\n')
 
+    # A stamp discarded by a log line silently stops peering; install before router work.
+    stamp_defect = lxmf_stamp.install()
     RNS.Reticulum(configdir=str(home/'rns'), loglevel=3, logdest=RNS.LOG_FILE)
     identity = load_identity(home, settings, emit)
     router = LXMF.LXMRouter(identity=identity, storagepath=str(home), autopeer=False,
@@ -81,13 +84,24 @@ def main():
             peer = command['peer']
             address = bytes.fromhex(peer['propagation'])
             RNS.Identity.remember(None, address, bytes.fromhex(peer['public_key']))
+            # LXMF postpones a peer by SYNC_BACKOFF_STEP (12 minutes) when a sync is asked
+            # before a path exists, and every later sync is then refused as "not yet due".
+            # With autopeer off the lab drives syncing, so it must wait for the path first.
+            if not RNS.Transport.has_path(address):
+                RNS.Transport.request_path(address)
+                deadline = time.monotonic()+command.get('path_wait', 45)
+                while not RNS.Transport.has_path(address) and time.monotonic() < deadline:
+                    time.sleep(.25)
+            path = RNS.Transport.has_path(address)
             router.peer(address, time.time(), 2048, 8192, 1, 0, 1, None)
             native = router.peers[address]
+            # The lab, not LXMF's scheduler, decides when to retry here.
+            native.next_sync_attempt, native.sync_backoff = 0, 0
             for tid in list(router.propagation_entries):
                 native.queue_unhandled_message(tid)
             native.process_queues()
             native.sync()
-            return {'queued': len(router.propagation_entries)}
+            return {'queued': len(router.propagation_entries), 'path': path}
         if action == 'fetch':
             peer = command['source']
             RNS.Identity.remember(None, bytes.fromhex(peer['destination']), bytes.fromhex(peer['public_key']))
@@ -108,7 +122,7 @@ def main():
     # A new incarnation answers only what is asked of it, never a predecessor's commands.
     commands = home/'commands.jsonl'
     seen = len(lines(commands))
-    emit('ready', pid=os.getpid(), destination=source.hash.hex(),
+    emit('ready', stamp_workaround=stamp_defect, pid=os.getpid(), destination=source.hash.hex(),
          public_key=identity.get_public_key().hex(), propagation=router.propagation_destination.hash.hex())
     while True:
         pending = lines(commands)
