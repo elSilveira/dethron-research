@@ -30,9 +30,16 @@ uma cópia antiga deste projeto na máquina, use uma pasta nova.
 Instale Python pelo instalador oficial de python.org marcando "Add to PATH";
 o atalho da Microsoft Store não serve para criar o ambiente virtual.
 
+## Qual terminal usar
+
+Os comandos abaixo funcionam **tanto no PowerShell quanto no Prompt de Comando
+(cmd)**, porque nenhum deles depende de variável de ambiente: o executor define
+o que precisa sozinho. Se você encontrar em outro documento uma linha começando
+com `$env:`, ela só funciona no PowerShell — prefira sempre o executor.
+
 ## Passo 1 — clonar
 
-Em PowerShell:
+No terminal:
 
 ```powershell
 git clone https://github.com/elSilveira/dethron.git C:\dethron
@@ -144,6 +151,17 @@ deve ser interrompido com `Ctrl+C` e relatado.
 Os documentos em `window/*.md` apontam para diretórios `results/…` da máquina
 original; esses links **não existem no seu clone** até você rodar o passo 4, e
 mesmo então terão outros nomes. Isso é esperado e está declarado neles.
+
+## Repetir um marco isolado
+
+Se só um dos oito falhou e você quer repetir apenas ele, sem esperar os 40 minutos:
+
+```
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g3
+```
+
+Os nomes aceitos são `gateway`, `g1`, `g2`, `g2_comparison`, `g3`, `g4`, `v1` e
+`v1_return`. A saída é uma linha `PASS` ou `FAIL` e o veredito obtido.
 
 ## Se algo falhar
 

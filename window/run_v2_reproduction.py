@@ -2,8 +2,11 @@
 suite, runs every declared real reproduction path and compares each verdict with the one
 this repository claims. Every opt-in flag is read from the test file itself.
 
-Usage, from the repository root with the pinned environment:
-    window/.venv-gateway/Scripts/python.exe window/run_v2_reproduction.py [--fast-only] [--no-survival]
+Usage, from the repository root with the pinned environment. Works the same in
+PowerShell and in cmd.exe, because it sets the opt-in variables itself:
+    window/.venv-gateway/Scripts/python.exe window/run_v2_reproduction.py
+    ... --fast-only        only the test suite, no real runs
+    ... --only g3          only that milestone's real run
 """
 import importlib.metadata
 import json
@@ -36,6 +39,18 @@ WINDOWS_MAX_PATH = 260
 REFERENCE_SECONDS = {'test_gateway_reference.py': 208, 'test_g1_reference.py': 31, 'test_g2_reference.py': 185,
                      'test_g2_comparison_reference.py': 754, 'test_g3_reference.py': 432,
                      'test_g4_reference.py': 167, 'test_v1_reference.py': 213, 'test_v1_return_reference.py': 332}
+
+
+def select(argv):
+    """--only g3 picks test_g3_reference.py; an unknown name is refused, not guessed."""
+    if '--only' not in argv:
+        return dict(EXPECTED)
+    wanted = argv[argv.index('--only')+1] if len(argv) > argv.index('--only')+1 else ''
+    chosen = {test: verdict for test, verdict in EXPECTED.items() if wanted and wanted in test}
+    if not chosen:
+        names = sorted(test.replace('test_', '').replace('_reference.py', '') for test in EXPECTED)
+        raise SystemExit(f'--only {wanted!r} matches nothing; available: {", ".join(names)}')
+    return chosen
 
 
 def cargo_available():
@@ -126,7 +141,7 @@ def fast_suite(no_survival):
     return rows
 
 
-def reference(test):
+def reference(test, expected):
     before = {p.name for p in (BASE/'results').iterdir()} if (BASE/'results').exists() else set()
     env = {**os.environ, 'PYTHONPATH': 'window', flag_of(test): '1'}
     row = unittest_run(test, env=env)
@@ -136,15 +151,17 @@ def reference(test):
         report = BASE/'results'/folder/'report.json'
         if report.exists():
             verdicts[folder] = json.loads(report.read_text()).get('verdict')
-    row.update(flag=flag_of(test), artifacts=created, verdicts=verdicts, expected=EXPECTED[test],
+    row.update(flag=flag_of(test), artifacts=created, verdicts=verdicts, expected=expected,
                reference_seconds=REFERENCE_SECONDS[test],
-               pass_=row['ok'] and list(verdicts.values()) == [EXPECTED[test]])
+               pass_=row['ok'] and list(verdicts.values()) == [expected])
     row['pass'] = row.pop('pass_')
     return row
 
 
 def main(argv):
+    chosen = select(argv)
     fast_only = '--fast-only' in argv
+    only = len(chosen) < len(EXPECTED)
     cargo = cargo_available()
     no_survival = '--no-survival' in argv or not cargo
     if not cargo:
@@ -162,19 +179,22 @@ def main(argv):
             print('PROBLEM:', problem, flush=True)
         print(f"V2 FAIL - environment not acceptable; summary: {out/'summary.json'}", flush=True)
         return 1
-    summary['fast'] = fast_suite(no_survival)
+    summary['fast'] = {} if only else fast_suite(no_survival)
+    if only:
+        print(f'running only: {", ".join(chosen)}', flush=True)
     for name, row in summary['fast'].items():
         print(f"fast {name:22} ran={row['ran']} skipped={row['skipped']} {'PASS' if row['pass'] else 'FAIL'} {row['seconds']}s", flush=True)
     (out/'summary.json').write_text(json.dumps(summary, indent=2))
     if not fast_only:
-        for test in EXPECTED:
-            row = reference(test)
+        for test, expected in chosen.items():
+            row = reference(test, expected)
             summary['references'][test] = row
             (out/'summary.json').write_text(json.dumps(summary, indent=2))
             print(f"{test:34} {'PASS' if row['pass'] else 'FAIL'} verdict={list(row['verdicts'].values())} "
                   f"{row['seconds']}s (reference {row['reference_seconds']}s)", flush=True)
     passed = all(r['pass'] for r in summary['fast'].values()) and \
-        all(r['pass'] for r in summary['references'].values()) and not summary['environment']['problems']
+        all(r['pass'] for r in summary['references'].values()) and not summary['environment']['problems'] \
+        and (summary['fast'] or summary['references'])
     summary['verdict'] = 'v2_pass' if passed else 'v2_fail'
     summary['finished'] = time.time()
     (out/'summary.json').write_text(json.dumps(summary, indent=2))

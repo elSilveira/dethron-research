@@ -7,7 +7,7 @@ WINDOW = Path(__file__).resolve().parents[1]
 import sys
 sys.path.insert(0, str(WINDOW))
 from run_v2_reproduction import (ARTIFACT_SUFFIX, EXPECTED, FAST_EXPECTED, PINNED, REFERENCE_SECONDS,  # noqa: E402
-                                 WINDOWS_MAX_PATH, flag_of, path_problems)
+                                 WINDOWS_MAX_PATH, flag_of, path_problems, select)
 
 
 class ExpectationTableTests(unittest.TestCase):
@@ -53,6 +53,22 @@ class GuideConsistencyTests(unittest.TestCase):
         for test, verdict in EXPECTED.items():
             with self.subTest(test=test):
                 self.assertIn(f'| `{test}` | `{verdict}` | {REFERENCE_SECONDS[test]} s |', self.guide)
+
+
+class SelectionTests(unittest.TestCase):
+    """A stranger in cmd.exe cannot set PowerShell variables; --only must work instead."""
+
+    def test_no_option_runs_everything(self):
+        self.assertEqual(select([]), EXPECTED)
+
+    def test_only_picks_one_milestone(self):
+        self.assertEqual(list(select(['--only', 'g3'])), ['test_g3_reference.py'])
+        self.assertEqual(list(select(['--only', 'v1_return'])), ['test_v1_return_reference.py'])
+
+    def test_an_unknown_or_missing_name_is_refused(self):
+        for argv in (['--only', 'g9'], ['--only'], ['--only', '']):
+            with self.subTest(argv=argv), self.assertRaises(SystemExit):
+                select(argv)
 
 
 class PathProblemTests(unittest.TestCase):
