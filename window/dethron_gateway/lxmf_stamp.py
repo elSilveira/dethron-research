@@ -28,13 +28,23 @@ stays pinned at 1.1.1 for reproducibility: this is a workaround, not a fork.
 Whether a release after 1.1.1 already guards this has not been checked; that is
 the first step before reporting it upstream.
 """
-import inspect
-
 from LXMF import LXStamper
 from RNS.vendor import platformutils
 
-DEFECT = 'speed = rounds/duration'
 UPSTREAM = LXStamper.generate_stamp
+
+
+class _FrozenClock:
+    """The real time module, except that time() never advances."""
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        return getattr(self._module, name)
+
+    def time(self):
+        return 0.0
 
 
 def generate_stamp(message_id, stamp_cost, expand_rounds=LXStamper.WORKBLOCK_EXPAND_ROUNDS):
@@ -53,15 +63,32 @@ def generate_stamp(message_id, stamp_cost, expand_rounds=LXStamper.WORKBLOCK_EXP
 
 
 def defect_present():
-    """False once upstream guards the division, so the workaround can be dropped."""
+    """Ask upstream directly: with a clock that does not advance, is the stamp lost?
+
+    Reading the source is not enough — the guarded line still contains the original
+    expression, so a text match reports the defect forever. This runs the real
+    function against a frozen clock, which is what a sub-tick search observes, and
+    costs about three hashes. Anything other than a clean return keeps the
+    workaround installed, since the workaround preserves upstream behaviour anyway.
+    """
+    original = LXStamper.time
+    LXStamper.time = _FrozenClock(original)
     try:
-        return DEFECT in inspect.getsource(LXStamper)
-    except OSError:
+        UPSTREAM(bytes(32), 1, expand_rounds=LXStamper.WORKBLOCK_EXPAND_ROUNDS_PEERING)
+        return False
+    except Exception:
         return True
+    finally:
+        LXStamper.time = original
 
 
 def install():
-    """Idempotent. Returns whether the upstream defect is still present."""
-    if getattr(LXStamper.generate_stamp, '__module__', None) != __name__:
+    """Idempotent, and a no-op once upstream guards the division.
+
+    Returns whether the defect is still present, so an artifact records whether the
+    workaround was actually in force during that run.
+    """
+    present = defect_present()
+    if present and getattr(LXStamper.generate_stamp, '__module__', None) != __name__:
         LXStamper.generate_stamp = generate_stamp
-    return defect_present()
+    return present

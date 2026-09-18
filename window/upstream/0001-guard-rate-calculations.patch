@@ -1,0 +1,95 @@
+From fb307b27c17f04c93e1d8b6c682939040d9a2729 Mon Sep 17 00:00:00 2001
+From: elSilveira <duzitz@gmail.com>
+Date: Fri, 18 Sep 2026 00:04:25 -0300
+Subject: [PATCH] Guard rate calculations against a zero-length interval
+
+generate_stamp computes the stamp and then evaluates speed = rounds/duration
+purely to build a debug log line. start_time is taken after the workblock is
+expanded, so duration times only the search, and for a low stamp cost that search
+finishes in tens of microseconds. Whenever time.time() does not advance across it,
+duration is 0.0 and the resulting ZeroDivisionError propagates out of the function,
+discarding a stamp that had already been found.
+
+The worst consequence is silent. LXMPeer.sync() generates the peering key in a
+daemon thread, so the exception only reaches that thread's stderr: the peering key
+is never set, peering_key_ready() stays False, and every later sync is postponed
+with "since a peering key has not been generated yet". Peering then never proceeds
+and the application sees only a timeout. The peering path is the most exposed
+because WORKBLOCK_EXPAND_ROUNDS_PEERING is 25, which makes a peering stamp far
+cheaper than a message stamp.
+
+On Windows 11 with Python 3.10.11 and LXMF 1.1.1, calling generate_stamp with a
+peering workblock raised in 19 of 20 runs at stamp_cost 1 and in 5 of 20 at
+stamp_cost 8. Whether it raises depends on the machine's clock granularity, so the
+failure looks environmental: on one machine it was intermittent, on another every
+attempt raised.
+
+Three more rate calculations divide by an interval that can be zero for the same
+reason. Two are on paths where the exception would propagate:
+
+- LXStamper.job_simple, every 2500 rounds
+- LXMPeer.resource_concluded, where a small transfer over a fast link can conclude
+  within one tick, inside a Reticulum resource callback
+- LXStamper.job_linux, which is inside a try/except and would only log the error
+
+All four now report a rate of 0 when the interval is too short to measure, which is
+harmless because each of those messages also carries the round or byte count. The
+clock sources are left unchanged; using time.perf_counter() for these measurements
+would also avoid the zero and give more accurate rates, and I am happy to send that
+separately if you prefer.
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>
+---
+ LXMF/LXMPeer.py   | 3 ++-
+ LXMF/LXStamper.py | 7 ++++---
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/LXMF/LXMPeer.py b/LXMF/LXMPeer.py
+index ca2138e..f637230 100644
+--- a/LXMF/LXMPeer.py
++++ b/LXMF/LXMPeer.py
+@@ -507,7 +507,8 @@ class LXMPeer:
+ 
+             rate_str = ""
+             if self.current_sync_transfer_started != None:
+-                self.sync_transfer_rate = (resource.get_transfer_size()*8)/(time.time()-self.current_sync_transfer_started)
++                transfer_time = time.time()-self.current_sync_transfer_started
++                self.sync_transfer_rate = (resource.get_transfer_size()*8)/transfer_time if transfer_time > 0 else 0
+                 rate_str = f" at {RNS.prettyspeed(self.sync_transfer_rate)}"
+ 
+             RNS.log(f"Syncing {len(self.currently_transferring_messages)} messages to peer {RNS.prettyhexrep(self.destination_hash)} completed{rate_str}", RNS.LOG_VERBOSE)
+diff --git a/LXMF/LXStamper.py b/LXMF/LXStamper.py
+index ea25f08..0af35e0 100644
+--- a/LXMF/LXStamper.py
++++ b/LXMF/LXStamper.py
+@@ -136,7 +136,7 @@ def generate_stamp(message_id, stamp_cost, expand_rounds=WORKBLOCK_EXPAND_ROUNDS
+         else:                  stamp, rounds = job_linux(stamp_cost, workblock, message_id)
+     
+     duration = time.time() - start_time
+-    speed = rounds/duration
++    speed = rounds/duration if duration > 0 else 0
+     if stamp != None: value = stamp_value(workblock, stamp)
+ 
+     RNS.log(f"Stamp with value {value} generated in {RNS.prettytime(duration)}, {rounds} rounds, {int(speed)} rounds per second", RNS.LOG_DEBUG)
+@@ -199,7 +199,8 @@ def job_simple(stamp_cost, workblock, message_id):
+     while not sv(pstamp, stamp_cost, workblock) and not active_jobs[message_id]:
+         pstamp = os.urandom(256//8); rounds += 1
+         if rounds % 2500 == 0:
+-            speed = rounds / (time.time()-st)
++            elapsed = time.time()-st
++            speed = rounds/elapsed if elapsed > 0 else 0
+             RNS.log(f"Stamp generation running. {rounds} rounds completed so far, {int(speed)} rounds per second", RNS.LOG_DEBUG)
+ 
+     if active_jobs[message_id] == True:
+@@ -459,7 +460,7 @@ def job_android(stamp_cost, workblock, message_id):
+ 
+             if stamp == None:
+                 elapsed = time.time() - start_time
+-                speed = total_rounds/elapsed
++                speed = total_rounds/elapsed if elapsed > 0 else 0
+                 RNS.log(f"Stamp generation running. {total_rounds} rounds completed so far, {int(speed)} rounds per second", RNS.LOG_DEBUG)
+         
+         except Exception as e:
+-- 
+2.51.2.windows.1
+

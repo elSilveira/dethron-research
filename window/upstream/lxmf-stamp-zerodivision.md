@@ -1,11 +1,12 @@
 # Upstream report: `generate_stamp` discards a valid stamp with `ZeroDivisionError`
 
-Ready to file at <https://github.com/markqvist/LXMF/issues>. Written for the LXMF
-maintainer, so it is in English and assumes no knowledge of this project.
+Written for the LXMF maintainer, so the report below is in English and assumes no
+knowledge of this project. File at <https://github.com/markqvist/LXMF/issues>, or
+open the pull request described in [`pull-request.md`](pull-request.md).
 
-Confirmed present in **LXMF 1.1.1** (latest release on PyPI at the time of writing)
-and in `master` at commit `795fdaa`, `LXMF/LXStamper.py` line 139. Reproduction
-script: [`repro_lxmf_stamp.py`](repro_lxmf_stamp.py).
+Confirmed present in **LXMF 1.1.1** — the latest release on PyPI at the time of
+writing — and in `master` at commit `795fdaa`. Reproduction script:
+[`repro_lxmf_stamp.py`](repro_lxmf_stamp.py).
 
 ---
 
@@ -48,6 +49,16 @@ node peering then never proceeds, with no error surfaced to the application.
 search. For a low stamp cost that search finishes in tens of microseconds, well
 below the granularity of `time.time()` on Windows.
 
+Three further rate calculations divide by an interval that can be zero for the same
+reason. Two of them are on paths where the exception would propagate:
+
+| Location | Propagates? |
+| --- | --- |
+| `LXStamper.generate_stamp` | yes — the case reported here |
+| `LXStamper.job_simple`, every 2500 rounds | yes |
+| `LXMPeer.resource_concluded` | yes — a small transfer over a fast link can conclude within one tick, inside a Reticulum resource callback |
+| `LXStamper.job_linux` | no — inside a `try`/`except`, so only logged |
+
 ### Why it is easy to miss
 
 Whether `duration` comes out as exactly `0.0` depends on the machine's clock
@@ -69,7 +80,7 @@ Observed on Windows 11, Python 3.10.11, LXMF 1.1.1:
 
 ```
 time.time nominal resolution: 0.015625 s
-smallest observed time.time step: 0.4988 ms
+smallest observed time.time step: 0.4995 ms
 
 A. real clock, peering workblock (25 expand rounds), 20 runs per cost
   stamp_cost=1   ZeroDivisionError in 19/20 runs
@@ -83,11 +94,10 @@ C. the stamp that was thrown away is recoverable: the search had already finishe
   job_simple returned a stamp after 3 rounds, value 1
 ```
 
-Section C shows the stamp is found before the exception: only the log arithmetic fails.
-
-The frozen-clock case in section B is deterministic and platform independent — it
-is what a sufficiently fast search observes on any platform whose clock does not
-advance during it.
+Section C shows the stamp is found before the exception: only the log arithmetic
+fails. The frozen-clock case in section B is deterministic and platform independent
+— it is what a sufficiently fast search observes on any platform whose clock does
+not advance during it.
 
 ### Effect observed in practice
 
@@ -100,29 +110,29 @@ Two propagation nodes, `autopeer` disabled, peering driven explicitly with
 - the application sees only a timeout, with nothing in the router state to explain it.
 
 Raising `peering_cost` does not solve it. It only lowers the odds — 4 and 5 in 20
-across two runs at cost 8 on the machine above — while costing real work: roughly 100 ms at cost 14
-and 800 ms at cost 18 per peering key.
+across two runs at cost 8 on the machine above — while costing real work: roughly
+100 ms at cost 14 and 800 ms at cost 18 per peering key.
 
 ### Suggested fix
 
-`speed` is only used to format a log line, so guarding the division is enough:
+`speed` is only used to format a log line, so guarding the division is enough. Note
+that the guard has to yield a finite value: `float("inf")` would move the failure to
+`int(speed)`, which raises `OverflowError`.
 
 ```python
     duration = time.time() - start_time
-    speed = rounds/duration if duration > 0 else float('inf')
+    speed = rounds/duration if duration > 0 else 0
 ```
 
-Using a monotonic, higher resolution source for the measurement would also avoid
-the zero, and would make the reported rate more accurate:
+Reporting `0` when the interval is immeasurably short is harmless, because each of
+these messages also carries the round or byte count.
 
-```python
-    start_time = time.perf_counter()
-    ...
-    duration = time.perf_counter() - start_time
-```
+Using `time.perf_counter()` for these measurements would additionally avoid the zero
+and make the reported rates accurate, but it changes the clock domain, so it is kept
+out of the minimal fix.
 
-Either change keeps a stamp that has already been computed. I am happy to send a
-pull request if you prefer.
+A pull request with this change applied to all four sites is described in
+[`pull-request.md`](pull-request.md).
 
 ### Environment
 
