@@ -48,6 +48,11 @@ class Agent:
 
     def load(self):
         """The schedule must be exactly the one the bench declared, byte for byte."""
+        if self.evidence.exists() and self.evidence.stat().st_size:
+            raise ValueError(f'{self.machine}: this bench folder was already used. A bench is '
+                             f'single use, because reusing one mixes the evidence of two runs '
+                             f'and leaves nodes that cannot be launched again. Generate a new '
+                             f'bench in a new folder and copy it across again.')
         plan = self.plan = json.loads((self.control/'plan.json').read_text(encoding='utf-8'))
         if self.machine not in plan['machines']:
             raise ValueError(f'{self.machine}: not part of this bench')

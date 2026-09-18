@@ -35,6 +35,10 @@ def build(root, relay_host, window_seconds=None, lead_seconds=None):
     """One relay and origin on alpha, the recipient on beta, across the network."""
     root = Path(root)
     control = root/'control'
+    if (control/'plan.json').exists():
+        raise ValueError(f'{root} already holds a bench. A bench is single use: preparing a new '
+                         f"one here would leave the previous run's nodes and evidence in place. "
+                         f'Choose a new folder.')
     identities = control/'identities'
     window = window_seconds or PROFILE['window_seconds']
     lead = lead_seconds if lead_seconds is not None else PROFILE['lead_seconds']

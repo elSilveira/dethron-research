@@ -109,6 +109,15 @@ class AgentTests(unittest.TestCase):
         rows = agent.run(self.execute, timeout=30)
         self.assertEqual(len(rows), 3)
 
+    def test_a_bench_folder_that_was_already_used_is_refused(self):
+        # Reusing one mixes two runs' evidence and leaves nodes that cannot relaunch,
+        # which showed up as a confusing failure at step 0 on a real bench.
+        self.start()
+        self.agent().run(self.execute)
+        with self.assertRaises(ValueError) as caught:
+            self.agent().load()
+        self.assertIn('already used', str(caught.exception))
+
     def test_without_a_start_marker_the_agent_waits_and_then_gives_up(self):
         agent = self.agent()
         with self.assertRaises(TimeoutError):
