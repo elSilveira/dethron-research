@@ -18,12 +18,14 @@ import re
 VERSION = 1
 MAX_STEPS = 64
 MAX_WINDOW = 3600
+# Every address a step needs is computed before the window, from identities minted in
+# advance, so no step has to discover anything while the machines are deaf.
 ACTIONS = {
-    'launch': {'node', 'role', 'contacts'},
+    'launch': {'node', 'role', 'port', 'contacts', 'credential'},
     'announce': {'node'},
-    'send': {'node', 'label', 'recipient', 'propagation', 'body'},
-    'fetch': {'node', 'source', 'propagation', 'limit_kb'},
-    'custody': {'node', 'relay', 'transient_id'},
+    'send': {'node', 'label', 'recipient', 'recipient_key', 'propagation', 'body'},
+    'fetch': {'node', 'source', 'source_key', 'propagation', 'limit_kb'},
+    'custody': {'node', 'relay', 'relay_key', 'transient_id'},
     'status': {'node'},
     'stop': {'node'},
 }
@@ -79,15 +81,25 @@ def step(at, action, **args):
     return {'at': at, 'action': action, 'args': args}
 
 
-def plan(schedules):
-    """The whole bench: one schedule per machine, plus the digest each agent must match."""
+def plan(schedules, start_wall=None):
+    """The whole bench: one schedule per machine, the digest each agent must match, and
+    optionally the wall-clock instant at which every machine opens its window.
+
+    A declared instant beats a start marker across machines: the marker would need a
+    live channel to arrive at both, and that channel is what an isolated window must
+    not have. Wall clocks disagree, so each agent switches to its own monotonic clock
+    at the instant and records the wall time it actually saw, which makes the combined
+    skew readable from the evidence instead of assumed.
+    """
     if len(schedules) < 2:
         raise ValueError('a bench needs at least two machines')
+    if start_wall is not None and (type(start_wall) not in (int, float) or start_wall <= 0):
+        raise ValueError('invalid rendezvous instant')
     machines = [validate(one)['machine'] for one in schedules]
     if len(set(machines)) != len(machines):
         raise ValueError('duplicate machine in the bench')
     if len({one['window_seconds'] for one in schedules}) != 1:
         raise ValueError('every machine must share the same window')
     return {'version': VERSION, 'window_seconds': schedules[0]['window_seconds'],
-            'machines': dict(zip(machines, schedules)),
+            'start_wall': start_wall, 'machines': dict(zip(machines, schedules)),
             'digests': {machine: digest(one) for machine, one in zip(machines, schedules)}}

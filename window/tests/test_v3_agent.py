@@ -2,6 +2,8 @@
 import json
 from pathlib import Path
 import tempfile
+import threading
+import time
 import unittest
 
 from v3_agent import Agent, seal
@@ -22,12 +24,12 @@ class FakeClock:
         self.now += seconds
 
 
-def bench(window=120):
+def bench(window=120, start_wall=None):
     alpha = schedule('alpha', window, [step(0, 'launch', node='A', role='relay', contacts=[]),
                                        step(1, 'announce', node='A'),
                                        step(2, 'status', node='A')])
     beta = schedule('beta', window, [step(0, 'launch', node='D', role='receiver', contacts=[])])
-    return plan([alpha, beta])
+    return plan([alpha, beta], start_wall=start_wall)
 
 
 class AgentTests(unittest.TestCase):
@@ -50,6 +52,10 @@ class AgentTests(unittest.TestCase):
 
     def agent(self, machine='alpha'):
         return Agent(self.root, machine, clock=self.clock)
+
+    @staticmethod
+    def rows(agent):
+        return [json.loads(line) for line in agent.evidence.read_text(encoding='utf-8').splitlines()]
 
     def test_a_schedule_that_does_not_match_its_digest_is_refused(self):
         tampered = bench()
@@ -95,19 +101,55 @@ class AgentTests(unittest.TestCase):
             self.agent().run(meddle)
         self.assertIn('control channel changed', str(caught.exception))
 
+    def test_the_marker_arriving_after_the_agent_is_not_a_control_change(self):
+        # The real order: the agent waits first, and the orchestrator releases the
+        # window afterwards. The window begins at the marker, so the seal must too.
+        agent = self.agent()
+        threading.Timer(.3, self.start).start()
+        rows = agent.run(self.execute, timeout=30)
+        self.assertEqual(len(rows), 3)
+
     def test_without_a_start_marker_the_agent_waits_and_then_gives_up(self):
         agent = self.agent()
         with self.assertRaises(TimeoutError):
             agent.run(self.execute, timeout=1)
 
-    def test_the_marker_skew_is_recorded_rather_than_assumed(self):
+    def test_how_late_the_window_opened_is_recorded_rather_than_assumed(self):
         self.start()
         agent = self.agent()
         agent.run(self.execute)
-        rows = [json.loads(line) for line in agent.evidence.read_text(encoding='utf-8').splitlines()]
-        started = [row for row in rows if row['event'] == 'started']
+        started = [row for row in self.rows(agent) if row['event'] == 'started']
         self.assertEqual(len(started), 1)
-        self.assertIsNotNone(started[0]['skew_seconds'])
+        self.assertIsNotNone(started[0]['late_seconds'])
+        self.assertIsNotNone(started[0]['local_wall'])
+
+    def test_a_declared_instant_needs_no_marker_and_no_live_channel(self):
+        # Two machines cannot share a marker without a channel; they can share an instant.
+        instant = time.time()+.4
+        (self.control/'plan.json').write_text(json.dumps(bench(start_wall=instant)), encoding='utf-8')
+        agent = self.agent()
+        rows = agent.run(self.execute, timeout=30)
+        self.assertEqual(len(rows), 3)
+        started = [row for row in self.rows(agent) if row['event'] == 'started'][0]
+        self.assertEqual(started['declared_wall'], instant)
+        self.assertGreaterEqual(started['local_wall'], instant)
+        self.assertLess(started['late_seconds'], 1)
+
+    def test_the_combined_skew_between_machines_is_readable_from_the_evidence(self):
+        # Two machines open their windows at the same instant, so the agents must run
+        # concurrently here; running them in sequence would measure this test, not the skew.
+        instant = time.time()+1
+        (self.control/'plan.json').write_text(json.dumps(bench(start_wall=instant)), encoding='utf-8')
+        agents = [Agent(self.root, name) for name in ('alpha', 'beta')]
+        threads = [threading.Thread(target=agent.run, args=(self.execute,), kwargs={'timeout': 30})
+                   for agent in agents]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=60)
+        opened = [[row for row in self.rows(agent) if row['event'] == 'started'][0]['local_wall']
+                  for agent in agents]
+        self.assertLess(abs(opened[0]-opened[1]), 1, 'machines opened their windows too far apart')
 
 
 class SealTests(unittest.TestCase):

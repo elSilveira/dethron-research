@@ -38,7 +38,7 @@ class Agent:
         self.home.mkdir(parents=True, exist_ok=True)
         self.control = self.root/'control'
         self.evidence = self.home/'evidence.jsonl'
-        self.schedule = None
+        self.schedule, self.plan = None, None
 
     def record(self, event, **values):
         row = {'event': event, 'machine': self.machine, 'wall': time.time(), **values}
@@ -48,7 +48,7 @@ class Agent:
 
     def load(self):
         """The schedule must be exactly the one the bench declared, byte for byte."""
-        plan = json.loads((self.control/'plan.json').read_text(encoding='utf-8'))
+        plan = self.plan = json.loads((self.control/'plan.json').read_text(encoding='utf-8'))
         if self.machine not in plan['machines']:
             raise ValueError(f'{self.machine}: not part of this bench')
         schedule = validate(plan['machines'][self.machine])
@@ -60,25 +60,41 @@ class Agent:
         return schedule
 
     def wait_for_start(self, timeout=600):
-        """The last thing the control channel does before the window; skew is recorded."""
-        marker = self.control/'start.json'
+        """Wait for the declared instant, or for a marker when no instant was declared.
+
+        The wall time actually observed is recorded, so comparing the machines' records
+        afterwards gives the combined clock offset and polling jitter as a number.
+        """
         deadline = self.clock()+timeout
+        declared = self.plan.get('start_wall') if self.plan else None
+        if declared is not None:
+            while time.time() < declared:
+                if self.clock() > deadline:
+                    raise TimeoutError(f'{self.machine}: rendezvous instant not reached within {timeout}s')
+                time.sleep(min(.05, max(0.0, declared-time.time())))
+            began, observed = self.clock(), time.time()
+            self.record('started', declared_wall=declared, local_wall=observed,
+                        late_seconds=round(observed-declared, 3))
+            return began
+        marker = self.control/'start.json'
         while not marker.exists():
             if self.clock() > deadline:
                 raise TimeoutError(f'{self.machine}: no start marker within {timeout}s')
             time.sleep(.05)
-        declared = json.loads(marker.read_text(encoding='utf-8'))
+        released = json.loads(marker.read_text(encoding='utf-8'))
         began = self.clock()
-        self.record('started', marker_wall=declared.get('wall'), local_wall=time.time(),
-                    skew_seconds=time.time()-declared['wall'] if 'wall' in declared else None)
+        self.record('started', declared_wall=released.get('wall'), local_wall=time.time(),
+                    late_seconds=round(time.time()-released['wall'], 3) if 'wall' in released else None)
         return began
 
     def run(self, execute, timeout=600):
         """Execute each step when its own monotonic clock says so, and nothing else."""
         if self.schedule is None:
             self.load()
-        before = seal(self.control)
+        # The window begins at the marker, so the seal must too: everything up to and
+        # including the release is preparation, and only what follows must be silent.
         began = self.wait_for_start(timeout=timeout)
+        before = seal(self.control)
         results = []
         for position, step in enumerate(self.schedule['steps']):
             due = began+step['at']

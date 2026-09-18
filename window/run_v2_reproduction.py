@@ -22,7 +22,7 @@ BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
 PINNED = {'rns': '1.5.4', 'lxmf': '1.1.1', 'cryptography': '50.0.1'}
 # Measured on the committed tree: the whole suite, and the Rust-free subset by pattern.
-FAST_EXPECTED = {'full': (203, 8), 'subset': (133, 8)}
+FAST_EXPECTED = {'full': (206, 8), 'subset': (136, 8)}
 EXPECTED = {
     'test_gateway_reference.py': 'meets_scoped_requirement',
     'test_g1_reference.py': 'meets_g1_lab_contract',
