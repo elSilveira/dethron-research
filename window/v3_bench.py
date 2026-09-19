@@ -21,12 +21,18 @@ PROFILE = {'version': 1, 'payload_bytes': 16384, 'window_seconds': 240, 'lead_se
 # A serial link is slower than a LAN and its paths take longer to settle, so the serial
 # bench gives every stage more room. The IP timings are left exactly as V3a ran them.
 SERIAL = {'speed': 115200, 'window_seconds': 480, 'lead_seconds': 180}
+# Over IP both machines may open at once: a listening socket exists whether or not anyone
+# connects. A serial link is not symmetric. One end waits and the other dials, and the
+# dialling end cannot open its port at all until the waiting end holds its own — on a
+# Bluetooth port that is error 1168, which reads as a port that does not exist. So the
+# relay opens first and the recipient follows, and no write crosses the link until both
+# ends are on it, because a write to an unconnected serial port never returns.
 TIMES = {
     'ip': {'relay': 0, 'origin': 8, 'announce_a': 20, 'announce_o': 26, 'send': 34,
            'status': 90, 'stop': 100, 'receiver': 0, 'announce_d': 30, 'fetch': (130, 170)},
-    'serial': {'relay': 0, 'origin': 10, 'announce_a': 30, 'announce_o': 45, 'send': 60,
-               'status': 200, 'stop': 240, 'receiver': 0, 'announce_d': 40,
-               'fetch': (220, 300, 380)},
+    'serial': {'relay': 0, 'origin': 15, 'announce_a': 60, 'announce_o': 75, 'send': 90,
+               'status': 240, 'stop': 300, 'receiver': 30, 'announce_d': 70,
+               'fetch': (240, 320, 400)},
 }
 
 

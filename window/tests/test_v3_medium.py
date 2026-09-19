@@ -143,3 +143,32 @@ class PreflightTests(unittest.TestCase):
             build(root, relay_host='192.168.1.9')
             self.assertEqual(Agent(root, 'beta').preflight(
                 json.loads((root/'control'/'plan.json').read_text())['machines']['beta']), [])
+
+
+class SerialOrderTests(unittest.TestCase):
+    """A serial link is not symmetric: the end that dials cannot open its port until the
+    end that waits already holds its own, so the schedules cannot open at once."""
+
+    def plans(self):
+        from v3_bench import build
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = build(Path(tmp), serial={'alpha': 'COM3', 'beta': 'COM7'})
+            return {m: {s['action']: s['at'] for s in plan['machines'][m]['steps']}
+                    for m in ('alpha', 'beta')}, plan
+
+    def test_the_relay_opens_the_link_before_the_recipient_dials(self):
+        times, _ = self.plans()
+        self.assertLess(times['alpha']['launch'], times['beta']['launch'])
+
+    def test_nothing_is_written_to_the_link_until_both_ends_are_on_it(self):
+        """A write to an unconnected serial port never returns, so it must not happen."""
+        times, plan = self.plans()
+        first_write = min(s['at'] for s in plan['machines']['alpha']['steps']
+                          if s['action'] in ('announce', 'send'))
+        self.assertGreater(first_write, times['beta']['launch'])
+
+    def test_the_ip_bench_still_opens_together(self):
+        from v3_bench import build
+        with tempfile.TemporaryDirectory() as tmp:
+            plan = build(Path(tmp), relay_host='192.168.1.9')
+            self.assertEqual({plan['machines'][m]['steps'][0]['at'] for m in ('alpha', 'beta')}, {0})
