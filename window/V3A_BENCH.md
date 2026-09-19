@@ -1,4 +1,4 @@
-# V3a — bancada multi-máquina: a ressalva do host único, aposentada
+# V3a — bancada multi-máquina: tudo provado menos que são duas máquinas
 
 18/09/2026. Fatia funcional sobre Reticulum 1.5.4/LXMF 1.1.1, em duas máquinas
 Windows distintas na mesma rede local. O [V2 aprovado](V2_REPRODUCTION.md) deu o
@@ -54,6 +54,10 @@ Duas máquinas Windows na mesma rede, relé e origem em `alpha`, destinatário e
 **Desvio entre as janelas: 0,007 s.** Sete milissegundos entre duas máquinas sem
 nenhum canal vivo entre elas, só pelo instante declarado.
 
+**O veredito desta rodada é `v3a_pass_without_machine_evidence`**, não
+`v3a_scoped_pass`. Tudo acima está provado; a distinção entre as máquinas, não.
+Ver a seção seguinte.
+
 O destinatário reconstruiu os 16.384 bytes exatos
 (`sha256 9e390712447e77dedddd75386db336f7a07fb8b1cc210eff3fff9c172b15b4e6`),
 com o pacote autenticado contra a chave da origem e o recibo local válido — a
@@ -71,7 +75,16 @@ mais que o G1. Por isso o auditor:
 - exige que o endereço do relé **pertença à máquina do relé e a nenhuma outra**.
 
 Esse auditor ganhou seu lugar reprovando o ensaio de host único do próprio autor,
-antes de qualquer rodada real.
+antes de qualquer rodada real — e reprovou também a rodada acima. Os agentes ainda
+não gravavam `host.json`, então o `report.json` traz `evidenced: false` com a razão
+escrita nele: *distinctness rests on the non-loopback address and on the operator,
+not on this evidence*.
+
+Na prática, o que a rodada estabelece sozinha é que **o relé não estava em
+loopback** (`192.168.68.62`). Que as duas pastas rodaram em máquinas diferentes é
+observação do operador, e observação do operador é precisamente o que este
+projeto não aceita como prova. A gravação de identidade de host já está no
+`v3_agent.py`; falta uma rodada que a exerça.
 
 ## Rodadas e verificações
 
@@ -102,7 +115,7 @@ temporário separou as duas coisas em segundos.
 Duas máquinas, um sistema operacional, uma rede sem fio doméstica, um objeto de
 16 KiB, uma rodada. Não é estimativa estatística. Ethernet e Wi-Fi não foram
 comparados como meios distintos, e nenhum enlace não-IP participou: **isto não é
-G6 e não diz nada sobre diversidade física** — essa é a fatia V3b, com enlace
+G6 e não diz nada sobre diversidade física** — essa é a fatia V3c, com enlace
 serial, que também passará a servir de base de tempo.
 
 O canal de controle é uma pasta copiada à mão entre as máquinas, declarada e
@@ -141,11 +154,20 @@ window/.venv-gateway/Scripts/python.exe window/run_v3_report.py C:\dethron\bench
 
 ## Decisão e próximo passo
 
-A evidência de G0–V1 sustenta em máquinas fisicamente distintas, com ninguém
-dirigindo-as durante a janela. A ressalva do host único sai dos marcos anteriores
-no que diz respeito a processo e sistema de arquivos; **não** sai no que diz
-respeito a meio físico.
+A evidência de G0–V1 sustenta em duas pastas que não compartilham processo nem
+diretório, com ninguém dirigindo-as durante a janela, e o objeto atravessou uma
+rede real entre endereços não-loopback. **A ressalva do host único não sai dos
+marcos anteriores enquanto uma rodada não gravar as identidades de host.**
 
-Próxima fatia: **V3b**, com um enlace serial/USB entre as duas máquinas — um meio
-não-IP de verdade, que também remove o relógio de parede do encontro, porque o
-pulso de partida passa a viajar pelo próprio fio.
+Próximo passo, nesta ordem:
+
+1. **Fechar o V3a** numa rodada que produza `v3a_scoped_pass`. É a única coisa que
+   falta, e o código para isso já existe — ver [V3_SETUP.md](V3_SETUP.md).
+2. **V3c**, com enlace serial entre as duas máquinas: um meio não-IP de verdade,
+   que também remove o relógio de parede do encontro, porque o pulso de partida
+   passa a viajar pelo próprio fio.
+
+O **V3b** — segundo meio físico via cabo Ethernet — foi descartado: Wi-Fi e
+Ethernet carregam os dois IP, então a rodada custaria o mesmo trabalho para
+provar diversidade de cabo, não diversidade de meio. O que o V3b tinha de
+próprio, o controle do desplugue, o V3c herda.

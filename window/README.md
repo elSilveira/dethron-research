@@ -1,7 +1,9 @@
 # TRON Window
 
-V3a executado: [bancada em duas máquinas, janelas abertas com 7 ms de diferença
-sem canal vivo](V3A_BENCH.md). Para montar duas máquinas do zero:
+V3a executado e **não fechado**: [janelas abertas com 7 ms de diferença sem canal
+vivo](V3A_BENCH.md), mas a rodada não gravou identidade de host e o veredito é
+`v3a_pass_without_machine_evidence` — que são duas máquinas ainda é palavra do
+operador. Para montar duas máquinas do zero e fechá-lo:
 [preparação passo a passo](V3_SETUP.md).
 
 V2 aprovado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com

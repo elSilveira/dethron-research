@@ -576,12 +576,17 @@ teste que avisa quando a montante consertar. Depois das correções, a execuçã
 **passou** em 18/09/2026: veredito `v2_pass` em 58,0 minutos, oito caminhos com o
 veredito declarado e a suíte verde. **V2 está fechado** no escopo do seu critério —
 reprodução em máquina independente por quem não escreveu o código, seguindo apenas
-o documento; não por um estranho sem contato com o autor. **V3a executado** em
-18/09/2026: [duas máquinas distintas](window/V3A_BENCH.md), janelas abertas com
-0,007 s de diferença sem canal vivo, canal de controle lacrado nas duas e objeto
-entregue e auditado. A ressalva de host único sai dos marcos anteriores quanto a
-processo e sistema de arquivos, não quanto a meio físico. Próxima fatia: V3b, com
-enlace serial não-IP. O mesmo
+o documento; não por um estranho sem contato com o autor. **V3a executado, e não fechado**, em
+18/09/2026: [janelas abertas com 0,007 s de diferença](window/V3A_BENCH.md) sem
+canal vivo, canal de controle lacrado nas duas, objeto entregue e auditado sobre
+endereços não-loopback. O veredito, porém, é `v3a_pass_without_machine_evidence`:
+os agentes ainda não gravavam identidade de host, e **que as duas pastas rodaram em
+máquinas diferentes continua sendo observação do operador, não evidência** — o que
+este projeto não aceita. A ressalva de host único só sai dos marcos anteriores
+quando uma rodada produzir `v3a_scoped_pass`; o código para isso já existe.
+Próxima fatia: V3c, com enlace serial não-IP. O V3b, segundo meio físico via cabo
+Ethernet, foi descartado: Wi-Fi e Ethernet carregam os dois IP, e provar
+diversidade de cabo não é provar diversidade de meio. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor
