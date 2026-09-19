@@ -25,6 +25,13 @@ class Manager:
         return {"status": "stopping"}
 
 
+# Generous on purpose. This guards against a server that never answers, not against a
+# slow one: the suite runs live nodes alongside these requests and a loaded machine can
+# leave a local server thread unscheduled for seconds. At three seconds this test failed
+# intermittently, which is worse than useless in a suite whose count is cited as evidence.
+REPLY_TIMEOUT = 30
+
+
 class ServerTests(unittest.TestCase):
     def setUp(self):
         self.server = create_server(Manager(), 0)
@@ -41,7 +48,7 @@ class ServerTests(unittest.TestCase):
     def request(self, path, data=None, headers=None):
         request = Request(self.base + path, data=data, headers=headers or {})
         try:
-            response = urlopen(request, timeout=3)
+            response = urlopen(request, timeout=REPLY_TIMEOUT)
         except HTTPError as error:
             response = error
         with response:
