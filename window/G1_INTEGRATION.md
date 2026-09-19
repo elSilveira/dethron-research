@@ -1,130 +1,131 @@
-# G1 — mensagem persistente e confirmação autenticada
+# G1 — a persistent message and an authenticated confirmation
 
-Fechamento: 16/09/2026. Predecessor: [G0](G0_REFERENCE.md).
-Plano: [arquitetura e marcos](../DETHRON_MASTER_PLAN.md).
+Closed: 16/09/2026. Predecessor: [G0](G0_REFERENCE.md).
+Plan: [architecture and milestones](../DETHRON_MASTER_PLAN.md).
 
-## Avaliação antes de investir
+## Assessment before investing
 
-**G0 foi satisfatório para uma integração limitada.** Sua reauditoria confirmou
-três objetos recebidos após reinícios, com assinatura e conteúdo válidos.
-Isso não demonstrou novidade do Dethron: mostrou que é possível aproveitar
-Reticulum/LXMF. O investimento autorizado em G1 foi uma fronteira de aplicação
-pequena, necessária para testar depois mensagens compostas por partes.
+**G0 was satisfactory for a limited integration.** Its re-audit confirmed three objects
+received after restarts, with valid signature and content. That demonstrated no novelty
+from Dethron: it showed that Reticulum/LXMF can be built upon. The investment authorised
+for G1 was a small application boundary, needed in order to test messages made of parts
+afterwards.
 
-**Pergunta de G1:** conseguimos manter uma obrigação de entrega entre reinícios,
-sem confundir envio com confirmação, sem duplicar a mensagem recebida e sem
-aceitar confirmação de outro participante?
+**G1's question:** can we hold a delivery obligation across restarts, without confusing
+sending with confirmation, without duplicating the received message, and without
+accepting a confirmation from another participant?
 
-## Implementação e decisão de arquitetura
+## Implementation and architecture decision
 
-Pacote [dethron_gateway](dethron_gateway/__init__.py), em Python, junto à API
-nativa Reticulum 1.5.4/LXMF 1.1.1. O núcleo Rust v2 de recuperação permanece
-separado. Esta escolha altera a proposta de colocar todas as primeiras transições
-em Rust: a integração e a caixa da aplicação são validadas primeiro na linguagem
-da referência, evitando uma segunda implementação e uma ponte entre linguagens
-antes de medir necessidade. Não é uma migração do núcleo v2.
+The [dethron_gateway](dethron_gateway/__init__.py) package, in Python, next to the
+native Reticulum 1.5.4/LXMF 1.1.1 API. The Rust v2 recovery core stays separate. This
+choice changes the proposal of putting every early transition in Rust: the integration
+and the application's mailbox are validated first in the reference's own language,
+avoiding a second implementation and a cross-language bridge before the need is
+measured. It is not a migration of the v2 core.
 
-| Componente | Responsabilidade |
+| Component | Responsibility |
 | --- | --- |
-| `protocol.py` | Manifesto versionado de objeto completo; IDs, endpoints, tamanho, SHA-256, prazo e payload limitado |
-| `wire.py` | Verificar assinatura nativa LXMF e vincular manifesto à origem e ao destino efetivos |
-| `database.py` | SQLite, transações, identidade do banco e admissão por capacidade |
-| `mailbox.py` | Outbox, inbox, recibos, deduplicação, tentativas e expiração |
-| `adapter.py` | Integração de envio/recepção real com LXMF; avanço explícito por `pump()` |
-| `g1_node.py` | Processo de laboratório, identidade persistente e controle JSONL |
-| `g1_scenario.py` / `run_g1_probe.py` | Agenda de falhas, execução e reauditoria dos bancos e pacotes |
+| `protocol.py` | A versioned manifest for a whole object; ids, endpoints, size, SHA-256, deadline and a bounded payload |
+| `wire.py` | Check the native LXMF signature and bind the manifest to the effective origin and destination |
+| `database.py` | SQLite, transactions, database identity and admission by capacity |
+| `mailbox.py` | Outbox, inbox, receipts, deduplication, attempts and expiry |
+| `adapter.py` | Real send/receive integration with LXMF; explicit progress through `pump()` |
+| `g1_node.py` | Laboratory process, persistent identity and JSONL control |
+| `g1_scenario.py` / `run_g1_probe.py` | Failure schedule, execution and re-audit of the databases and packets |
 
-O store de `v2/src/network/node_store.rs` persiste unidades opacas em arquivos,
-mas não oferece a transação conjunta de inbox e recibo requerida nesta fatia.
-Por isso a caixa usa SQLite, `journal_mode=DELETE`, `synchronous=FULL` e
-`BEGIN IMMEDIATE`: a mensagem e o recibo pendente entram na mesma transação.
-Os testes cobrem crash de processo antes/depois do commit; não validam queda de
-energia ou falha de hardware. [Semântica e pressupostos do SQLite](https://www.sqlite.org/atomiccommit.html).
+The store in `v2/src/network/node_store.rs` persists opaque units in files, but does not
+offer the joint transaction of inbox and receipt this slice requires. So the mailbox uses
+SQLite, `journal_mode=DELETE`, `synchronous=FULL` and `BEGIN IMMEDIATE`: the message and
+the pending receipt enter in the same transaction. The tests cover a process crash
+before and after the commit; they do not validate power loss or hardware failure.
+[SQLite's semantics and assumptions](https://www.sqlite.org/atomiccommit.html).
 
-Não foi criada criptografia nova. O manifesto viaja dentro de LXMF, cifrado no
-transporte nativo e assinado pela identidade remetente. A verificação usa Ed25519
-de `cryptography` e o formato nativo; não confia apenas em um flag de sucesso.
-Os bancos e chaves do laboratório ficam em disco **sem proteção adicional em repouso**.
+No new cryptography was created. The manifest travels inside LXMF, encrypted by the
+native transport and signed by the sending identity. Verification uses Ed25519 from
+`cryptography` and the native format; it does not rely on a success flag alone. The
+laboratory databases and keys sit on disk **with no additional protection at rest**.
 
-## Contrato e estados
+## Contract and states
 
-API mínima reutilizável:
+The minimal reusable API:
 
-- `Mailbox.queue(envelope, now)`: admite mensagem local e persiste antes de retornar.
-- `Mailbox.pending(now)`: lista elegíveis e marca expiração; não transmite.
-- `Adapter.pump()`: submete pendências ao LXMF; a agenda de chamadas pertence ao chamador.
-- `Adapter.receive(message)`: autentica, valida e aplica a transação local.
-- `Mailbox.snapshot()`: consulta estados, tentativas e referências.
+- `Mailbox.queue(envelope, now)`: admits a local message and persists before returning.
+- `Mailbox.pending(now)`: lists the eligible ones and marks expiry; it does not transmit.
+- `Adapter.pump()`: submits pending items to LXMF; the calling schedule belongs to the
+  caller.
+- `Adapter.receive(message)`: authenticates, validates and applies the local transaction.
+- `Mailbox.snapshot()`: queries states, attempts and references.
 
-`accept_verified()` é uma fronteira interna de confiança: só deve receber
-objetos já autenticados pelo adaptador. Um hash isolado não autentica remetente.
+`accept_verified()` is an internal trust boundary: it must only receive objects already
+authenticated by the adapter. A hash on its own does not authenticate a sender.
 
 ```text
-origem: queued -> sending -> handed_off
-                           -> confirmed, somente com recibo válido do destino
-        pendências sem confirmação -> expired ao atingir o prazo
+origin: queued -> sending -> handed_off
+                          -> confirmed, only with a valid receipt from the destination
+        pending items without confirmation -> expired on reaching the deadline
 
-destino: validar -> [inbox received + recibo queued] na mesma transação
-                   -> transmitir recibo pelo LXMF
+destination: validate -> [inbox received + receipt queued] in the same transaction
+                      -> transmit the receipt over LXMF
 ```
 
-Um recibo vincula versão, ID, origem/destino invertidos, tamanho, digest e prazo.
-Assinatura válida de outra identidade não confirma a obrigação. Um callback de
-handoff tardio não rebaixa `confirmed`. Reenvio com o mesmo ID e conteúdo mantém
-uma única entrada na inbox; mesmo ID com conteúdo diferente é rejeitado.
+A receipt binds version, id, origin and destination inverted, size, digest and deadline.
+A valid signature from another identity does not confirm the obligation. A late handoff
+callback does not demote `confirmed`. Resending with the same id and content keeps a
+single inbox entry; the same id with different content is rejected.
 
-Uma duplicata pode recolocar o recibo na fila, preservando seu limite de tentativas.
-Isso não garante execução exatamente uma vez de efeitos externos como um pagamento.
-Um recibo significa que esta implementação persistiu a mensagem antes de assiná-lo;
-assinaturas de participantes desonestos não são prova econômica de serviço.
+A duplicate may requeue the receipt, preserving its attempt limit. This does not
+guarantee exactly-once execution of external effects such as a payment. A receipt means
+this implementation persisted the message before signing it; signatures from dishonest
+participants are not economic proof of service.
 
-## Perfil congelado de laboratório
+## Frozen laboratory profile
 
-| Item | Valor |
+| Item | Value |
 | --- | --- |
-| Meio | TCP loopback, um host Windows; entrega direta LXMF, sem propagador nesta fatia |
-| Participantes | O envia; D recebe; X tenta confirmar com outra identidade; uma identidade adicional nunca tem processo |
-| Mensagem positiva | 65.536 bytes determinísticos SHAKE-256; expiração em 180 s |
-| Negativo | Destinatário sem identidade conhecida/rota local; expiração em 30 s; nenhuma confirmação |
-| Limites da aplicação | 1 MiB de payload; 1.500.000 bytes de envelope JSON; 128 registros; 8 MiB lógicos de corpos/pacotes armazenados |
-| Tentativas | Até 3 submissões por obrigação ao adaptador, persistidas entre reinícios |
-| Crashes | `os._exit(23)`, preservando disco e identidade |
-| Evidência | Bancos locais, pacotes LXMF assinados, manifesto, logs, timeline, versões e hashes dos fontes registrados |
+| Medium | Loopback TCP, one Windows host; direct LXMF delivery, no propagation node in this slice |
+| Participants | O sends; D receives; X tries to confirm with another identity; one further identity never has a process |
+| Positive message | 65,536 deterministic SHAKE-256 bytes; expiry in 180 s |
+| Negative | A recipient with no known identity or local route; expiry in 30 s; no confirmation |
+| Application limits | 1 MiB of payload; 1,500,000 bytes of JSON envelope; 128 records; 8 MiB logical of stored bodies and packets |
+| Attempts | Up to 3 submissions per obligation to the adapter, persisted across restarts |
+| Crashes | `os._exit(23)`, preserving disk and identity |
+| Evidence | Local databases, signed LXMF packets, manifest, logs, timeline, versions and source hashes recorded |
 
-O limite de tentativas não conta as retransmissões internas do LXMF. A cota
-lógica não mede ocupação física nem limita todos os caches/logs da biblioteca.
-Registros antigos são conservados: não há coleta automática nem política de
-retenção de produção; ao atingir capacidade, a admissão falha explicitamente.
-O relógio UTC local é confiado; rollback de relógio ainda não foi validado.
+The attempt limit does not count LXMF's internal retransmissions. The logical quota
+measures no physical footprint and does not bound every cache or log of the library. Old
+records are kept: there is no automatic collection and no production retention policy;
+on reaching capacity, admission fails explicitly. The local UTC clock is trusted; a clock
+rollback has not been validated.
 
-O negativo desta rodada não envia payload a um intermediário: a identidade
-ausente não é conhecida, permanece pendente e expira. Isso complementa o negativo
-G0, que realmente armazenou a mensagem de destino ausente em um propagador.
+This round's negative sends no payload to an intermediary: the absent identity is not
+known, stays pending and expires. This complements G0's negative, which really did store
+the absent destination's message at a propagation node.
 
-## Testes e critérios de satisfação
+## Tests and satisfaction criteria
 
-| Teste | Critério |
+| Test | Criterion |
 | --- | --- |
-| Origem cai antes de transmitir | Fila e identidade sobrevivem; envio posterior usa o registro persistido |
-| Destino cai depois do commit e antes do recibo | Inbox e recibo sobrevivem juntos |
-| Crash dentro da transação, antes do commit | Nenhuma inbox parcial nem recibo persistido; testado em subprocesso real |
-| Retransmissão após restart | Uma entrada lógica; duplicata identificada |
-| Handoff sem recibo | Origem permanece não confirmada |
-| X envia recibo com assinatura própria válida | Rejeição; nenhuma confirmação |
-| Manifesto corrompido assinado e enviado por LXMF | Rejeição no receptor |
-| Recibo legítimo retorna; origem reinicia | `confirmed` persiste; reauditoria verifica assinatura do destino |
-| Destinatário ausente | Expira sem recibo nem confirmação |
-| Capacidade insuficiente | Admissão falha e inbox/recibo são desfeitos juntos |
-| Versão, campos, assinatura, endpoint ou conteúdo inválidos | Rejeição nos testes de contrato/autenticação |
-| Auditor recebe obrigação ou prazo adulterado | Não aceita mesmo que exista uma assinatura válida |
+| The origin crashes before transmitting | The queue and the identity survive; a later send uses the persisted record |
+| The destination crashes after the commit and before the receipt | Inbox and receipt survive together |
+| A crash inside the transaction, before the commit | No partial inbox and no persisted receipt; tested in a real subprocess |
+| Retransmission after a restart | One logical entry; the duplicate identified |
+| Handoff without a receipt | The origin stays unconfirmed |
+| X sends a receipt with its own valid signature | Rejected; no confirmation |
+| A corrupted manifest signed and sent over LXMF | Rejected at the receiver |
+| The legitimate receipt returns; the origin restarts | `confirmed` persists; the re-audit checks the destination's signature |
+| An absent recipient | Expires with no receipt and no confirmation |
+| Insufficient capacity | Admission fails and inbox and receipt are undone together |
+| Invalid version, fields, signature, endpoint or content | Rejected in the contract and authentication tests |
+| The auditor receives a tampered obligation or deadline | It does not accept, even where a valid signature exists |
 
-Os testes rápidos usam entradas sintéticas; um teste de fronteira usa um router
-substituto para reproduzir a regressão de rota em cache. Esses testes não são
-contados como prova de rede. O ensaio de integração usa processos e LXMF reais.
+The fast tests use synthetic inputs; one boundary test uses a stand-in router to
+reproduce the cached-route regression. Those tests are not counted as network proof. The
+integration run uses real processes and real LXMF.
 
-## Reprodução
+## Reproduction
 
-Na raiz, com o [ambiente fixado em G0](G0_REFERENCE.md#reprodução):
+At the repository root, with the [environment pinned in G0](G0_REFERENCE.md#reproduction):
 
 ```powershell
 $env:PYTHONPATH='window'
@@ -134,53 +135,63 @@ window/.venv-gateway/Scripts/python.exe -m unittest discover -s window/tests -p 
 Remove-Item Env:RUN_GATEWAY_G1
 ```
 
-Para acompanhar eventos: `window/.venv-gateway/Scripts/python.exe window/run_g1_probe.py`.
-Cada rodada cria `window/results/gateway-g1-ID`, sem sobrescrever tentativas.
-Artefatos locais contêm chaves privadas e conteúdo de laboratório e são ignorados
-pelo Git. O resumo documental preserva resultado e limites para outras instalações.
+Those lines are PowerShell. From any terminal, the runner does the same without
+environment variables:
 
-## Rodadas e avaliação final
+```
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g1
+```
 
-| Rodada | Resultado |
+To follow the events: `window/.venv-gateway/Scripts/python.exe window/run_g1_probe.py`.
+Each round creates `window/results/gateway-g1-ID`, overwriting no attempt. Local
+artifacts contain private keys and laboratory content and are ignored by Git. The
+documentary summary preserves the result and the limits for other installations.
+
+## Rounds and final assessment
+
+| Round | Result |
 | --- | --- |
-| `1789498739568561700` | Inconclusiva: adaptador exigia rota em cache e bloqueava o canal de retorno nativo. Erro reproduzido em teste e corrigido delegando a escolha de caminho ao LXMF. |
-| `1789498865120420300` | Integração passou em 30,230 s; confirmação persistente, duplicata, corrupção e identidade errada verificadas. |
-| `1789581740304500500` | Versão final passou em 31,124 s, com auditor endurecido e reauditoria dos bancos/pacotes. |
+| `1789498739568561700` | Inconclusive: the adapter demanded a cached route and blocked the native return channel. The error was reproduced in a test and fixed by delegating path choice to LXMF. |
+| `1789498865120420300` | The integration passed in 30.230 s; persistent confirmation, duplicate, corruption and wrong identity all checked. |
+| `1789581740304500500` | The final version passed in 31.124 s, with a hardened auditor and a re-audit of the databases and packets. |
 
-[Primeiro relatório aprovado](evidence/gateway-g1-1789498865120420300/report.json).
-A revisão posterior endureceu o auditor para comparar todos os campos da obrigação
-e fechar explicitamente conexões SQLite; a versão final foi repetida antes do fechamento.
+[First approved report](evidence/gateway-g1-1789498865120420300/report.json). The later
+review hardened the auditor to compare every field of the obligation and to close SQLite
+connections explicitly; the final version was repeated before closing.
 
-[Relatório final](evidence/gateway-g1-1789581740304500500/report.json),
-[manifesto](evidence/gateway-g1-1789581740304500500/manifest.json) e
+[Final report](evidence/gateway-g1-1789581740304500500/report.json),
+[manifest](evidence/gateway-g1-1789581740304500500/manifest.json) and
 [timeline](evidence/gateway-g1-1789581740304500500/timeline.jsonl).
-Regressão G0 com o launcher compartilhado também passou:
-[relatório](evidence/gateway-g0-1789498911484614700/report.json).
+The G0 regression with the shared launcher also passed:
+[report](evidence/gateway-g0-1789498911484614700/report.json).
 
-Verificação final:
+Final checks:
 
-- **19 testes rápidos G1 passaram** no ambiente `.venv-gateway`; o ensaio opt-in
-  foi pulado nessa chamada e executado separadamente: **1 integração real passou**.
-- Suíte geral: **136 passaram, 7 pulados**. Os pulos são os cinco módulos que
-  dependem do ambiente RNS/LXMF e os dois ensaios de rede opt-in; a execução G1
-  e a regressão G0 são registradas separadamente acima. Os testes G0 rápidos
-  já haviam passado no fechamento de G0.
-- Hashes dos fontes conferem com a rodada final; módulos/testes novos têm menos
-  de 200 linhas; links locais da documentação foram conferidos.
-- As duas rodadas funcionais são evidência de desenvolvimento, sem estimativa
-  estatística de confiabilidade, benefício energético ou ganho de desempenho.
+- **19 fast G1 tests passed** in the `.venv-gateway` environment; the opt-in run was
+  skipped in that call and executed separately: **1 real integration passed**.
+- General suite: **136 passed, 7 skipped**. The skips are the five modules depending on
+  the RNS/LXMF environment plus the two opt-in network runs; the G1 execution and the G0
+  regression are recorded separately above. The fast G0 tests had already passed when G0
+  closed.
+- The source hashes match the final round; new modules and tests are under 200 lines;
+  the documentation's local links were checked.
+- The two functional rounds are development evidence, with no statistical estimate of
+  reliability, energy benefit or performance gain.
 
-**Decisão:** satisfatório como integração funcional de laboratório; não como rede
-pronta para produção nem como demonstração de vantagem competitiva. Há razão
-para um G2 pequeno: testar se partes vindas de contatos incompletos acrescentam
-utilidade sob orçamento comparável. G2 não fica aprovado de antemão.
+Those counts were measured on the tree of the time. The suite today holds **166 passed,
+8 skipped**: the pre-Dethron work left the tree when the repository was prepared for
+publication.
 
-G2 deve comparar, com os mesmos contatos e limites, objetos completos, partes
-exatas e depois codificação estabelecida. Se o ganho desaparecer ao contar
-metadados, retransmissões e armazenamento, manter apenas a integração ou encerrar
-a hipótese de protocolo próprio. Não ampliar para mesh físico, tokens ou escala
-global para compensar ausência de ganho.
+**Decision:** satisfactory as a functional laboratory integration; not as a
+production-ready network and not as a demonstration of competitive advantage. There is a
+reason for a small G2: to test whether parts arriving from incomplete contacts add
+usefulness on a comparable budget. G2 is not approved in advance.
 
-O G1 não testa o recibo de aplicação atravessando propagadores offline; G0 e G1
-provaram partes distintas. Essa composição, rádio, disco cheio físico, ataques
-persistentes, rotação de chaves e operação sem supervisor continuam pendentes.
+G2 must compare, with the same contacts and limits, whole objects, exact parts and then
+an established encoding. If the gain disappears once metadata, retransmissions and
+storage are counted, keep the integration alone or close the own-protocol hypothesis. Do
+not widen to a physical mesh, tokens or global scale to compensate for an absent gain.
+
+G1 does not test the application receipt crossing offline propagation nodes; G0 and G1
+proved separate parts. That composition, radio, a physically full disk, persistent
+attacks, key rotation and operation without a supervisor all remain pending.

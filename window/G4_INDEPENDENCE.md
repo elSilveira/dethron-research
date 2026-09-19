@@ -1,108 +1,107 @@
-# G4 — independência lógica da via externa
+# G4 — logical independence from the external path
 
-17/09/2026. Fatia funcional de laboratório sobre Reticulum 1.5.4/LXMF 1.1.1.
-O [G3 executado](G3_GENERATIONS.md) autorizou esta fatia: cortar a via externa,
-iniciar a frio sem ela e entregar por uma ponte alternativa.
+17/09/2026. A functional laboratory slice over Reticulum 1.5.4/LXMF 1.1.1. The
+[executed G3](G3_GENERATIONS.md) authorised this slice: cut the external path, start
+cold without it, and deliver over an alternative bridge.
 
-## O problema que este experimento precisava resolver
+## The problem this experiment had to solve
 
-Em G0–G3 a via de laboratório era TCP de loopback. Cortar uma interface TCP e
-usar outra interface TCP não provaria nada: seria o mesmo caminho com outro nome.
-Por isso, aqui a "via externa" é **a própria pilha IP**, e a ponte alternativa
-não pode tocá-la em nenhum ponto.
+In G0–G3 the laboratory path was loopback TCP. Cutting one TCP interface and using
+another TCP interface would prove nothing: it would be the same path under another name.
+So here the "external path" is **the IP stack itself**, and the alternative bridge must
+not touch it at any point.
 
-A ponte usa o `PipeInterface` nativo do Reticulum: o nó troca quadros HDLC pelo
-stdin/stdout de um processo filho, e os dois filhos trocam bytes por arquivos
-append-only em um diretório. Nenhum socket participa do caminho.
+The bridge uses Reticulum's native `PipeInterface`: the node exchanges HDLC frames over a
+child process's stdin/stdout, and the two children exchange bytes through append-only
+files in a directory. No socket takes part in the path.
 
-    nó O ──ponte──> arquivos ──ponte──> relé A
-    relé A ──ponte──> arquivos ──ponte──> nó D
+    node O ──bridge──> files ──bridge──> relay A
+    relay A ──bridge──> files ──bridge──> node D
 
-Remover o meio é renomear o diretório do canal: o software continua idêntico e
-os bytes entregues durante o corte simplesmente não chegam.
+Removing the medium means renaming the channel's directory: the software stays identical
+and the bytes delivered during the cut simply do not arrive.
 
-## Contrato
+## Contract
 
-O objeto tem 16.384 bytes determinísticos, enviado como uma parte exata pelo
-mesmo caminho autenticado do G1–G3. A origem `O` submete ao nó de propagação do
-relé `A` e sai; o destinatário `D` busca depois, com a credencial persistente
-declarada. Quatro cenários, com resultado exigido antes da execução:
+The object is 16,384 deterministic bytes, sent as one exact part over the same
+authenticated path as G1–G3. The origin `O` submits to relay `A`'s propagation node and
+leaves; the recipient `D` fetches later, with the declared persistent credential. Four
+scenarios, with the required result stated before execution:
 
-| Cenário | Configuração | Resultado exigido |
+| Scenario | Configuration | Required result |
 | --- | --- | --- |
-| `ip` | só TCP; linha de base e controle positivo da evidência | entrega |
-| `bridged` | **nenhuma interface IP desde o boot**, só a ponte | entrega os bytes exatos |
-| `dark` | meio removido durante toda a janela de entrega | **não** entrega; objeto fica pendente |
-| `cut` | meio removido na primeira tentativa, restaurado na segunda | entrega após a restauração |
+| `ip` | TCP only; the baseline and the evidence's positive control | delivery |
+| `bridged` | **no IP interface since boot**, the bridge alone | delivers the exact bytes |
+| `dark` | the medium removed for the whole delivery window | **no** delivery; the object stays pending |
+| `cut` | the medium removed on the first attempt, restored on the second | delivery after the restoration |
 
-`bridged` é o início a frio que o plano exige: o nó nunca teve caminho IP, não é
-um corte aplicado depois de funcionar.
+`bridged` is the cold start the plan requires: the node never had an IP path, it is not a
+cut applied after it had been working.
 
-## Resultado
+## Result
 
-A [rodada final](evidence/gateway-g4-1789615587351184200/report.json), com
-[fontes congelados](evidence/gateway-g4-1789615587351184200/sources.json), passou
-nos quatro cenários em 166,2 s: veredito `g4_scoped_pass`.
+The [final round](evidence/gateway-g4-1789615587351184200/report.json), with
+[frozen sources](evidence/gateway-g4-1789615587351184200/sources.json), passed all four
+scenarios in 166.2 s: verdict `g4_scoped_pass`.
 
-| Cenário | Tempo | Entregou | Endpoints IP observados | Bytes pela ponte | Perdidos no corte |
+| Scenario | Time | Delivered | IP endpoints observed | Bytes over the bridge | Lost in the cut |
 | --- | --- | --- | --- | --- | --- |
-| `ip` | 17,5 s | Sim | **3 em 2 processos** | — | — |
-| `bridged` | 19,0 s | Sim | **0 em 6 processos** | 32.701 | 0 |
-| `dark` | 63,6 s | **Não** | 0 em 6 processos | 0 | 53 |
-| `cut` | 66,2 s | Sim | 0 em 6 processos | 32.694 | 53 |
+| `ip` | 17.5 s | Yes | **3 across 2 processes** | — | — |
+| `bridged` | 19.0 s | Yes | **0 across 6 processes** | 32,701 | 0 |
+| `dark` | 63.6 s | **No** | 0 across 6 processes | 0 | 53 |
+| `cut` | 66.2 s | Yes | 0 across 6 processes | 32,694 | 53 |
 
-No cenário `dark`, a busca nativa terminou em estado de falha, `D` não produziu
-saída nem recibo e o relé **continuou guardando o objeto**: pendência preservada,
-sem sucesso falso. No `cut`, a primeira tentativa falhou com 53 bytes perdidos no
-meio removido e a segunda, após restaurar o diretório, entregou os bytes exatos.
+In the `dark` scenario the native fetch ended in a failure state, `D` produced neither
+output nor receipt, and the relay **went on holding the object**: pendency preserved,
+with no false success. In `cut`, the first attempt failed with 53 bytes lost into the
+removed medium and the second, after restoring the directory, delivered the exact bytes.
 
-## Por que a ausência de caminho oculto é verificável
+## Why the absence of a hidden path is verifiable
 
-Um "zero" só vale se a ferramenta que o produziu souber enxergar um caminho real.
-Por isso o cenário `ip` é controle positivo obrigatório: nele o `netstat` do
-sistema **precisa** reportar endpoints, e reportou três. Nos cenários isolados a
-mesma ferramenta, aplicada aos mesmos tipos de processo, reportou zero.
+A "zero" is only worth something if the tool that produced it can see a real path. That
+is why the `ip` scenario is a mandatory positive control: in it the system's `netstat`
+**must** report endpoints, and it reported three. In the isolated scenarios the same
+tool, applied to the same kinds of process, reported zero.
 
-A verificação cobre quatro camadas independentes:
+The verification covers four independent layers:
 
-1. **Configuração.** O auditor relê do registro a configuração de cada nó e exige
-   que os três sejam isolados nos cenários sem IP: só `PipeInterface` e
-   `share_instance = No`. Sem essa segunda condição o próprio Reticulum abriria
-   a porta da instância compartilhada em 127.0.0.1.
-2. **Sistema operacional.** Endpoints TCP/UDP dos **nós e também das pontes**,
-   pelos PIDs: seis processos inspecionados por cenário isolado, zero endpoints.
-   As pontes entram na conta porque um caminho oculto poderia estar nelas.
-3. **Meio.** Cada ponte mantém um livro-razão do que carregou. Nos cenários com
-   entrega, mais bytes do que o objeto atravessaram os arquivos; no `dark`, zero
-   bytes atravessaram e 53 se perderam contra o meio ausente.
-4. **Conteúdo.** Os pacotes guardados por `D` autenticam contra a chave da origem,
-   correspondem à submissão declarada, reconstroem o digest exato e o recibo local
-   bate com o envelope esperado, pela mesma auditoria de G1–G3.
+1. **Configuration.** The auditor re-reads each node's configuration from the record and
+   requires all three to be isolated in the scenarios without IP: `PipeInterface` only,
+   and `share_instance = No`. Without that second condition Reticulum itself would open
+   the shared instance's port on 127.0.0.1.
+2. **Operating system.** TCP/UDP endpoints of the **nodes and of the bridges too**, by
+   pid: six processes inspected per isolated scenario, zero endpoints. The bridges count
+   because a hidden path could be in them.
+3. **Medium.** Each bridge keeps a ledger of what it carried. In the delivering
+   scenarios, more bytes than the object crossed the files; in `dark`, zero bytes crossed
+   and 53 were lost against the absent medium.
+4. **Content.** The packets kept by `D` authenticate against the origin's key, match the
+   declared submission, reconstruct the exact digest, and the local receipt matches the
+   expected envelope, by the same audit as G1–G3.
 
-Os testes do auditor incluem os casos em que ele **deve reprovar**: nó que ainda
-alcança IP, endpoint presente em cenário isolado, linha de base IP sem nenhum
-endpoint, amostra que não inspecionou processo algum, corte sem perda e objeto que
-não atravessou o meio.
+The auditor's tests include the cases where it **must fail**: a node that still reaches
+IP, an endpoint present in an isolated scenario, an IP baseline with no endpoint at all,
+a sample that inspected no process, a cut without loss, and an object that never crossed
+the medium.
 
-## Limites
+## Limits
 
-Isto demonstra independência da **pilha IP**, não independência física. Mesmo
-host, mesmo sistema operacional, mesmo sistema de arquivos e mesmo domínio de
-falha. O canal de arquivos não tem perda, latência, alcance nem contenção de um
-meio real; a única perda medida foi a que o corte provocou. Rádio e dois meios
-físicos distintos continuam sendo G6, e nada aqui sustenta alegação de operação
-sem internet em campo.
+This demonstrates independence from the **IP stack**, not physical independence. Same
+host, same operating system, same file system and same failure domain. The file channel
+has none of a real medium's loss, latency, range or contention; the only loss measured is
+the one the cut caused. Radio and two distinct physical media remain G6, and nothing here
+supports a claim of operating without the internet in the field.
 
-A evidência de sockets é uma amostra tirada durante a janela de entrega, não
-captura contínua de pacotes. O `netstat` mostra endpoints do sistema operacional;
-não prova ausência de canais laterais que não usem sockets, e o próprio
-experimento usa um desses canais, de propósito. O corte é a remoção de um
-diretório, não interferência física. Foram uma rodada por cenário e um objeto de
-16 KiB, sem estimativa estatística.
+The socket evidence is a sample taken during the delivery window, not continuous packet
+capture. `netstat` shows the operating system's endpoints; it does not prove the absence
+of side channels that use no sockets, and the experiment itself uses one of those, on
+purpose. The cut is the removal of a directory, not physical interference. This was one
+round per scenario and one 16 KiB object, with no statistical estimate.
 
-## Reprodução
+## Reproduction
 
-Usar o ambiente fixado em [G0](G0_REFERENCE.md#reprodução), a partir da raiz:
+Use the environment pinned in [G0](G0_REFERENCE.md#reproduction), from the repository
+root:
 
 ```powershell
 $env:PYTHONPATH='window'
@@ -112,42 +111,52 @@ window/.venv-gateway/Scripts/python.exe -m unittest discover -s window/tests -p 
 Remove-Item Env:RUN_GATEWAY_G4
 ```
 
-A campanha real leva cerca de três minutos e grava cada cenário separadamente.
-Artefatos locais incluem chaves de laboratório e são ignorados pelo Git.
+Those lines are PowerShell. From any terminal, the runner does the same without
+environment variables:
 
-## Rodadas e verificações
+```
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g4
+```
 
-Três defeitos reais apareceram antes do resultado e estão corrigidos com teste:
+The real campaign takes about three minutes and records each scenario separately. Local
+artifacts include laboratory keys and are ignored by Git.
 
-- O comando da ponte era citado com aspas. O `configobj` remove as aspas externas
-  e o `shlex` juntava tudo num argumento só, então o nó nem subia. O contrato
-  passou a construir e validar o comando, recusando caminho com espaço ou aspas.
-- Construir a configuração do destinatário **recriava o diretório do canal**, o
-  que desfazia o corte e fazia o cenário `dark` entregar. Criar o meio virou ato
-  explícito, e restaurar um meio que reapareceu sozinho agora é erro.
-- Um nó encerrado de imediato não recolhe a ponte que o Reticulum criou, e as
-  pontes ficavam órfãs. O laboratório e o probe passaram a recolhê-las.
+## Rounds and checks
 
-A execução pela via de reprodução declarada repetiu o resultado em 167,0 s, com
-os mesmos vereditos por cenário e a mesma contagem de endpoints:
-[segunda rodada](evidence/gateway-g4-1789615826730038800/report.json).
+Three real defects appeared before the result and are fixed, each with a test:
 
-- Testes G4 rápidos no ambiente fixado: **24 passaram, 1 opt-in pulado**.
-- `unittest discover -s window/tests` no ambiente fixado: **139 passaram,
-  6 opt-in pulados**.
-- `python -m pytest window/tests probes/tests -q` no Python global:
-  **167 passaram, 14 pulados**; módulos que dependem de RNS/LXMF são executados
-  separadamente no ambiente fixado. G0–G3 reais não foram repetidos nesta entrega.
-- Cada fonte de G4 tem menos de 200 linhas e os links documentais locais foram
-  conferidos. A suíte global mantém o aviso preexistente de configuração do escopo
-  de fixtures `pytest_asyncio`.
+- The bridge command was quoted. `configobj` strips the outer quotes and `shlex` joined
+  everything into a single argument, so the node did not even start. The contract now
+  builds and validates the command, refusing a path with a space or a quote.
+- Building the recipient's configuration **recreated the channel's directory**, which
+  undid the cut and made the `dark` scenario deliver. Creating the medium became an
+  explicit act, and restoring a medium that reappeared on its own is now an error.
+- A node shut down immediately does not reap the bridge Reticulum created, and the
+  bridges were left orphaned. The laboratory and the probe now reap them.
 
-## Decisão e próximo passo
+The run through the declared reproduction path repeated the result in 167.0 s, with the
+same verdicts per scenario and the same endpoint counts:
+[second round](evidence/gateway-g4-1789615826730038800/report.json).
 
-A entrega no escopo declarado não depende da pilha IP, e retirar todas as pontes
-impede a entrega preservando a pendência, como o plano exigia. Isso não autoriza
-alegar autonomia física nem operação por rádio.
+- Fast G4 tests in the pinned environment: **24 passed, 1 opt-in skipped**.
+- `unittest discover -s window/tests` in the pinned environment: **139 passed, 6 opt-in
+  skipped**.
+- `python -m pytest window/tests probes/tests -q` on the global Python: **167 passed, 14
+  skipped**; modules depending on RNS/LXMF run separately in the pinned environment. The
+  real G0–G3 runs were not repeated in this delivery.
+- Every G4 source is under 200 lines and the local documentation links were checked. The
+  global suite keeps the pre-existing warning about the `pytest_asyncio` fixture scope
+  configuration.
 
-Próxima fatia: **G5 — sobrevivência**, com campanha de 5% sob distribuições de
-perda escolhidas, aleatórias, correlacionadas e direcionadas, com placar separado
-por modelo de falha.
+Those counts were measured on the tree of the time. The suite today holds **166 passed,
+8 skipped**, and `probes/` no longer exists: the pre-Dethron work left the tree when the
+repository was prepared for publication.
+
+## Decision and next step
+
+Delivery within the declared scope does not depend on the IP stack, and removing every
+bridge prevents delivery while preserving pendency, as the plan required. This does not
+authorise claiming physical autonomy or operation over radio.
+
+Next slice: **G5 — survival**, with a 5 % campaign under chosen, random, correlated and
+targeted loss distributions, scored separately per failure model.

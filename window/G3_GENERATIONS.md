@@ -1,198 +1,199 @@
-# G3 — gerações de nós e de supervisores
+# G3 — generations of nodes and of supervisors
 
-16/09/2026. Fatia funcional de laboratório sobre Reticulum 1.5.4/LXMF 1.1.1.
-O [G2 encerrado](G2_PARTS.md) autorizou esta fatia: testar H06, a travessia da
-mensagem por gerações completas de nós, incluindo a troca do supervisor.
+16/09/2026. A functional laboratory slice over Reticulum 1.5.4/LXMF 1.1.1. The
+[closed G2](G2_PARTS.md) authorised this slice: to test H06, a message crossing complete
+generations of nodes, including replacing the supervisor.
 
-## Contrato
+## Contract
 
-O objeto tem 24.576 bytes determinísticos, dividido em três partes exatas de
-8.192 bytes pelo esquema `exact` já usado em G2. A origem `O` distribui uma parte
-para cada transportador `A`, `B` e `C` e sai; o destinatário é `D`.
+The object is 24,576 deterministic bytes, split into three exact 8,192-byte parts by the
+`exact` scheme already used in G2. The origin `O` distributes one part to each carrier
+`A`, `B` and `C` and leaves; the recipient is `D`.
 
-A execução tem quatro fases, cada uma em **um processo de supervisor diferente**:
+The execution has four phases, each in **a different supervisor process**:
 
-| Fase | O que faz | Sobrevive ao fim da fase |
+| Phase | What it does | Survives the end of the phase |
 | --- | --- | --- |
-| `seed` | Provisiona a credencial declarada, distribui as partes, aposenta a origem | A0, B0, C0 |
-| `generation-1` | Levanta A1/B1/C1 vazios, transfere pela rede, aposenta A0/B0/C0 | A1, B1, C1 |
-| `generation-2` | Levanta A2/B2/C2 vazios, transfere pela rede, aposenta A1/B1/C1 | A2, B2, C2 |
-| `deliver` | Busca nos três contatos e reconstrói, ou recusa sem a credencial | nada |
+| `seed` | Provisions the declared credential, distributes the parts, retires the origin | A0, B0, C0 |
+| `generation-1` | Brings up empty A1/B1/C1, transfers over the network, retires A0/B0/C0 | A1, B1, C1 |
+| `generation-2` | Brings up empty A2/B2/C2, transfers over the network, retires A1/B1/C1 | A2, B2, C2 |
+| `deliver` | Fetches from all three contacts and reconstructs, or refuses without the credential | nothing |
 
-Os transportadores são processos destacados que **continuam vivos quando o
-supervisor termina**; o canal de comandos é um par de arquivos por nó, então
-qualquer geração de supervisor pode assumir os nós ainda ativos. Um nó novo
-ignora comandos das encarnações anteriores.
+The carriers are detached processes that **stay alive when the supervisor ends**; the
+command channel is a pair of files per node, so any supervisor generation can take over
+the nodes still running. A new node ignores commands from earlier incarnations.
 
-O supervisor seguinte só pode retomar a partir de três fontes declaradas:
+The next supervisor may only resume from three declared sources:
 
-1. `checkpoint-N.json`, validado por `g3_contract.py`, que aceita **apenas
-   metadados públicos** — versão, geração, cenário, identidades públicas de
-   origem/destino, manifesto do objeto, validade e, por transportador, destino,
-   chave pública, nó de propagação e inventário cifrado. Qualquer campo extra,
-   chave privada ou carga útil reprova o arquivo.
-2. Os arquivos de controle dos nós **ainda vivos**, que contêm pid e porta.
-3. A credencial persistente declarada do destinatário.
+1. `checkpoint-N.json`, validated by `g3_contract.py`, which accepts **public metadata
+   only** — version, generation, scenario, public identities of origin and destination,
+   the object's manifest, validity, and per carrier the destination, public key,
+   propagation node and encrypted inventory. Any extra field, private key or payload
+   fails the file.
+2. The control files of the nodes **still alive**, which carry pid and port.
+3. The recipient's declared persistent credential.
 
-Cada geração aposentada é renomeada para `retired/` e todo supervisor instala um
-hook de auditoria que transforma leitura sob `retired/` em `PermissionError`.
-Um supervisor que ainda alcançasse uma geração aposentada falha ao iniciar, e
-cada fase registra `guard: true` ao terminar. Para a fase `seed` isso só vale
-depois que ela própria aposenta a origem; as garantias interessantes são as das
-fases seguintes, que não conseguem ler o que aposentaram. Um sucessor sem
-`checkpoint-0.json` recusa em vez de improvisar.
+Each retired generation is renamed into `retired/` and every supervisor installs an
+audit hook that turns any read under `retired/` into a `PermissionError`. A supervisor
+that could still reach a retired generation fails at startup, and each phase records
+`guard: true` when it ends. For the `seed` phase this only holds after it retires the
+origin itself; the interesting guarantees are those of the later phases, which cannot
+read what they retired. A successor without `checkpoint-0.json` refuses rather than
+improvising.
 
-## Resultado
+## Result
 
-A [rodada final](evidence/gateway-g3-1789613422588119200/report.json), com
-[fontes congelados](evidence/gateway-g3-1789613422588119200/sources.json),
-passou nos dois cenários e no controle negativo: veredito `g3_scoped_pass`.
+The [final round](evidence/gateway-g3-1789613422588119200/report.json), with
+[frozen sources](evidence/gateway-g3-1789613422588119200/sources.json), passed both
+scenarios and the negative control: verdict `g3_scoped_pass`.
 
-| Cenário | Tempo | Supervisores distintos | Transferências nativas | Aposentados | Resultado |
+| Scenario | Time | Distinct supervisors | Native transfers | Retired | Result |
 | --- | --- | --- | --- | --- | --- |
-| `complete` | 229,9 s | 4 | 6 | O, A0–C0, A1–C1 | 24.576 bytes exatos, recibo verificado |
-| `missing` | 198,9 s | 4 | 6 | O, A0–C0, A1–C1 | Recusa explícita, sem saída e sem recibo |
+| `complete` | 229.9 s | 4 | 6 | O, A0–C0, A1–C1 | exactly 24,576 bytes, receipt checked |
+| `missing` | 198.9 s | 4 | 6 | O, A0–C0, A1–C1 | An explicit refusal, no exit and no receipt |
 
-No cenário `complete`, as três gerações usaram **nove identidades distintas** de
-transportador e o inventário cifrado permaneceu **idêntico nos três checkpoints**:
-os mesmos bytes armazenados atravessaram duas trocas completas de frota. O
-destinatário reuniu as três partes autenticadas em três contatos e produziu
+In the `complete` scenario the three generations used **nine distinct carrier
+identities** and the encrypted inventory stayed **identical across the three
+checkpoints**: the same stored bytes crossed two complete fleet replacements. The
+recipient gathered the three authenticated parts over three contacts and produced
 `sha256 ada077a478903115055d93de132441ac15051b603ec36ca9a66cb74b2572dc17`.
 
-No cenário `missing`, a credencial declarada do destinatário foi apagada antes da
-entrega. O nó recusou iniciar com `declared credential is absent`; não houve
-`output.bin` nem recibo. O serviço parou de forma explícita em vez de degradar
-em silêncio ou recorrer a outra fonte.
+In the `missing` scenario the recipient's declared credential was deleted before
+delivery. The node refused to start with `declared credential is absent`; there was no
+`output.bin` and no receipt. The service stopped explicitly instead of degrading quietly
+or falling back to another source.
 
-O controle negativo de continuidade roda um supervisor de segunda geração em um
-diretório sem checkpoint: ele falha apontando `checkpoint-0.json` ausente.
+The negative continuity control runs a second-generation supervisor in a directory with
+no checkpoint: it fails, naming the missing `checkpoint-0.json`.
 
-## Evidência e auditoria
+## Evidence and audit
 
-Cada rodada preserva fontes congelados, versões, checkpoints, `timeline.jsonl`
-de todas as fases, logs por fase, pacotes autenticados e relatório em
-`results/gateway-g3-ID`. O auditor em `g3_audit.py` recomputa as alegações a
-partir desses registros, sem confiar no relatório do experimento:
+Every round preserves frozen sources, versions, checkpoints, a `timeline.jsonl` for all
+phases, per-phase logs, authenticated packets and a report in `results/gateway-g3-ID`.
+The auditor in `g3_audit.py` recomputes the claims from those records, without trusting
+the experiment's own report:
 
-- cada fase foi registrada por um único pid e os quatro pids são distintos;
-- cada transportador usou uma identidade diferente em cada geração e todos os
-  originais, inclusive a origem, aparecem como aposentados;
-- as seis transferências nativas carregaram exatamente uma mensagem cada;
-- os três checkpoints trocam de frota e mantêm o mesmo inventário;
-- os pacotes guardados pelo destinatário autenticam contra a chave da origem,
-  estão entre as entradas declaradas, reconstroem o digest exato e o recibo local
-  corresponde ao envelope esperado.
+- each phase was recorded by a single pid and the four pids are distinct;
+- each carrier used a different identity in each generation and every original,
+  including the origin, appears as retired;
+- the six native transfers carried exactly one message each;
+- the three checkpoints change fleet and keep the same inventory;
+- the packets kept by the recipient authenticate against the origin's key, sit among the
+  declared entries, reconstruct the exact digest, and the local receipt matches the
+  expected envelope.
 
-Esses eventos são evidência do harness, não atestação independente do hardware
-nem de um supervisor hostil.
+Those events are harness evidence, not independent attestation by the hardware or by a
+hostile supervisor.
 
-## Rodadas e verificações
+## Rounds and checks
 
-Uma rodada anterior passou nos dois cenários antes de a execução pela via de
-reprodução declarada reprovar na auditoria: uma transferência foi registrada com
-`stored = 0` e inventário de um arquivo. Não foi perda de dados. O nó grava a
-mensagem no armazenamento antes de o roteador terminar de indexá-la, então as
-duas visões do mesmo estado divergem por instantes. O laço de transferência
-aceitava só o inventário e podia aposentar a geração anterior nessa janela.
+An earlier round passed both scenarios before the run through the declared reproduction
+path failed the audit: one transfer was recorded with `stored = 0` and an inventory of
+one file. It was not data loss. The node writes the message to storage before the router
+finishes indexing it, so the two views of the same state diverge for a moment. The
+transfer loop accepted the inventory alone and could retire the previous generation
+inside that window.
 
-A correção espera as duas visões concordarem antes de declarar a transferência
-concluída; a auditoria continua exigindo exatamente uma mensagem por
-transferência, agora sem depender do instante da amostra. Essa rodada reprovada
-continua em `results/gateway-g3-1789612781500495200`. A mesma passagem também
-reduziu o custo do canal: a prova de vida de um nó abria um subprocesso a cada
-50 ms de espera e passou a rodar a cada dois segundos.
+The fix waits for both views to agree before declaring the transfer complete; the audit
+still requires exactly one message per transfer, now without depending on the instant
+the sample was taken. That failed round remains in
+`results/gateway-g3-1789612781500495200`. The same pass also reduced the channel's cost:
+a node's liveness check opened a subprocess every 50 ms of waiting and now runs every
+two seconds.
 
-### O que a reprodução em outra máquina encontrou
+### What reproduction on another machine found
 
-Em 17/09/2026, a primeira execução do [V2](V2_REPRODUCTION.md) numa segunda
-máquina reprovou o G3 com `B0->B1: declared data never arrived over the network`,
-enquanto os outros sete caminhos reproduziram com veredito idêntico. A causa não
-era lentidão: o laboratório anunciava o sucessor, esperava dois segundos, pedia a
-sincronização **uma única vez** e depois aguardava 180 s parado. Com
-`autopeer=False` ninguém repõe esse pedido, embora no LXMF real os pares
-sincronizem repetidamente; a única tentativa se perdeu e o resto foi espera inútil.
+On 17/09/2026, the first [V2](V2_REPRODUCTION.md) execution on a second machine failed
+G3 with `B0->B1: declared data never arrived over the network`, while the other seven
+paths reproduced with an identical verdict. The cause was not slowness: the laboratory
+announced the successor, waited two seconds, asked for the sync **exactly once** and then
+sat still for 180 s. With `autopeer=False` nobody reissues that request, although in real
+LXMF peers sync repeatedly; the single attempt was lost and the rest was useless waiting.
 
-O handover e a busca passaram a repetir o pedido até o prazo, registrando quantas
-tentativas foram necessárias — e a repetição **não resolveu**: a segunda máquina
-falhou de novo, agora com `após 12 tentativas em 300 s`. Essa correção tratou um
-sintoma; a causa estava em outro lugar, e só apareceu quando o diagnóstico passou
-a coletar o `stderr` dos nós.
+Handover and fetch began repeating the request until the deadline, recording how many
+attempts were needed — and the repetition **did not fix it**: the second machine failed
+again, now with `after 12 attempts in 300 s`. That fix treated a symptom; the cause was
+elsewhere, and only surfaced once the diagnosis started collecting the nodes' `stderr`.
 
-### A causa real: um resultado válido descartado por uma linha de log
+### The real cause: a valid result discarded by a logging line
 
-`LXStamper.generate_stamp` calcula o carimbo e, em seguida, avalia
-`speed = rounds/duration` apenas para escrever uma linha de depuração. O
-`duration` cronometra só a busca — `start_time` é tomado depois da expansão do
-bloco — e com custo baixo essa busca termina em dezenas de microssegundos.
-Sempre que `time.time()` não avança nesse intervalo, `duration` é 0,0 e um
-`ZeroDivisionError` joga fora um resultado que já estava correto.
+`LXStamper.generate_stamp` computes the stamp and then evaluates
+`speed = rounds/duration` only in order to write a debug line. `duration` times the
+search alone — `start_time` is taken after the workblock expansion — and at a low cost
+that search finishes in tens of microseconds. Whenever `time.time()` does not advance in
+that interval, `duration` is 0.0 and a `ZeroDivisionError` throws away a result that was
+already correct.
 
-A frequência depende da granularidade do relógio da máquina, que no Windows varia
-conforme o que mais está rodando: `get_clock_info` informa 15,6 ms, enquanto o
-passo observado nesta máquina é de 0,36 ms. Medido com a função da montante,
-o custo 1 levantou a exceção em **12 de 12** execuções e o custo 8 em nenhuma;
-na segunda máquina, todas levantaram. Daí a aparência de problema local.
+The frequency depends on the machine's clock granularity, which on Windows varies with
+whatever else is running: `get_clock_info` reports 15.6 ms, while the step observed on
+this machine is 0.36 ms. Measured with the upstream function, cost 1 raised the exception
+in **12 of 12** runs and cost 8 in none; on the second machine, all of them raised. Hence
+the appearance of a local problem.
 
-Aumentar `peering_cost` não resolve: apenas encurta as chances — ainda falhou uma
-vez em doze no custo 12 — e cobra trabalho real, cerca de 100 ms no custo 14 e
-800 ms no custo 18 por chave de peering.
+Raising `peering_cost` does not solve it: it only shortens the odds — it still failed
+once in twelve at cost 12 — and charges real work, about 100 ms at cost 14 and 800 ms at
+cost 18 per peering key.
 
-O estrago é silencioso porque o `LXMPeer` gera a chave de peering em uma *thread*
-secundária. Ela morre, a chave nunca é definida, `peering_key_ready()` permanece
-falsa, **toda** sincronização é adiada "since a peering key has not been generated
-yet", e o handover expira sem nada na linha do tempo que explique. É por isso que
-repetir o pedido não adiantou: cada repetição batia no mesmo adiamento.
+The damage is silent because `LXMPeer` generates the peering key on a secondary thread.
+It dies, the key is never set, `peering_key_ready()` stays false, **every** sync is
+deferred "since a peering key has not been generated yet", and the handover expires with
+nothing in the timeline to explain it. That is why repeating the request did not help:
+each repetition hit the same deferral.
 
-O mesmo `traceback` está nos artefatos **desta** máquina, em rodadas que passaram:
-aqui a corrida com o tique do relógio às vezes se resolvia a tempo e a chave era
-gerada na tentativa seguinte. Na outra máquina, nunca. O defeito é do LXMF 1.1.1,
-não do experimento, e continua a ser reportado à montante; `dethron_gateway/lxmf_stamp.py`
-reinstala o cálculo do próprio LXMF sem a divisão do log, e `test_lxmf_stamp.py`
-falha quando a montante corrigir, para que o contorno possa ser removido.
+The same `traceback` is in **this** machine's artifacts, in rounds that passed: here the
+race with the clock tick sometimes resolved in time and the key was generated on the next
+attempt. On the other machine, never. The defect belongs to LXMF 1.1.1, not to the
+experiment, and remains reported upstream; `dethron_gateway/lxmf_stamp.py` reinstates
+LXMF's own computation without the logging division, and `test_lxmf_stamp.py` fails once
+upstream fixes it, so the workaround can be removed.
 
-Com o contorno, a segunda máquina passou o G3 em 663 s, e aqui as **seis
-transferências passam na primeira tentativa** sem nenhum
-nó deixando `stderr` não vazio — antes, quatro das seis precisavam de segunda
-tentativa e vários nós registravam o `traceback`. A espera por rota permaneceu,
-por razão própria: uma sincronização pedida antes de existir rota custa 12 minutos
-de adiamento no LXMF, o que nenhum prazo do G3 alcançaria. Os prazos, medidos só
-em hardware rápido, também foram ampliados. A rodada com tudo corrigido passou em
-294,8 s.
+With the workaround, the second machine passed G3 in 663 s, and here the **six transfers
+pass on the first attempt** with no node leaving a non-empty `stderr` — before, four of
+the six needed a second attempt and several nodes recorded the `traceback`. The wait for
+a path stayed, for a reason of its own: a sync requested before a path exists costs 12
+minutes of deferral in LXMF, which no G3 deadline would reach. The deadlines, measured
+only on fast hardware, were widened too. The round with everything fixed passed in
+294.8 s.
 
-- Testes G3 rápidos no ambiente fixado: **9 passaram, 1 opt-in pulado**.
-- `unittest discover -s window/tests` no ambiente fixado: **115 passaram,
-  5 opt-in pulados**.
-- `python -m pytest window/tests probes/tests -q` no Python global:
-  **154 passaram, 12 pulados**; módulos que dependem de RNS/LXMF são executados
-  separadamente no ambiente fixado. G0–G2 reais não foram repetidos nesta entrega.
-- Cada fonte de G3 tem menos de 200 linhas e os links documentais locais foram
-  conferidos. A suíte global mantém o aviso preexistente de configuração do
-  escopo de fixtures `pytest_asyncio`.
+- Fast G3 tests in the pinned environment: **9 passed, 1 opt-in skipped**.
+- `unittest discover -s window/tests` in the pinned environment: **115 passed, 5 opt-in
+  skipped**.
+- `python -m pytest window/tests probes/tests -q` on the global Python: **154 passed, 12
+  skipped**; modules depending on RNS/LXMF run separately in the pinned environment. The
+  real G0–G2 runs were not repeated in this delivery.
+- Every G3 source is under 200 lines and the local documentation links were checked. The
+  global suite keeps the pre-existing warning about the `pytest_asyncio` fixture scope
+  configuration.
 
-## Limites
+Those counts were measured on the tree of the time. The suite today holds **166 passed,
+8 skipped**, and `probes/` no longer exists: the pre-Dethron work left the tree when the
+repository was prepared for publication.
 
-Tudo ocorreu em um host, sobre TCP de loopback. "Trocar todos os nós" significa
-trocar processos, identidades e diretórios na mesma máquina; não houve troca de
-hardware, de operador nem de domínio de falha. O supervisor é substituído entre
-fases, mas as fases são lançadas por um processo de prova; autonomia sem qualquer
-supervisor não foi demonstrada.
+## Limits
 
-O bloqueio das gerações aposentadas é um hook de auditoria do Python dentro do
-processo sucessor. Ele prova que o sucessor não lê os diretórios aposentados; não
-é isolamento de sistema operacional contra um supervisor hostil, que poderia
-simplesmente não instalar o hook. Portas e pids vêm dos arquivos de controle dos
-nós vivos: metadados de transporte, sem conteúdo nem chaves.
+Everything ran on one host, over loopback TCP. "Replacing every node" means replacing
+processes, identities and directories on the same machine; there was no change of
+hardware, of operator or of failure domain. The supervisor is replaced between phases,
+but the phases are launched by a proving process; autonomy without any supervisor was not
+demonstrated.
 
-A credencial do destinatário é uma dependência persistente declarada. G3 mostra
-que o serviço para explicitamente sem ela, não que exista recuperação sem chave.
-Foram um objeto de 24 KiB e uma rodada por cenário, com duas trocas de frota;
-não é estimativa estatística, não há rotatividade contínua e esta fatia não mede
-tráfego, armazenamento ou energia. Rádio, independência da internet, demanda
-comercial e tokens continuam não validados.
+Blocking the retired generations is a Python audit hook inside the successor process. It
+proves the successor does not read the retired directories; it is not operating-system
+isolation against a hostile supervisor, which could simply not install the hook. Ports
+and pids come from the control files of the live nodes: transport metadata, with no
+content and no keys.
 
-## Reprodução
+The recipient's credential is a declared persistent dependency. G3 shows the service
+stops explicitly without it, not that recovery without a key exists. This was one 24 KiB
+object and one round per scenario, with two fleet replacements; it is not a statistical
+estimate, there is no continuous churn, and this slice measures neither traffic nor
+storage nor energy. Radio, independence from the internet, commercial demand and tokens
+all remain unvalidated.
 
-Usar o ambiente fixado em [G0](G0_REFERENCE.md#reprodução), a partir da raiz:
+## Reproduction
+
+Use the environment pinned in [G0](G0_REFERENCE.md#reproduction), from the repository
+root:
 
 ```powershell
 $env:PYTHONPATH='window'
@@ -202,16 +203,24 @@ window/.venv-gateway/Scripts/python.exe -m unittest discover -s window/tests -p 
 Remove-Item Env:RUN_GATEWAY_G3
 ```
 
-A campanha real leva cerca de sete minutos e grava cada cenário separadamente.
-Artefatos locais incluem chaves de laboratório e são ignorados pelo Git.
+Those lines are PowerShell. In cmd the variable is never set and the real test **skips
+itself reporting `OK`**, which is exactly how a second machine once reported a run that
+never happened. From any terminal, the runner does the same without environment
+variables:
 
-## Decisão e próximo passo
+```
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g3
+```
 
-H06 está verificado no escopo declarado: a mensagem atravessou duas gerações
-completas de transportadores e quatro supervisores, sem consultar origem,
-snapshot ou chave não declarada, e a retirada do recurso declarado indispensável
-produziu falha explícita. Nada aqui sustenta autonomia sem supervisor, rádio ou
-economia.
+The real campaign takes about seven minutes and records each scenario separately. Local
+artifacts include laboratory keys and are ignored by Git.
 
-Próxima fatia: **G4 — independência lógica**, com corte da via externa, início a
-frio e ponte alternativa, mantendo a regra de revisão antes de avançar.
+## Decision and next step
+
+H06 is verified within its declared scope: the message crossed two complete generations
+of carriers and four supervisors, without consulting the origin, a snapshot or an
+undeclared key, and withdrawing the resource declared indispensable produced an explicit
+failure. Nothing here supports autonomy without a supervisor, radio, or any saving.
+
+Next slice: **G4 — logical independence**, cutting the external path, starting cold and
+using an alternative bridge, keeping the rule of reviewing before advancing.

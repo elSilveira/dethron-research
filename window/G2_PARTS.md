@@ -1,50 +1,50 @@
-# G2 — composição de partes em contatos incompletos
+# G2 — composing parts across incomplete contacts
 
-16/09/2026. Fatia funcional de laboratório sobre Reticulum 1.5.4/LXMF 1.1.1.
-O G1 justificou este experimento pequeno; não aprovou uma rede própria.
-Duas partes: a fatia inicial de partes exatas e a comparação ampliada pareada
-que encerra G2.
+16/09/2026. A functional laboratory slice over Reticulum 1.5.4/LXMF 1.1.1. G1 justified
+this small experiment; it did not approve a network of our own. Two parts: the initial
+slice of exact parts, and the widened paired comparison that closes G2.
 
-## Contrato e comparação
+## Contract and comparison
 
-O perfil fixado em `g2_scenario.py` usa 98.304 bytes determinísticos, três
-propagadores A/B/C e um destinatário D. Cada propagador recebe um objeto completo
-ou uma parte exata de 32.768 bytes. A origem sai e seu diretório é renomeado;
-os propagadores sofrem crash e reiniciam com armazenamento persistente.
-D visita C, A e B, com reinício entre contatos e uma busca nativa de 64 kB por
-contato. O prazo da campanha de contatos é 120 segundos, sem incluir distribuição.
+The profile fixed in `g2_scenario.py` uses 98,304 deterministic bytes, three propagation
+nodes A/B/C and one recipient D. Each propagation node receives either a whole object or
+one exact 32,768-byte part. The origin leaves and its directory is renamed; the
+propagation nodes crash and restart with persistent storage. D visits C, A and B, with a
+restart between contacts and a native 64 kB fetch per contact. The contact campaign's
+deadline is 120 seconds, excluding distribution.
 
-As três variantes usam o mesmo calendário e limite nativo:
+The three variants use the same calendar and the same native limit:
 
-- `whole`: três réplicas completas; não cabem no limite por transferência.
-- `split`: partes 2, 0 e 1; a união permite reconstrução exata no terceiro contato.
-- `missing`: partes 2, 0 e 0; duplicar uma parte não substitui a parte 1 ausente.
+- `whole`: three complete replicas; they do not fit the per-transfer limit.
+- `split`: parts 2, 0 and 1; the union allows exact reconstruction at the third contact.
+- `missing`: parts 2, 0 and 0; duplicating one part does not replace the absent part 1.
 
-Depois da medição restrita, `whole` recebe uma busca de 256 kB como controle
-positivo. Esse controle não entra no contador de tráfego da fase restrita.
-O limite é de transferência LXMF, não uma simulação de perda de rádio nem um
-orçamento idêntico de tráfego total. A colocação das partes é provisionada.
+After the restricted measurement, `whole` receives a 256 kB fetch as a positive control.
+That control does not enter the restricted phase's traffic counter. The limit is an LXMF
+transfer limit, not a simulation of radio loss and not an identical budget of total
+traffic. Part placement is provisioned.
 
-## Evidência e auditoria
+## Evidence and audit
 
-Cada tentativa preserva perfil, versões, hashes dos fontes, manifesto, eventos,
-pacotes autenticados, bancos e relatório em `results/gateway-g2-ID`.
-O auditor verifica a assinatura da origem, submissões declaradas, partes únicas,
-reconstrução byte a byte e assinatura do recibo local do destinatário. Também
-confere estados de conclusão e contagens por contato, incluindo o controle
-negativo. Esses eventos são evidência do harness, não atestação independente
-do hardware ou de um supervisor hostil.
+Every attempt preserves the profile, the versions, the source hashes, the manifest, the
+events, the authenticated packets, the databases and the report in
+`results/gateway-g2-ID`. The auditor checks the origin's signature, the declared
+submissions, unique parts, byte-for-byte reconstruction and the signature of the
+recipient's local receipt. It also checks completion states and per-contact counts,
+including the negative control. Those events are harness evidence, not independent
+attestation by the hardware or by a hostile supervisor.
 
-O recibo é produzido localmente; não retorna à origem offline. A composição
-desse retorno permanece pendente. Metadados e codificação base64 estão incluídos
-nos bytes LXMF submetidos; arquivos dos propagadores e contadores de interface
-são medidos separadamente. Os contadores são amostras antes do encerramento,
-não captura exaustiva de pacotes. Banco do destinatário, RAM, CPU e energia não
-são contabilizados como custo total. Não inferir economia geral desses números.
+The receipt is produced locally; it does not return to the offline origin. Composing that
+return remains pending. Metadata and base64 encoding are included in the LXMF bytes
+submitted; the propagation nodes' files and the interface counters are measured
+separately. The counters are samples taken before shutdown, not exhaustive packet
+capture. The recipient's database, RAM, CPU and energy are not counted as total cost. Do
+not infer any general saving from these numbers.
 
-## Reprodução
+## Reproduction
 
-Usar o ambiente fixado em [G0](G0_REFERENCE.md#reprodução), a partir da raiz:
+Use the environment pinned in [G0](G0_REFERENCE.md#reproduction), from the repository
+root:
 
 ```powershell
 $env:PYTHONPATH='window'
@@ -57,115 +57,123 @@ window/.venv-gateway/Scripts/python.exe -m unittest discover -s window/tests -p 
 Remove-Item Env:RUN_GATEWAY_G2_COMPARE
 ```
 
-A campanha ampliada leva cerca de dez minutos e grava cada caso separadamente.
+Those lines are PowerShell. From any terminal, the runner does the same without
+environment variables:
 
-Para acompanhar eventos, executar `window/run_g2_probe.py` com o mesmo Python.
-Artefatos locais incluem chaves de laboratório e são ignorados pelo Git.
+```
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g2
+window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g2_comparison
+```
 
-## Rodadas e verificações
+The widened campaign takes about ten minutes and records each case separately.
 
-A [rodada inicial](evidence/gateway-g2-1789584864583714400/report.json) passou
-nos três casos e foi reauditada após o endurecimento do auditor. Dois testes
-novos falharam antes da correção: conclusão antecipada declarada na timeline
-e contagem incorreta de partes únicas. Ambos passaram após a correção.
+To follow the events, run `window/run_g2_probe.py` with the same Python. Local artifacts
+include laboratory keys and are ignored by Git.
 
-A [rodada final](evidence/gateway-g2-1789606473945592000/report.json), com
-[fontes congelados](evidence/gateway-g2-1789606473945592000/sources.json), passou
-na integração real em **229,390 s**, incluindo preparação das três variantes.
+## Rounds and checks
 
-| Variante | Concluiu sob limite | Contatos (s) | Bytes LXMF submetidos | Bytes nos propagadores | TX amostrado |
+The [initial round](evidence/gateway-g2-1789584864583714400/report.json) passed all three
+cases and was re-audited after the auditor was hardened. Two new tests failed before the
+fix: an early completion declared in the timeline, and an incorrect count of unique
+parts. Both passed after the fix.
+
+The [final round](evidence/gateway-g2-1789606473945592000/report.json), with
+[frozen sources](evidence/gateway-g2-1789606473945592000/sources.json), passed the real
+integration in **229.390 s**, including preparation of the three variants.
+
+| Variant | Completed under the limit | Contacts (s) | LXMF bytes submitted | Bytes at the propagation nodes | TX sampled |
 | --- | --- | --- | --- | --- | --- |
-| Objeto completo | Não; controle de 256 kB concluiu | 11,360 | 394.437 | 394.800 | 407.931 |
-| Três partes | Sim, SHA-256 e recibo verificados | 11,546 | 177.723 | 178.080 | 370.252 |
-| Parte ausente | Não; duas partes únicas | 11,563 | 177.723 | 178.080 | 370.658 |
+| Whole object | No; the 256 kB control completed | 11.360 | 394,437 | 394,800 | 407,931 |
+| Three parts | Yes, SHA-256 and receipt checked | 11.546 | 177,723 | 178,080 | 370,252 |
+| Missing part | No; two unique parts | 11.563 | 177,723 | 178,080 | 370,658 |
 
-O TX inclui preparação/distribuição e contatos, até a amostra anterior ao
-controle relaxado. Os tempos da tabela cobrem apenas contatos. São duas rodadas
-de desenvolvimento com ordem fixa, não estimativa estatística de confiabilidade.
+TX includes preparation and distribution plus contacts, up to the sample taken before
+the relaxed control. The table's times cover contacts only. These are two development
+rounds in a fixed order, not a statistical estimate of reliability.
 
-- Testes G2 rápidos no ambiente fixado: **11 passaram, 1 opt-in pulado**.
-- `unittest discover -s window/tests` no ambiente fixado: **94 passaram,
-  3 opt-in pulados** (97 descobertos).
-- `python -m pytest window/tests probes/tests -q` no Python global:
-  **142 passaram, 9 pulados**; módulos dependentes de RNS/LXMF são executados
-  separadamente no ambiente fixado. G0/G1 reais não foram repetidos nesta entrega.
-- Fontes/testes alterados têm menos de 200 linhas; links documentais locais
-  foram conferidos. A suíte global emite aviso preexistente de configuração
-  do escopo de fixtures `pytest_asyncio`.
+- Fast G2 tests in the pinned environment: **11 passed, 1 opt-in skipped**.
+- `unittest discover -s window/tests` in the pinned environment: **94 passed, 3 opt-in
+  skipped** (97 discovered).
+- `python -m pytest window/tests probes/tests -q` on the global Python: **142 passed, 9
+  skipped**; modules depending on RNS/LXMF run separately in the pinned environment. The
+  real G0/G1 runs were not repeated in this delivery.
+- Changed sources and tests are under 200 lines; local documentation links were checked.
+  The global suite emits a pre-existing warning about the `pytest_asyncio` fixture scope
+  configuration.
 
-Essas contagens são as da entrega do G2 e mantêm sua data e escopo. Os totais
-atuais das suítes estão em [G3](G3_GENERATIONS.md#rodadas-e-verificações).
+Those counts belong to the G2 delivery and keep its date and scope. The suite today
+holds **166 passed, 8 skipped**, and `probes/` no longer exists: the pre-Dethron work
+left the tree when the repository was prepared for publication.
 
-## Comparação ampliada
+## The widened comparison
 
-A [campanha pareada](evidence/g2-comparison-1789608585567685600/report.json) fixada
-em `g2_compare_contract.py` executou **12 casos reais** em 590,984 s: duas
-repetições, dois cenários e três políticas, com ordem de políticas invertida na
-segunda repetição e rota de contatos rotacionada. O objeto tem 49.152 bytes.
-`whole` envia o objeto completo, `split` envia três partes exatas e `xor2` envia
-duas partes de dados mais uma paridade XOR, recuperável com quaisquer duas.
+The [paired campaign](evidence/g2-comparison-1789608585567685600/report.json), fixed in
+`g2_compare_contract.py`, ran **12 real cases** in 590.984 s: two repetitions, two
+scenarios and three policies, with the policy order reversed in the second repetition
+and the contact route rotated. The object is 49,152 bytes. `whole` sends the complete
+object, `split` sends three exact parts and `xor2` sends two data parts plus one XOR
+parity, recoverable from any two.
 
-- Cenário `all`: três contatos (CAB e BAC), busca nativa de 256 kB por contato.
-- Cenário `loss`: uma rota perdida, dois contatos (CA e BC), busca de 64 kB.
+- Scenario `all`: three contacts (CAB and BAC), native 256 kB fetch per contact.
+- Scenario `loss`: one route lost, two contacts (CA and BC), 64 kB fetch.
 
-Orçamentos declarados antes da execução — 2.000.000 bytes de TX amostrado e
-8.000.000 bytes de arquivos — foram respeitados em todos os casos; estourá-los
-invalidaria o caso em vez de contar como sucesso. Médias das duas repetições:
+The budgets declared before execution — 2,000,000 bytes of sampled TX and 8,000,000
+bytes of files — were respected in every case; exceeding them would invalidate the case
+rather than count as success. Averages over the two repetitions:
 
-| Cenário | Política | Concluiu | Bytes LXMF | TX amostrado | Arquivos (pico) | Contatos (s) |
+| Scenario | Policy | Completed | LXMF bytes | TX sampled | Files (peak) | Contacts (s) |
 | --- | --- | --- | --- | --- | --- | --- |
-| Três contatos | Objeto completo | Sim (2/2) | 197.829 | 411.817 | 255.660 | 10,79 |
-| Três contatos | Partes exatas | Sim (2/2) | 90.351 | 194.079 | 365.384 | 10,75 |
-| Três contatos | Paridade XOR | Sim (2/2) | 134.019 | 282.271 | 474.583 | 10,76 |
-| Rota perdida | Objeto completo | **Não** (0/2) | 197.829 | 207.997 | 205.503 | 7,14 |
-| Rota perdida | Partes exatas | **Não** (0/2) | 90.351 | 161.493 | 212.934 | 7,16 |
-| Rota perdida | Paridade XOR | **Sim** (2/2) | 134.019 | 235.173 | 404.567 | 7,17 |
+| Three contacts | Whole object | Yes (2/2) | 197,829 | 411,817 | 255,660 | 10.79 |
+| Three contacts | Exact parts | Yes (2/2) | 90,351 | 194,079 | 365,384 | 10.75 |
+| Three contacts | XOR parity | Yes (2/2) | 134,019 | 282,271 | 474,583 | 10.76 |
+| Route lost | Whole object | **No** (0/2) | 197,829 | 207,997 | 205,503 | 7.14 |
+| Route lost | Exact parts | **No** (0/2) | 90,351 | 161,493 | 212,934 | 7.16 |
+| Route lost | XOR parity | **Yes** (2/2) | 134,019 | 235,173 | 404,567 | 7.17 |
 
-O TX amostrado soma distribuição e contatos. A codificação custa 2,7 ms, 1,8 ms
-e 4,0 ms por objeto, desprezível diante do transporte. As duas repetições
-concordam caso a caso em conclusão e em tráfego dentro de 0,4 %.
+Sampled TX adds distribution and contacts together. Encoding costs 2.7 ms, 1.8 ms and
+4.0 ms per object, negligible against the transport. The two repetitions agree case by
+case on completion and on traffic within 0.4 %.
 
-## O que a comparação ampliada mostra
+## What the widened comparison shows
 
-Esta é a fatia que testa H05, codificação redundante, e o resultado é um
-compromisso, não uma vantagem geral:
+This is the slice that tests H05, redundant encoding, and the result is a trade-off, not
+a general advantage:
 
-- **Sem perda, redundância só custa.** Partes exatas concluem com o menor
-  tráfego total; a paridade XOR gasta **+45 % de TX** e **+30 % de arquivos** para
-  entregar o mesmo objeto. O objeto completo gasta mais que o dobro do tráfego
-  das partes exatas e não cabe no limite de 64 kB por busca.
-- **Com uma rota perdida, só a redundância entrega.** Com dois contatos, a
-  paridade XOR reconstrói os bytes exatos; partes exatas e objeto completo
-  permanecem corretamente incompletos. Nenhuma política produziu conclusão falsa.
-- **Armazenamento anda no sentido oposto do tráfego.** O objeto completo tem o
-  menor pico de arquivos e o maior tráfego; a paridade XOR, o inverso. Não existe
-  política dominante sob este contrato.
+- **Without loss, redundancy only costs.** Exact parts complete with the lowest total
+  traffic; XOR parity spends **+45 % TX** and **+30 % files** to deliver the same object.
+  The whole object spends more than twice the traffic of exact parts and does not fit the
+  64 kB per-fetch limit.
+- **With one route lost, only redundancy delivers.** With two contacts, XOR parity
+  reconstructs the exact bytes; exact parts and the whole object stay correctly
+  incomplete. No policy produced a false completion.
+- **Storage moves opposite to traffic.** The whole object has the lowest file peak and
+  the highest traffic; XOR parity the reverse. There is no dominant policy under this
+  contract.
 
-A conclusão sustentada é estreita: sob este limite nativo de transferência, a
-escolha entre partes exatas e código redundante é um compromisso mensurável entre
-tráfego, armazenamento e tolerância a uma rota perdida. Não é novidade frente a
-sistemas que já fragmentam e codificam mensagens, nem evidência de economia geral.
+The conclusion it sustains is narrow: under this native transfer limit, the choice
+between exact parts and a redundant code is a measurable trade-off between traffic,
+storage and tolerance to one lost route. It is not novel against systems that already
+fragment and encode messages, and it is not evidence of any general saving.
 
-## Limites da campanha ampliada
+## Limits of the widened campaign
 
-Duas repetições pareadas não são estimativa estatística de confiabilidade. Tudo
-ocorreu em um host, sobre TCP de loopback, com colocação de partes provisionada
-e perda induzida pela omissão de um contato, não por rádio ou congestionamento.
-Os contadores de interface são amostras antes do encerramento, não captura
-exaustiva de pacotes. Banco do destinatário, RAM, CPU e energia continuam fora do
-custo total. Um único esquema redundante foi medido — paridade XOR sobre três
-partes — e não um código estabelecido como Reed-Solomon ou fontain codes.
-O reparo após perda não foi medido: nenhuma política tentou recuperar a rota
-perdida. O recibo continua produzido localmente e não retorna à origem offline.
+Two paired repetitions are not a statistical estimate of reliability. Everything ran on
+one host, over loopback TCP, with provisioned part placement and loss induced by omitting
+a contact, not by radio or congestion. The interface counters are samples taken before
+shutdown, not exhaustive packet capture. The recipient's database, RAM, CPU and energy
+remain outside the total cost. A single redundant scheme was measured — XOR parity over
+three parts — and not an established code such as Reed-Solomon or fountain codes. Repair
+after loss was not measured: no policy attempted to recover the lost route. The receipt
+is still produced locally and does not return to the offline origin.
 
-## Decisão e próximo passo
+## Decision and next step
 
-G2 está encerrado no escopo declarado. H04 foi verificado na primeira fatia e
-H05 recebe um resultado condicional: redundância melhora a entrega sob perda de
-rota e piora o custo sem perda. A hipótese de vantagem geral de custo está
-**refutada** neste contrato e deve deixar de ser afirmada.
+G2 is closed within its declared scope. H04 was verified in the first slice and H05
+receives a conditional result: redundancy improves delivery under route loss and worsens
+cost without loss. The hypothesis of a general cost advantage is **refuted** under this
+contract and must stop being asserted.
 
-Próxima fatia: **G3 — gerações**, substituição de todos os nós originais e do
-supervisor, mantendo o serviço sem consultar fonte oculta, com falha explícita
-ao retirar um recurso declarado indispensável. Rádio, demanda comercial,
-autonomia sem supervisor e tokens continuam não validados.
+Next slice: **G3 — generations**, replacing every original node and the supervisor while
+keeping the service running without consulting a hidden source, with an explicit failure
+when a resource declared indispensable is withdrawn. Radio, commercial demand, autonomy
+without a supervisor and tokens all remain unvalidated.
