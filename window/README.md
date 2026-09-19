@@ -1,10 +1,12 @@
 # TRON Window
 
-V3a executado e **não fechado**: [janelas abertas com 7 ms de diferença sem canal
-vivo](V3A_BENCH.md), mas a rodada não gravou identidade de host e o veredito é
-`v3a_pass_without_machine_evidence` — que são duas máquinas ainda é palavra do
-operador. Para montar duas máquinas do zero e fechá-lo:
-[preparação passo a passo](V3_SETUP.md).
+V3c aprovado: [um objeto atravessou entre duas máquinas por um meio que não carrega
+IP](V3C_BENCH.md), com o destinatário provado sem nenhuma interface IP e as duas
+máquinas provadas distintas. Isso aposenta a ressalva de host único de G0–V1.
+
+V3a executado e **não fechado** no seu próprio veredito: [janelas abertas com 7 ms de
+diferença sem canal vivo](V3A_BENCH.md), mas aquela rodada não gravou identidade de
+host. Para montar duas máquinas do zero: [preparação passo a passo](V3_SETUP.md).
 
 V2 aprovado: [roteiro de reprodução por estranho](V2_REPRODUCTION.md), com
 `run_v2_reproduction.py` como executor único; aguarda outra pessoa em outra máquina.

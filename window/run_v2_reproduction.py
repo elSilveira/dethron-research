@@ -57,12 +57,15 @@ def commit():
     """Which code produced this result. Without it a summary cannot be compared."""
     try:
         quiet = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
-        result = subprocess.run(['git', '-C', str(ROOT), 'log', '--format=%H %s', '-1'],
+        # Git refuses a repository it thinks belongs to someone else, and that refusal
+        # would be recorded here as if it were the version of the code under test.
+        safe = ['git', '-c', f'safe.directory={Path(ROOT).as_posix()}', '-C', str(ROOT)]
+        result = subprocess.run(safe+['log', '--format=%H %s', '-1'],
                                 capture_output=True, text=True, timeout=60, creationflags=quiet)
         if result.returncode != 0:
             # Silence here would leave a result that cannot be tied to any code.
             return {'head': None, 'error': result.stderr.strip().splitlines()[:2]}
-        dirty = subprocess.run(['git', '-C', str(ROOT), 'status', '--porcelain'],
+        dirty = subprocess.run(safe+['status', '--porcelain'],
                                capture_output=True, text=True, timeout=60, creationflags=quiet)
         return {'head': result.stdout.strip(),
                 'modified': len([l for l in dirty.stdout.splitlines() if l.strip()])}

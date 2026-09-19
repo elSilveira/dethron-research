@@ -582,11 +582,18 @@ canal vivo, canal de controle lacrado nas duas, objeto entregue e auditado sobre
 endereços não-loopback. O veredito, porém, é `v3a_pass_without_machine_evidence`:
 os agentes ainda não gravavam identidade de host, e **que as duas pastas rodaram em
 máquinas diferentes continua sendo observação do operador, não evidência** — o que
-este projeto não aceita. A ressalva de host único só sai dos marcos anteriores
-quando uma rodada produzir `v3a_scoped_pass`; o código para isso já existe.
-Próxima fatia: V3c, com enlace serial não-IP. O V3b, segundo meio físico via cabo
-Ethernet, foi descartado: Wi-Fi e Ethernet carregam os dois IP, e provar
-diversidade de cabo não é provar diversidade de meio. O mesmo
+este projeto não aceita. **V3c aprovado** no mesmo dia, e é ele que fecha
+a questão: [um objeto de 16 KiB atravessou entre as duas máquinas por um enlace
+Bluetooth SPP](window/V3C_BENCH.md), com o nó do destinatário provado — pelo
+arquivo de configuração que ele mesmo escreveu — sem nenhuma interface IP, e as
+máquinas provadas distintas por processador, nome e endereços disjuntos. Veredito
+`v3c_scoped_pass`. **A ressalva de host único sai de G0–V1**, e existe uma rodada
+em que a entrega verificável não usou a pilha da internet. Isso não é a H19:
+migração de tráfego sob escala é outra pergunta, e Bluetooth divide rádio e banda
+com o Wi-Fi, então o que se provou é ausência de IP, não ausência de domínio de
+falha comum. O V3b, segundo meio físico via cabo Ethernet, foi descartado: Wi-Fi e
+Ethernet carregam os dois IP, e provar diversidade de cabo não é provar
+diversidade de meio. O mesmo
 comando a partir de um clone
 em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
 caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor

@@ -18,8 +18,11 @@ from v3_audit import audit
 def commit(root):
     try:
         quiet = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
-        result = subprocess.run(['git', '-C', str(Path(__file__).resolve().parents[1]),
-                                 'log', '--format=%H %s', '-1'],
+        # Git refuses a repository it thinks belongs to someone else, and that refusal
+        # would be recorded here as if it were the version of the code under test.
+        tree = Path(__file__).resolve().parents[1]
+        result = subprocess.run(['git', '-c', f'safe.directory={tree.as_posix()}',
+                                 '-C', str(tree), 'log', '--format=%H %s', '-1'],
                                 capture_output=True, text=True, timeout=60, creationflags=quiet)
         return result.stdout.strip() if result.returncode == 0 else result.stderr.strip()[:120]
     except Exception as exc:

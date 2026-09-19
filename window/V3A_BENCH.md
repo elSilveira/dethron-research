@@ -156,16 +156,17 @@ window/.venv-gateway/Scripts/python.exe window/run_v3_report.py C:\dethron\bench
 
 A evidência de G0–V1 sustenta em duas pastas que não compartilham processo nem
 diretório, com ninguém dirigindo-as durante a janela, e o objeto atravessou uma
-rede real entre endereços não-loopback. **A ressalva do host único não sai dos
-marcos anteriores enquanto uma rodada não gravar as identidades de host.**
+rede real entre endereços não-loopback. Esta rodada, sozinha, não estabelece que
+são duas máquinas.
 
-Próximo passo, nesta ordem:
+**O [V3c](V3C_BENCH.md) estabeleceu**, numa rodada posterior que gravou as
+identidades de host: `v3c_scoped_pass`, com processadores de fabricantes
+diferentes e nenhum endereço em comum. A ressalva do host único sai de G0–V1 por
+aquela evidência, não por esta.
 
-1. **Fechar o V3a** numa rodada que produza `v3a_scoped_pass`. É a única coisa que
-   falta, e o código para isso já existe — ver [V3_SETUP.md](V3_SETUP.md).
-2. **V3c**, com enlace serial entre as duas máquinas: um meio não-IP de verdade,
-   que também remove o relógio de parede do encontro, porque o pulso de partida
-   passa a viajar pelo próprio fio.
+Refazer esta rodada até `v3a_scoped_pass` continua possível — [V3_SETUP.md](V3_SETUP.md)
+— mas deixou de ser necessário: o que ela provaria já está provado, sobre um meio
+mais difícil.
 
 O **V3b** — segundo meio físico via cabo Ethernet — foi descartado: Wi-Fi e
 Ethernet carregam os dois IP, então a rodada custaria o mesmo trabalho para
