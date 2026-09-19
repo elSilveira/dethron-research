@@ -44,8 +44,8 @@ fases seguintes, que não conseguem ler o que aposentaram. Um sucessor sem
 
 ## Resultado
 
-A [rodada final](results/gateway-g3-1789613422588119200/report.json), com
-[fontes congelados](results/gateway-g3-1789613422588119200/sources.json),
+A [rodada final](evidence/gateway-g3-1789613422588119200/report.json), com
+[fontes congelados](evidence/gateway-g3-1789613422588119200/sources.json),
 passou nos dois cenários e no controle negativo: veredito `g3_scoped_pass`.
 
 | Cenário | Tempo | Supervisores distintos | Transferências nativas | Aposentados | Resultado |

@@ -51,8 +51,8 @@ paridade. DNA para a carga, réplica para a prova.
 ## Cenários e resultado
 
 Três cenários com resultado exigido antes da execução, na
-[rodada final](results/gateway-v1-return-1789650235930527800/report.json) com
-[fontes congelados](results/gateway-v1-return-1789650235930527800/sources.json):
+[rodada final](evidence/gateway-v1-return-1789650235930527800/report.json) com
+[fontes congelados](evidence/gateway-v1-return-1789650235930527800/sources.json):
 veredito `v1_return_scoped_pass` em 346,4 s.
 
 | Cenário | Tempo | `D` completou | Cópias nos relés | Origem visitou | Prova obtida via | Sem prova em |
@@ -103,7 +103,7 @@ um e o lançamento do outro — mas estritamente disjuntos pelos timestamps. A
 afirmação é de disjunção lógica, não de longos períodos offline.
 
 A execução pela via de reprodução declarada repetiu o veredito em 342,8 s, com as
-mesmas rotas de prova por cenário: [segunda rodada](results/gateway-v1-return-1789650685925011100/report.json).
+mesmas rotas de prova por cenário: [segunda rodada](evidence/gateway-v1-return-1789650685925011100/report.json).
 
 - Testes V1 rápidos no ambiente fixado: **22 passaram, 2 opt-in pulados**.
 - `unittest discover -s window/tests` no ambiente fixado: **163 passaram,

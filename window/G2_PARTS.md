@@ -64,13 +64,13 @@ Artefatos locais incluem chaves de laboratório e são ignorados pelo Git.
 
 ## Rodadas e verificações
 
-A [rodada inicial](results/gateway-g2-1789584864583714400/report.json) passou
+A [rodada inicial](evidence/gateway-g2-1789584864583714400/report.json) passou
 nos três casos e foi reauditada após o endurecimento do auditor. Dois testes
 novos falharam antes da correção: conclusão antecipada declarada na timeline
 e contagem incorreta de partes únicas. Ambos passaram após a correção.
 
-A [rodada final](results/gateway-g2-1789606473945592000/report.json), com
-[fontes congelados](results/gateway-g2-1789606473945592000/sources.json), passou
+A [rodada final](evidence/gateway-g2-1789606473945592000/report.json), com
+[fontes congelados](evidence/gateway-g2-1789606473945592000/sources.json), passou
 na integração real em **229,390 s**, incluindo preparação das três variantes.
 
 | Variante | Concluiu sob limite | Contatos (s) | Bytes LXMF submetidos | Bytes nos propagadores | TX amostrado |
@@ -98,7 +98,7 @@ atuais das suítes estão em [G3](G3_GENERATIONS.md#rodadas-e-verificações).
 
 ## Comparação ampliada
 
-A [campanha pareada](results/g2-comparison-1789608585567685600/report.json) fixada
+A [campanha pareada](evidence/g2-comparison-1789608585567685600/report.json) fixada
 em `g2_compare_contract.py` executou **12 casos reais** em 590,984 s: duas
 repetições, dois cenários e três políticas, com ordem de políticas invertida na
 segunda repetição e rota de contatos rotacionada. O objeto tem 49.152 bytes.

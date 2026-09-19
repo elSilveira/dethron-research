@@ -22,7 +22,6 @@ uma cópia antiga deste projeto na máquina, use uma pasta nova.
 | Sistema | Windows 10 ou 11 | A evidência do G4 usa `netstat`; outros sistemas não foram exercitados |
 | Python | **3.10.x**, no PATH como `python` (foi executado com 3.10.11) | `python --version` |
 | Git | qualquer versão recente | `git --version` |
-| Rust (`cargo`) | **opcional**: só os 15 testes do *survival* precisam dele | `cargo --version`; sem ele o executor detecta e os exclui sozinho |
 | Caminho do clone | **curto (até 100 caracteres) e sem espaços, aspas ou acentos**, por exemplo `C:\dethron` | O Windows limita caminhos a 260 caracteres e os artefatos dos experimentos acrescentam cerca de 150; a ponte do G4 recusa espaços. O executor mede isso e para antes de rodar se o caminho for longo |
 | Rede | internet apenas para o `pip install`; os experimentos usam só `127.0.0.1` | O Firewall do Windows pode perguntar sobre `python.exe`: permitir |
 | Espaço | ~300 MB (ambiente virtual e artefatos) | — |
@@ -74,20 +73,16 @@ Qualquer outra versão é reprovação do passo: não continue, relate.
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-only
 ```
 
-**Esperado, com Rust:**
+**Esperado:**
 
 ```
-fast full                   ran=207 skipped=8 PASS
-V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
+fast full                   ran=166 skipped=8 PASS
+V2 PASS - summary: ...\windowesults2-...\summary.json
 ```
-
-**Sem Rust**, a primeira linha será `note: cargo not found...` e o esperado passa a
-ser seis linhas `fast test_...  PASS`, uma linha
-`fast subset total  ran=137 skipped=8 PASS` e `V2 PASS`.
 
 Os 8 pulados são os testes de reprodução real, que só rodam no passo 4. Leva
-cerca de 40 segundos com Rust já compilado; a primeira compilação do *survival*
-pode levar alguns minutos.
+cerca de 60 segundos. Nada além de Python é necessário: a contagem é uma só, e
+era duas quando a árvore ainda continha trabalho anterior ao Dethron.
 
 Se **um único** teste falhar, repita o comando uma vez com a máquina ociosa. Se
 falhar de novo, é reprovação: relate a saída completa.
@@ -137,7 +132,7 @@ deve ser interrompido com `Ctrl+C` e relatado.
 **Idêntico ao esperado, senão é reprovação:**
 
 - as oito strings de veredito e o `V2 PASS` final;
-- as contagens da suíte rápida: 207 e 8, ou 137 e 8 sem Rust;
+- as contagens da suíte rápida: 166 e 8;
 - dentro de cada `report.json`, os resultados de cenário: quais completaram,
   as listas de pendência, a rota da prova, a presença da recusa, zero endpoints
   IP nos cenários isolados do G4 e pelo menos um na linha de base `ip`.

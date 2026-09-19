@@ -1,5 +1,10 @@
 # Autonomia da internet e sobrevivência com 5%
 
+> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
+> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
+> árvore quando o repositório foi preparado para publicação. Os links para esse
+> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+
 Data: 15/09/2026. Contrato proposto para avaliar a visão final do usuário.
 Não é resultado experimental nem garantia da implementação atual.
 
@@ -83,14 +88,14 @@ Mesmo redundância suficiente não garante que os fragmentos possam se encontrar
 
 ## O que os testes atuais dizem
 
-[Sobrevivência de processos](window/PROCESS_SURVIVAL.md): 20 serviços no mesmo
+Sobrevivência de processos: 20 serviços no mesmo
 computador, um sobrevivente com cópia completa, chave e raiz confiável mantidas
 pelo controlador. Três provas registradas recompuseram os serviços.
 O teste demonstra recuperação local no cenário definido. Não prova um limiar
 universal de 5%, economia de armazenamento, perdas geográficas ou continuidade
 sem controlador e seus recursos.
 
-O [experimento anterior em memória](v2/SURVIVAL.md) também usa replicação completa.
+O experimento anterior em memória também usa replicação completa.
 Seus 20/20 ensaios não devem ser somados às três provas de processos como se fossem
 ensaios independentes do mesmo contrato ou de uma rede mundial.
 

@@ -1,103 +1,83 @@
-# BitNet / Genesis / Dethron — documentação de decisão
+# Dethron
 
-**Comece pelo [plano mestre de arquitetura, hipóteses e testes](DETHRON_MASTER_PLAN.md).**
-Ele reúne a ordem atual G0–G9, contratos dos módulos, primeira campanha e critérios
-para implementar, integrar uma solução existente ou abandonar uma hipótese.
+Entrega verificável de mensagens sobre [Reticulum](https://reticulum.network/) e
+LXMF, com um harness que trata cada afirmação como algo a ser derrubado antes de
+ser publicado.
 
-Consolidação: 15/09/2026. Este índice orienta o trabalho atual. Documentos
-históricos preservam a intenção e as alegações da época; seus exemplos e
-placares não substituem evidência de execução real no escopo declarado.
+> *Verifiable message delivery over Reticulum/LXMF, with an evidence harness. Every
+> milestone document states its contract, its result, the controls that must fail,
+> and its limits. Documents are in Portuguese; code and commit messages in English.*
 
-## Objetivo original
+## O que isto resolve
 
-Gadgets participantes hospedam pequenos nós e gateways. Mensagens e seus
-fragmentos atravessam caminhos e contatos diferentes, sobrevivem à substituição
-de nós e são reconstruídos no destino. A internet é uma via inicial e opcional;
-a ambição é operar também sem ela, quando houver infraestrutura alternativa.
-Armazenamento eficiente e computação compartilhada são objetivos adicionais.
+Entrega **garantida** é impossível sobre contato intermitente: se o destinatário
+nunca aparece, nada o alcança. O que é possível é **verificável** — saber, com
+prova criptográfica e sem confiar no relé, em que estado uma mensagem está:
 
-## Leitura principal
-
-| Documento | Função |
+| Estado | Prova |
 | --- | --- |
-| [Direção da rede](DETHRON_NETWORK_DIRECTION.md) | Visão, swarm, gateways, código examinado e contratos |
-| [Autonomia e sobrevivência com 5%](DETHRON_AUTONOMY_CONTRACT.md) | Hipótese final, condições físicas, redundância e limites |
-| [Utilidade e diferenciação](DETHRON_UTILITY_VALIDATION.md) | Antecedentes, uso candidato e comparação com soluções existentes |
-| [Plano de decisão e experimentos](DETHRON_VALIDATION_PLAN.md) | Ordem de trabalho, controles, evidências e critérios de abandono |
-| [Mapa de evidências e documentação](DETHRON_EVIDENCE_MAP.md) | O que foi medido, o que é histórico e onde está cada registro |
-| [Incentivos e remuneração](DETHRON_INCENTIVES.md) | Serviço verificável, financiamento, tokens e pagamentos durante partições |
+| **Entrou** | O relé assina uma custódia daquela mensagem, para aquele destinatário. Um relé que atesta e não entrega **é nomeado** |
+| **Pendente** | Distinguindo *aguardando contato* de *atestado e não entregue* — pendência localizável, não um silêncio |
+| **Saiu** | O destinatário assina um recibo que volta à origem, mesmo que origem e destino nunca estejam online juntos |
 
-## Decisão atual
+## O que está provado
 
-- Há fundamento e aplicações reais para redes tolerantes a interrupções.
-- Existem antecedentes próximos: Reticulum/LXMF, DTN, RaptorQ e armazenamento codificado.
-- O projeto tem recuperação local real; swarm por rádio, independência da internet,
-  autonomia sem controlador, economia de 5% e adoção global não foram demonstrados.
-- Não existe justificativa para prometer sobrevivência universal com 5% ou
-  impossibilidade de desligamento. Tamanho da rede não implica essas propriedades.
-- G0 executado: Reticulum/LXMF atendeu ao recorte local de mensagens completas
-  persistentes após crash. G1 integrou caixa persistente e recibo autenticado,
-  com resultado satisfatório no laboratório. G2 encerrou com a comparação pareada
-  de objeto completo, partes exatas e paridade XOR: sem perda a redundância só
-  custa; com uma rota perdida, só ela entrega. G3 atravessou duas gerações
-  completas de transportadores e quatro supervisores, com falha explícita quando
-  a credencial declarada foi retirada. G4 entregou o objeto com zero endpoints IP
-  nos processos envolvidos; removida a ponte, nada é entregue e o objeto fica
-  pendente. Independência física e rádio continuam sem evidência.
-- Reenquadramento de 17/09/2026: as propriedades de rede demonstradas são do
-  Reticulum/LXMF; o entregável passa a ser o harness de evidência reproduzível e
-  a entrega verificável — prova quando há entrega, pendência visível quando não
-  há. Rede própria, tokens e processamento ficam após aceitação externa.
-- Antes de cada avanço, registrar satisfação dos critérios, utilidade do próximo
-  investimento e razões para continuar, integrar, reduzir ou parar.
+Cada linha tem documento, controles que precisam falhar, limites declarados e
+[artefato publicado](window/evidence/README.md):
 
-## Código e experimentos existentes
+- **[V1](window/V1_CUSTODY.md)** — custódia assinada, prova de entrada, pendência
+  localizável, e [recibo de volta](window/V1_RECEIPT_RETURN.md).
+- **[V2](window/V2_REPRODUCTION.md)** — reprodução em máquina independente,
+  seguindo só o documento.
+- **[V3c](window/V3C_BENCH.md)** — um objeto de 16 KiB atravessou entre duas
+  máquinas por um enlace **que não carrega IP**, com o destinatário provado sem
+  nenhuma interface IP, e as máquinas provadas distintas.
 
-- [v2](v2/README.md): núcleo Rust atual de execução, evidências e recuperação.
-- [Window](window/README.md): provas locais, integração com modelo e dashboard.
-- [Sobrevivência de processos](window/PROCESS_SURVIVAL.md): 20 serviços locais,
-  reposição de 19 a partir de um sobrevivente com cópia completa.
-- [Comparação de respostas](window/RESPONSE_COMPARISON.md): aplicação secundária,
-  32 gerações reais; não demonstra comunicação mesh.
-- [Avaliadores](probes/README.md): testes dos critérios de avaliação.
-- [G0 — referência executada](window/G0_REFERENCE.md): Reticulum/LXMF real,
-  entrega offline após crash; decisão de integrar como base de G1.
-- [G1 — integração validada](window/G1_INTEGRATION.md): persistência transacional,
-  recibo do destinatário, duplicatas e controles negativos.
-- [G2 — partes complementares](window/G2_PARTS.md): reconstrução exata,
-  controle de parte ausente e comparação pareada de três políticas.
-- [G3 — gerações](window/G3_GENERATIONS.md): troca de todos os transportadores e
-  supervisores, bloqueio das gerações aposentadas e recusa sem credencial.
-- [G4 — independência lógica](window/G4_INDEPENDENCE.md): entrega sem a pilha IP
-  por ponte de arquivos, com corte total e corte reversível como controles.
-- [V1 — custódia](window/V1_CUSTODY.md): recibo de custódia assinado pelos relés,
-  prova de entrada, pendência localizável e relé que atestou e descartou nomeado.
-- [V1 — recibo de volta](window/V1_RECEIPT_RETURN.md): a prova de saída chega à
-  origem por qualquer relé, sem origem e destino online ao mesmo tempo; pendência
-  de prova visível quando o relé visitado não a tem.
-- [V2 — reprodução por estranho](window/V2_REPRODUCTION.md): roteiro, pré-requisitos,
-  executor único e resultados esperados para reproduzir G0–V1 a partir do clone.
-- [V3a — bancada multi-máquina](window/V3A_BENCH.md): cronograma pré-declarado,
-  encontro por instante sem canal vivo, janela surda e verificada, entrega entre
-  máquinas fisicamente distintas.
+O índice completo, de G0 a V3, está em [window/](window/README.md). O
+[plano mestre](DETHRON_MASTER_PLAN.md) traz hipóteses, critérios e o que foi
+abandonado — inclusive o G2, encerrado **sem vantagem geral**, registrado como tal.
 
-Comandos de reprodução já disponíveis, na raiz:
+## O que ainda não existe
+
+Isto é um harness com evidência, não um produto. Honestamente:
+
+- **Não há cliente.** Os nós são dirigidos por bancadas. Ninguém instala e manda
+  uma mensagem.
+- **Escala nunca medida.** Uma mensagem, um relé, um destinatário, 16 KiB.
+- **Só Windows.** Nunca rodou em Linux nem Android.
+- **Chaves de laboratório.** Não há troca de chaves nem descoberta de contatos.
+- **Sem modelo de ameaça escrito.** Os testes cobrem casos; falta o documento.
+
+## Verificar
 
 ```powershell
-python window/run_survival.py --runs 3
-python window/run_comparison.py
-$env:PYTHONPATH='window'
-python -m pytest window/tests probes/tests -q
+python -m venv window/.venv-gateway
+window/.venv-gateway/Scripts/python.exe -m pip install -r window/requirements-gateway.txt
+window/.venv-gateway/Scripts/python.exe window/run_v2_reproduction.py --fast-only
 ```
 
-Os launchers exigem os ambientes descritos em suas documentações. Esses comandos
-não executam os novos experimentos do plano nem provam comunicação sem internet.
-Na consolidação documental não foram repetidas inferências ou provas de rede.
+Esperado: `ran=166 skipped=8 PASS`. O roteiro completo, incluindo as oito
+reproduções reais, está em [V2_REPRODUCTION.md](window/V2_REPRODUCTION.md).
 
-## Como usar o histórico
+## Como este repositório trata evidência
 
-[Auditoria anterior](PROJECT_FEASIBILITY_REPORT.md),
-[síntese conceitual](dethron_genesis_sintese_cientifica.md) e planos de arquitetura
-continuam acessíveis pelo mapa de evidências. Não reescrever relatórios antigos
-para fazê-los parecer provas atuais. Toda promoção de uma hipótese exige uma
-nova execução, configuração identificável e registros brutos preservados.
+- Um controle que **não pode** passar acompanha cada alegação. O `dark` do G4 já
+  passou por acidente; o registro diz isso.
+- Números vêm de artefatos, não de memória. Os artefatos citados estão publicados.
+- O que falhou fica escrito. Cada documento tem uma seção de rodadas e verificações
+  com os erros encontrados, inclusive os meus.
+- Um defeito real do LXMF foi encontrado, reproduzido e corrigido: veja
+  [window/upstream/](window/upstream/lxmf-stamp-zerodivision.md). A submissão à
+  montante está bloqueada — o mantenedor se retirou e as *issues* estão desativadas.
+
+## Licença
+
+[Apache 2.0](LICENSE). O Reticulum e o LXMF são dependências sob suas próprias
+licenças; este trabalho os importa, não os deriva.
+
+## História
+
+Este repositório contém trabalho anterior ao Dethron — sondas BitNet/Genesis,
+*crates* Rust, um *worker* neural e um painel de navegador. Esse material saiu da
+árvore em setembro de 2026 e **continua no histórico do git**, recuperável por
+quem quiser.

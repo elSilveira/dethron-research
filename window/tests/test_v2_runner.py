@@ -44,10 +44,9 @@ class GuideConsistencyTests(unittest.TestCase):
         self.guide = (WINDOW/'V2_REPRODUCTION.md').read_text(encoding='utf-8')
 
     def test_fast_suite_counts_in_the_guide_match_the_runner(self):
-        full, subset = FAST_EXPECTED['full'], FAST_EXPECTED['subset']
-        self.assertIn(f'ran={full[0]} skipped={full[1]} PASS', self.guide)
-        self.assertIn(f'ran={subset[0]} skipped={subset[1]} PASS', self.guide)
-        self.assertIn(f'{full[0]} e {full[1]}, ou {subset[0]} e {subset[1]}', self.guide)
+        ran, skipped = FAST_EXPECTED
+        self.assertIn(f'ran={ran} skipped={skipped} PASS', self.guide)
+        self.assertIn(f'{ran} e {skipped};', self.guide)
 
     def test_every_verdict_and_reference_time_is_in_the_guide(self):
         for test, verdict in EXPECTED.items():

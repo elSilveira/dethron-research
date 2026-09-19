@@ -40,8 +40,8 @@ um corte aplicado depois de funcionar.
 
 ## Resultado
 
-A [rodada final](results/gateway-g4-1789615587351184200/report.json), com
-[fontes congelados](results/gateway-g4-1789615587351184200/sources.json), passou
+A [rodada final](evidence/gateway-g4-1789615587351184200/report.json), com
+[fontes congelados](evidence/gateway-g4-1789615587351184200/sources.json), passou
 nos quatro cenários em 166,2 s: veredito `g4_scoped_pass`.
 
 | Cenário | Tempo | Entregou | Endpoints IP observados | Bytes pela ponte | Perdidos no corte |
@@ -130,7 +130,7 @@ Três defeitos reais apareceram antes do resultado e estão corrigidos com teste
 
 A execução pela via de reprodução declarada repetiu o resultado em 167,0 s, com
 os mesmos vereditos por cenário e a mesma contagem de endpoints:
-[segunda rodada](results/gateway-g4-1789615826730038800/report.json).
+[segunda rodada](evidence/gateway-g4-1789615826730038800/report.json).
 
 - Testes G4 rápidos no ambiente fixado: **24 passaram, 1 opt-in pulado**.
 - `unittest discover -s window/tests` no ambiente fixado: **139 passaram,

@@ -107,7 +107,8 @@ temporário separou as duas coisas em segundos.
 
 - Testes V3 rápidos no ambiente fixado: **21 passaram**.
 - `unittest discover -s window/tests` no ambiente fixado: **207 passaram,
-  8 opt-in pulados**.
+  8 opt-in pulados**. Esse número era da árvore de então; a suíte hoje tem **166**, porque o trabalho
+  anterior ao Dethron saiu da árvore na preparação para publicação.
 - Cada fonte do V3a tem menos de 200 linhas.
 
 ## Limites
@@ -123,6 +124,11 @@ excluída da janela pelo lacre. As máquinas compartilham a mesma infraestrutura
 rede e a mesma energia, então falhas correlacionadas continuam possíveis. O
 auditor prova que ninguém dirigiu as máquinas durante a janela; não prova que um
 operador hostil não poderia ter preparado a bancada de má-fé.
+
+## Evidência
+
+[`evidence/v3a-network-20260918/`](evidence/v3a-network-20260918/) traz o
+relatório, o plano com hash e o `evidence.jsonl` de cada máquina.
 
 ## Reprodução
 

@@ -62,8 +62,8 @@ Quatro cenários, com resultado exigido antes da execução:
 
 ## Resultado
 
-A [rodada final](results/gateway-v1-1789648766782072700/report.json), com
-[fontes congelados](results/gateway-v1-1789648766782072700/sources.json), passou
+A [rodada final](evidence/gateway-v1-1789648766782072700/report.json), com
+[fontes congelados](evidence/gateway-v1-1789648766782072700/sources.json), passou
 nos quatro cenários em 211,6 s: veredito `v1_custody_scoped_pass`.
 
 | Cenário | Tempo | Provas de entrada | Saída | Pendência derivada | Recusa |
@@ -112,7 +112,7 @@ passaram a `custody_received` e `custody_refused`, distintos do comando, e a
 rodada seguinte passou com C atestando normalmente.
 
 A execução pela via de reprodução declarada repetiu o veredito em 209,0 s, com os
-mesmos resultados por cenário: [segunda rodada](results/gateway-v1-1789649067110742100/report.json).
+mesmos resultados por cenário: [segunda rodada](evidence/gateway-v1-1789649067110742100/report.json).
 
 - Testes V1 rápidos no ambiente fixado: **13 passaram, 1 opt-in pulado**.
 - `unittest discover -s window/tests` no ambiente fixado: **153 passaram,

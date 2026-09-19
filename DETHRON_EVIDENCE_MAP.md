@@ -1,5 +1,10 @@
 # Mapa de evidências, antecedentes e documentação
 
+> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
+> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
+> árvore quando o repositório foi preparado para publicação. Os links para esse
+> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+
 Consolidação: 15/09/2026. Serve para retomar sem confundir planos com resultados.
 Entrada principal: [README](README.md). Plano atual: [G0–G7](DETHRON_VALIDATION_PLAN.md).
 
@@ -66,12 +71,12 @@ Entrada principal: [README](README.md). Plano atual: [G0–G7](DETHRON_VALIDATIO
 
 ## Núcleo e provas locais
 
-- [v2 README](v2/README.md).
-- [Recuperação conectada](v2/CONNECTED_RECOVERY.md).
-- [Regeneração em memória](v2/SURVIVAL.md).
-- [Status de evidências semânticas](v2/EVIDENCE_STATUS.md).
+- v2 README.
+- Recuperação conectada.
+- Regeneração em memória.
+- Status de evidências semânticas.
 - [Window README](window/README.md).
-- [Sobrevivência com processos](window/PROCESS_SURVIVAL.md).
+- Sobrevivência com processos.
 
 Registros de referência:
 
@@ -85,15 +90,15 @@ publicação externa. Preservar cópias ao compartilhar a evidência.
 
 ## Aplicações e diagnósticos de modelo, escopo secundário
 
-- [Comparação atual](window/RESPONSE_COMPARISON.md).
-- [Documento inicial](window/DOCUMENT_PROBE.md).
-- [Átomos](window/ATOMIC_DNA.md).
-- [Reconstrução visual](window/RECONSTRUCTION_VISUAL.md).
-- [Auditoria do harness](window/HARNESS_VALIDATION.md).
-- [Avaliadores](probes/README.md).
-- [Contrato de capacidade](CAPABILITY_VALIDATION_CONTRACT.md).
-- [Plano anterior de inferência](PROBE_VALIDATION_PLAN.md).
-- [Roadmap DeepSeek](DEEPSEEK_DISTRIBUTED_INFERENCE_ROADMAP.md).
+- Comparação atual.
+- Documento inicial.
+- Átomos.
+- Reconstrução visual.
+- Auditoria do harness.
+- Avaliadores.
+- Contrato de capacidade.
+- Plano anterior de inferência.
+- Roadmap DeepSeek.
 
 As regras de integridade continuam úteis. Acertos de modelo não medem
 conectividade e não são pré-requisito de G0. Não promover resultados em dados
@@ -101,12 +106,12 @@ de desenvolvimento a prova de generalização ou economia global.
 
 ## História e intenção
 
-- [Síntese conceitual](dethron_genesis_sintese_cientifica.md).
-- [Auditoria do repositório em 13/09](PROJECT_FEASIBILITY_REPORT.md): achados
+- Síntese conceitual.
+- Auditoria do repositório em 13/09: achados
   históricos, anteriores às provas novas do v2/Window; não é inventário atual.
-- [Arquitetura de 2025](BITNET_ECOSYSTEM_ARCHITECTURE.md).
-- [Guia de implementação de 2025](BITNET_IMPLEMENTATION_GUIDE.md).
-- [Templates e casos de uso](BITNET_TEMPLATES_AND_USE_CASES.md).
+- Arquitetura de 2025.
+- Guia de implementação de 2025.
+- Templates e casos de uso.
 - [Plano Genesis Gateway](bkp-dethron/future-plans/01-genesis-gateway-service.md).
 
 Os três guias de 2025 contêm afirmações e exemplos que exigem caracterização,

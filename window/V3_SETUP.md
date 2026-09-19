@@ -16,7 +16,6 @@ rodada depois disso.
 | Caminho | **curto e sem espaços**: use `C:\dethron` | — |
 | Rede | as duas na mesma rede local, enxergando uma à outra | passo 6 |
 | Espaço | ~300 MB | — |
-| Rust | **não é necessário** para a bancada V3 | — |
 
 Instale o Python pelo instalador de [python.org](https://www.python.org/downloads/release/python-31011/)
 marcando **"Add python.exe to PATH"**. O atalho da Microsoft Store não serve: ele não
@@ -49,9 +48,7 @@ window\.venv-gateway\Scripts\python.exe -m pip install -r window\requirements-ga
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-only
 ```
 
-**Esperado:** `fast subset total  ran=137 skipped=8 PASS` e `V2 PASS`.
-
-Se você tiver Rust instalado, serão `207 e 8` em vez de `137 e 8`; os dois estão certos.
+**Esperado:** `fast full  ran=166 skipped=8 PASS` e `V2 PASS`.
 
 Se aparecer `PROBLEM: repository path too long`, o clone está num caminho comprido
 demais — mova para `C:\dethron`.

@@ -21,8 +21,10 @@ import time
 BASE = Path(__file__).resolve().parent
 ROOT = BASE.parent
 PINNED = {'rns': '1.5.4', 'lxmf': '1.1.1', 'cryptography': '50.0.1'}
-# Measured on the committed tree: the whole suite, and the Rust-free subset by pattern.
-FAST_EXPECTED = {'full': (207, 8), 'subset': (137, 8)}
+# Measured on the committed tree. One number, not two: the split existed for fifteen
+# survival tests that built a Rust binary, and those left the tree with the rest of the
+# pre-Dethron work. Two expected counts were a standing invitation to report the wrong one.
+FAST_EXPECTED = (166, 8)
 EXPECTED = {
     'test_gateway_reference.py': 'meets_scoped_requirement',
     'test_g1_reference.py': 'meets_g1_lab_contract',
@@ -74,7 +76,7 @@ def commit():
 
 
 def cargo_available():
-    """The survival tests build a Rust binary; without cargo they fail confusingly."""
+    """Reported for the record only; no test in this tree needs a Rust toolchain."""
     try:
         quiet = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
         return subprocess.run(['cargo', '--version'], capture_output=True,
@@ -142,25 +144,12 @@ def unittest_run(pattern=None, env=None, timeout=3600):
             'ok': result.returncode == 0, 'tail': output.strip().splitlines()[-3:]}
 
 
-def fast_suite(no_survival):
+def fast_suite():
     env = {**os.environ, 'PYTHONPATH': 'window'}
-    if not no_survival:
-        row = unittest_run(env=env)
-        want = FAST_EXPECTED['full']
-        row['expected'] = {'ran': want[0], 'skipped': want[1]}
-        row['pass'] = row['ok'] and (row['ran'], row['skipped']) == want
-        return {'full': row}
-    rows = {}
-    # test_lxmf_* covers the stamp workaround, which matters most where the suite is trimmed.
-    for pattern in ('test_gateway_*.py', 'test_g1_*.py', 'test_g2_*.py', 'test_g3_*.py',
-                    'test_g4_*.py', 'test_v1_*.py', 'test_v3_*.py', 'test_lxmf_*.py'):
-        rows[pattern] = unittest_run(pattern, env=env)
-        rows[pattern]['pass'] = rows[pattern]['ok']
-    total = (sum(r['ran'] or 0 for r in rows.values()), sum(r['skipped'] for r in rows.values()))
-    rows['subset total'] = {'ran': total[0], 'skipped': total[1], 'seconds': round(sum(r['seconds'] for r in rows.values()), 1),
-                            'ok': all(r['ok'] for r in rows.values()), 'expected': dict(zip(('ran', 'skipped'), FAST_EXPECTED['subset'])),
-                            'pass': all(r['ok'] for r in rows.values()) and total == FAST_EXPECTED['subset'], 'tail': []}
-    return rows
+    row = unittest_run(env=env)
+    row['expected'] = {'ran': FAST_EXPECTED[0], 'skipped': FAST_EXPECTED[1]}
+    row['pass'] = row['ok'] and (row['ran'], row['skipped']) == FAST_EXPECTED
+    return {'full': row}
 
 
 def reference(test, expected):
@@ -185,13 +174,9 @@ def main(argv):
     fast_only = '--fast-only' in argv
     only = len(chosen) < len(EXPECTED)
     cargo = cargo_available()
-    no_survival = '--no-survival' in argv or not cargo
-    if not cargo:
-        print('note: cargo not found, so the 15 survival tests that build a Rust binary are '
-              'excluded; everything else runs normally', flush=True)
     out = BASE/'results'/f'v2-{time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())}'
     out.mkdir(parents=True)
-    summary = {'environment': {**environment(), 'cargo': cargo, 'survival_excluded': no_survival},
+    summary = {'environment': {**environment(), 'cargo': cargo},
                'fast': None, 'references': {}, 'started': time.time()}
     print('environment:', json.dumps(summary['environment']), flush=True)
     if summary['environment']['problems']:
@@ -201,7 +186,7 @@ def main(argv):
             print('PROBLEM:', problem, flush=True)
         print(f"V2 FAIL - environment not acceptable; summary: {out/'summary.json'}", flush=True)
         return 1
-    summary['fast'] = {} if only else fast_suite(no_survival)
+    summary['fast'] = {} if only else fast_suite()
     if only:
         print(f'running only: {", ".join(chosen)}', flush=True)
     for name, row in summary['fast'].items():

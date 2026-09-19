@@ -17,7 +17,10 @@ window/.cache/
 codex-session-*.md
 1.md
 
-# Historical snapshots kept locally, not part of the reproducible tree
+# Historical snapshots kept locally, not part of the reproducible tree.
+# v2/ held the Rust crate that left the tree in September 2026; what remains here is
+# a local working copy with build output, and the source is in the git history.
+v2/
 backup/
 bkp-dethron/
 Deepthron/

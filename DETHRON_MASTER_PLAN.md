@@ -1,5 +1,10 @@
 # Dethron — arquitetura, hipóteses e plano mestre de validação
 
+> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
+> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
+> árvore quando o repositório foi preparado para publicação. Os links para esse
+> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+
 **Versão 7 — 17/09/2026. G0–G4 executados; foco reenquadrado para harness de evidência e entrega verificável sobre Reticulum/LXMF. Documento principal para continuar.**
 
 Esta é uma especificação proposta. Distingue evidência existente, decisões de
@@ -103,8 +108,8 @@ presentes. Não equivale a descoberta oportunista, codificação redundante ou
 mensageria cifrada ponta a ponta através de gateways sem chave de leitura.
 
 Fontes locais: [mapa de evidências](DETHRON_EVIDENCE_MAP.md),
-[recuperação](v2/CONNECTED_RECOVERY.md), [processos](window/PROCESS_SURVIVAL.md),
-[comparação de modelo](window/RESPONSE_COMPARISON.md).
+recuperação, processos,
+comparação de modelo.
 
 ## 3. Hipóteses e testes que podem rejeitá-las
 

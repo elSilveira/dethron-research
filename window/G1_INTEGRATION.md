@@ -147,15 +147,15 @@ pelo Git. O resumo documental preserva resultado e limites para outras instalaç
 | `1789498865120420300` | Integração passou em 30,230 s; confirmação persistente, duplicata, corrupção e identidade errada verificadas. |
 | `1789581740304500500` | Versão final passou em 31,124 s, com auditor endurecido e reauditoria dos bancos/pacotes. |
 
-[Primeiro relatório aprovado](results/gateway-g1-1789498865120420300/report.json).
+[Primeiro relatório aprovado](evidence/gateway-g1-1789498865120420300/report.json).
 A revisão posterior endureceu o auditor para comparar todos os campos da obrigação
 e fechar explicitamente conexões SQLite; a versão final foi repetida antes do fechamento.
 
-[Relatório final](results/gateway-g1-1789581740304500500/report.json),
-[manifesto](results/gateway-g1-1789581740304500500/manifest.json) e
-[timeline](results/gateway-g1-1789581740304500500/timeline.jsonl).
+[Relatório final](evidence/gateway-g1-1789581740304500500/report.json),
+[manifesto](evidence/gateway-g1-1789581740304500500/manifest.json) e
+[timeline](evidence/gateway-g1-1789581740304500500/timeline.jsonl).
 Regressão G0 com o launcher compartilhado também passou:
-[relatório](results/gateway-g0-1789498911484614700/report.json).
+[relatório](evidence/gateway-g0-1789498911484614700/report.json).
 
 Verificação final:
 

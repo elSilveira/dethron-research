@@ -1,5 +1,10 @@
 # Dethron: direção da rede e critérios de viabilidade
 
+> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
+> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
+> árvore quando o repositório foi preparado para publicação. Os links para esse
+> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+
 Índice: [documentação consolidada](README.md). Execução: [plano G0–G7](DETHRON_VALIDATION_PLAN.md).
 Hipótese final: [autonomia da internet e sobrevivência com 5%](DETHRON_AUTONOMY_CONTRACT.md).
 
@@ -14,7 +19,7 @@ uma stack completa.
 Correção de enquadramento: essa visão já pertence ao projeto anterior, incluindo
 DNA, swarm, reconstrução e comunicação por ondas. Este documento organiza a
 validação dessa intenção; não inaugura um objetivo novo. Ver a
-[síntese histórica](dethron_genesis_sintese_cientifica.md), especialmente 2.5–2.9.
+síntese histórica, especialmente 2.5–2.9.
 Os nomes históricos, como "criptografia viva", não certificam propriedades:
 cada propriedade precisa de definição operacional, implementação e teste real.
 
@@ -163,7 +168,7 @@ O v2 já possui unidades verificadas, receitas, persistência e recuperação.
 O Window demonstrou reposição de processos locais usando um sobrevivente
 com cópia completa. Isso não demonstra entrega oportunista, rádio, continuidade
 sem controlador, sobrevivência a perda de máquinas ou economia de armazenamento.
-Referência: [PROCESS_SURVIVAL.md](window/PROCESS_SURVIVAL.md).
+Referência: PROCESS_SURVIVAL.md.
 
 Uma receita só reconstrói aquilo que seus dados e entradas permitem reconstruir.
 Hashes verificam bytes; não recuperam bytes perdidos sozinhos. Resumir texto em

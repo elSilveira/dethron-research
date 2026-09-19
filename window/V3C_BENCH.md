@@ -84,7 +84,8 @@ e sobre serial é uma corrida que o destinatário perde.
   **128 KiB/s**, com digest conferido nas duas pontas.
 - `v3_serial_probe.py rns` responde se o Reticulum sobe a interface, em 20 s e numa
   máquina só, em vez de vender a resposta por uma janela inteira.
-- Suíte completa no ambiente fixado: **222 passaram, 8 opt-in pulados**.
+- Suíte completa no ambiente fixado: **222 passaram, 8 opt-in pulados**. Esse número era da árvore de então; a suíte hoje tem **166**, porque o trabalho
+  anterior ao Dethron saiu da árvore na preparação para publicação.
 
 O relatório desta rodada nasceu sem saber que código o produziu: o `git` recusava o
 repositório por *dubious ownership* e o campo `commit` guardou a recusa. Corrigido
@@ -107,6 +108,11 @@ meio próprio sob escala é outra pergunta, que uma rodada com um enlace não to
 Por causa do `write_timeout = None` do RNS, se o destinatário cair no meio da
 janela o relé trava em vez de registrar erro. A bancada contorna pela ordem dos
 passos; o defeito é da montante e continua lá.
+
+## Evidência
+
+[`evidence/v3c-serial-20260918/`](evidence/v3c-serial-20260918/) traz o
+relatório, o plano com hash, o `evidence.jsonl` e o `host.json` de cada máquina.
 
 ## Reprodução
 

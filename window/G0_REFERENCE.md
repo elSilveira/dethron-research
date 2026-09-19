@@ -162,16 +162,16 @@ Na primeira rodada funcional, tempos acumulados desde `distribution_complete`:
 São observações de uma rodada, não médias, percentis ou velocidade de uma rede real.
 
 Artefatos da primeira rodada funcional:
-[relatório](results/gateway-g0-1789495077778687500/report.json),
-[manifesto](results/gateway-g0-1789495077778687500/manifest.json),
-[timeline](results/gateway-g0-1789495077778687500/timeline.jsonl).
+[relatório](evidence/gateway-g0-1789495077778687500/report.json),
+[manifesto](evidence/gateway-g0-1789495077778687500/manifest.json),
+[timeline](evidence/gateway-g0-1789495077778687500/timeline.jsonl).
 As duas tentativas inconclusivas permanecem em `results/`, com causa e traceback.
 
 Na repetição final: **4,421 s / 8,828 s / 13,390 s**, respectivamente. O teste
 automatizado inteiro levou **167,085 s**, incluindo preparação, envio e a janela
-negativa. [Relatório final com auditoria](results/gateway-g0-1789495309858991400/report.json),
-[manifesto final](results/gateway-g0-1789495309858991400/manifest.json) e
-[timeline final](results/gateway-g0-1789495309858991400/timeline.jsonl).
+negativa. [Relatório final com auditoria](evidence/gateway-g0-1789495309858991400/report.json),
+[manifesto final](evidence/gateway-g0-1789495309858991400/manifest.json) e
+[timeline final](evidence/gateway-g0-1789495309858991400/timeline.jsonl).
 
 Verificação da implementação:
 
