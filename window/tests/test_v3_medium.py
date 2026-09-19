@@ -114,3 +114,32 @@ class SerialDistinctnessTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class PreflightTests(unittest.TestCase):
+    """A port that is right on one machine can be wrong on the other, and the bench that
+    declared it could not have known. The machine that has to use it checks it."""
+
+    def agent(self, tmp, port):
+        from v3_agent import Agent
+        from v3_bench import build
+        root = Path(tmp)
+        build(root, serial={'alpha': 'COM3', 'beta': port})
+        return Agent(root, 'beta')
+
+    def test_a_port_this_machine_does_not_have_is_refused_before_the_window(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            agent = self.agent(tmp, 'COM_DOES_NOT_EXIST')
+            with self.assertRaises(ValueError) as caught:
+                agent.load()
+            self.assertIn('COM_DOES_NOT_EXIST', str(caught.exception))
+            self.assertIn('really has', str(caught.exception))
+
+    def test_an_ip_bench_needs_no_serial_port(self):
+        from v3_agent import Agent
+        from v3_bench import build
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            build(root, relay_host='192.168.1.9')
+            self.assertEqual(Agent(root, 'beta').preflight(
+                json.loads((root/'control'/'plan.json').read_text())['machines']['beta']), [])

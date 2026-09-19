@@ -81,8 +81,32 @@ class Agent:
             raise ValueError(f'{self.machine}: schedule does not match its declared digest')
         self.schedule = schedule
         self.record('loaded', digest=plan['digests'][self.machine], steps=len(schedule['steps']),
-                    window_seconds=schedule['window_seconds'], host=self.describe_host())
+                    window_seconds=schedule['window_seconds'], host=self.describe_host(),
+                    serial_ports=self.preflight(schedule))
         return schedule
+
+    def preflight(self, schedule):
+        """Refuse a schedule this machine cannot execute, before the window costs anything.
+
+        A bench is built on one machine and cannot see the other one's serial ports, so a
+        port that is right there can be wrong here. Left unchecked that fails at step 0,
+        after the whole wait, with an error about a node rather than about a port — and
+        the other machine then blocks writing to a link with nobody on the far end. Each
+        machine therefore checks its own ports the moment it loads, while there is still
+        time to fix the bench.
+        """
+        wanted = {one['args']['serial']['port'] for one in schedule['steps']
+                  if one['action'] == 'launch' and one['args'].get('serial')}
+        if not wanted:
+            return []
+        from serial.tools import list_ports
+        present = {port.device for port in list_ports.comports()}
+        missing = sorted(wanted-present)
+        if missing:
+            raise ValueError(f'{self.machine}: this bench declares {missing} on this machine, '
+                             f'which has {sorted(present) or "no serial port at all"}. Build the '
+                             f'bench again naming the port each machine really has.')
+        return sorted(wanted)
 
     def wait_for_start(self, timeout=600):
         """Wait for the declared instant, or for a marker when no instant was declared.
