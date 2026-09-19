@@ -1,29 +1,51 @@
-"""Prepare a V3a bench: identities, addresses, both schedules and the shared instant.
+"""Prepare a V3 bench: identities, addresses, both schedules and the shared instant.
 
-    window/.venv-gateway/Scripts/python.exe window/run_v3_bench.py <folder> <relay-host> [lead_seconds]
+    window/.venv-gateway/Scripts/python.exe window/run_v3_bench.py <folder> <relay-host> [lead]
+    window/.venv-gateway/Scripts/python.exe window/run_v3_bench.py <folder> --serial <alpha-port> <beta-port> [lead]
 
-<relay-host> is the address the recipient machine uses to reach the relay machine, so
-it is the relay machine's IP on the local network. Everything is written under
-<folder>/control, which is what the other machine needs a copy of.
+The first form is V3a: the machines meet over the network, and <relay-host> is the relay
+machine's address on the local network, which is what the recipient uses to reach it.
+
+The second is V3c: the machines meet over a serial link that carries no IP, and each port
+is the COM port on that machine. The recipient is then given that link and nothing else,
+so an object that arrives cannot have come over IP. Prove the link carries bytes first:
+
+    window/.venv-gateway/Scripts/python.exe window/v3_serial_probe.py bulk-listen <port>
+
+Everything is written under <folder>/control, which is what the other machine needs a
+copy of.
 """
 import json
 from pathlib import Path
 import sys
 import time
 
-from v3_bench import PROFILE, build
+from v3_bench import PROFILE, SERIAL, build
+
+
+def select(argv):
+    """Either an address or a port on each machine, never both, never neither."""
+    if len(argv) >= 3 and argv[2] == '--serial':
+        if not 5 <= len(argv) <= 6:
+            raise SystemExit(__doc__)
+        return {'serial': {'alpha': argv[3], 'beta': argv[4]}}, argv[5:6]
+    if not 3 <= len(argv) <= 4:
+        raise SystemExit(__doc__)
+    return {'relay_host': argv[2]}, argv[3:4]
 
 
 def main():
-    if not 3 <= len(sys.argv) <= 4:
+    if len(sys.argv) < 3:
         raise SystemExit(__doc__)
-    root, relay_host = Path(sys.argv[1]).resolve(), sys.argv[2]
-    lead = int(sys.argv[3]) if len(sys.argv) == 4 else PROFILE['lead_seconds']
-    bench = build(root, relay_host, lead_seconds=lead)
+    root = Path(sys.argv[1]).resolve()
+    medium, rest = select(sys.argv)
+    profile = SERIAL if 'serial' in medium else PROFILE
+    lead = int(rest[0]) if rest else profile['lead_seconds']
+    bench = build(root, lead_seconds=lead, **medium)
     opens = bench['start_wall']
-    print(json.dumps({'folder': str(root), 'relay_host': relay_host,
-                      'machines': sorted(bench['machines']), 'digests': bench['digests'],
-                      'window_seconds': bench['window_seconds'],
+    print(json.dumps({'folder': str(root), 'medium': 'serial' if 'serial' in medium else 'ip',
+                      **medium, 'machines': sorted(bench['machines']),
+                      'digests': bench['digests'], 'window_seconds': bench['window_seconds'],
                       'opens_at': time.strftime('%H:%M:%S', time.localtime(opens)),
                       'opens_in_seconds': round(opens-time.time(), 1),
                       'ports': PROFILE['ports']}, indent=2), flush=True)

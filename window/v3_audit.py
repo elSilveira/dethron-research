@@ -11,6 +11,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from RNS.vendor.configobj import ConfigObj
+
 from dethron_gateway.erasure import reconstruct
 from dethron_gateway.parts import validate as validate_part
 from dethron_gateway.protocol import data_envelope, receipt_envelope
@@ -66,13 +68,18 @@ def rendezvous(reports, plan):
 def distinct_machines(root, manifest, reports):
     """Whether this run says anything the single-host milestones did not.
 
-    Two agents on one host execute the same schedules just as happily, so a V3a claim
-    that does not establish distinct machines is worth no more than G1. What the
-    evidence can carry is checked here; what it cannot is reported as not evidenced,
-    never assumed.
+    Two agents on one host execute the same schedules just as happily, so a claim that
+    does not establish distinct machines is worth no more than G1. What the evidence can
+    carry is checked here; what it cannot is reported as not evidenced, never assumed.
+
+    Over the network the relay address does most of the work: it must not be loopback,
+    and it must belong to the relay machine and to no other. A serial bench has no such
+    address — the medium is the link, not the network — so distinctness there rests on
+    the host identities differing and on the two machines sharing no address at all.
     """
-    host = str(manifest.get('relay_host', ''))
-    facts = {'relay_host': host, 'loopback': host in LOOPBACK}
+    serial = manifest.get('medium') == 'serial'
+    host = str(manifest.get('relay_host') or '')
+    facts = {'relay_host': host or None, 'loopback': (not serial) and host in LOOPBACK}
     hosts = {}
     for report in reports:
         path = root/report['machine']/'host.json'
@@ -84,17 +91,54 @@ def distinct_machines(root, manifest, reports):
     if len(hosts) != len(reports):
         facts['evidenced'] = False
         facts['reason'] = ('the agents did not record their host identity, so distinctness rests '
-                           'on the non-loopback address and on the operator, not on this evidence')
+                           'on the operator, not on this evidence')
         return facts
     names = {one.get('hostname') for one in hosts.values()}
     if len(names) != len(reports):
         raise ValueError(f'the machines report the same host identity: {sorted(names)}')
+    if serial:
+        addresses = [set(one.get('addresses') or []) for one in hosts.values()]
+        shared = set.intersection(*addresses) if all(addresses) else set()
+        if shared:
+            raise ValueError(f'the machines share the address {sorted(shared)}: this is one machine')
+        facts.update(evidenced=True, hostnames=sorted(names), shared_addresses=[])
+        return facts
     # The relay address must belong to the relay machine and to no other, which is what
     # separates two machines from two folders on one.
     owners = sorted(name for name, one in hosts.items() if host in (one.get('addresses') or []))
     if owners != ['alpha']:
         raise ValueError(f'the relay address {host} belongs to {owners or "no machine that reported"}')
     facts.update(evidenced=True, hostnames=sorted(names), relay_owner='alpha')
+    return facts
+
+
+def medium(root, plan, manifest):
+    """Whether the object could have taken a path other than the declared one.
+
+    For a serial bench the claim is not that a serial link was configured — it is that
+    the recipient had no other way to reach anything. So this reads the configuration the
+    recipient's node actually wrote to disk, not the schedule that asked for it, and
+    requires the interface set to be exactly one serial interface. An object that arrived
+    could then only have crossed a link that carries no IP.
+    """
+    declared = manifest.get('medium', 'ip')
+    facts = {'declared': declared}
+    launch = [row['args'] for row in plan['machines']['beta']['steps'] if row['action'] == 'launch']
+    if declared != 'serial':
+        facts['contacts'] = [contact for one in launch for contact in (one.get('contacts') or [])]
+        return facts
+    config = root/'beta'/'D'/'rns'/'config'
+    if not config.exists():
+        raise ValueError('the recipient node left no configuration, so its medium cannot be read')
+    interfaces = ConfigObj(str(config))['interfaces']
+    names = sorted(interfaces)
+    if names != ['Serial']:
+        raise ValueError(f'the recipient had {names}, not a serial link alone: '
+                         f'the object could have crossed IP')
+    if any(one.get('contacts') for one in launch):
+        raise ValueError('the recipient was given IP contacts in its own schedule')
+    facts.update(interfaces=names, port=interfaces['Serial']['port'],
+                 speed=interfaces['Serial']['speed'], carries_ip=False)
     return facts
 
 
@@ -139,6 +183,8 @@ def audit(root):
     result = {'passed': True, 'machines': reports, 'rendezvous': rendezvous(reports, plan),
               'delivery': delivery(root, manifest)}
     result['distinct_machines'] = distinct_machines(root, manifest, reports)
-    result['verdict'] = ('v3a_scoped_pass' if result['distinct_machines']['evidenced']
-                         else 'v3a_pass_without_machine_evidence')
+    result['medium'] = medium(root, plan, manifest)
+    slice_name = 'v3c' if result['medium']['declared'] == 'serial' else 'v3a'
+    result['verdict'] = (f'{slice_name}_scoped_pass' if result['distinct_machines']['evidenced']
+                         else f'{slice_name}_pass_without_machine_evidence')
     return result

@@ -21,7 +21,7 @@ MAX_WINDOW = 3600
 # Every address a step needs is computed before the window, from identities minted in
 # advance, so no step has to discover anything while the machines are deaf.
 ACTIONS = {
-    'launch': {'node', 'role', 'port', 'contacts', 'credential'},
+    'launch': {'node', 'role', 'port', 'contacts', 'credential', 'serial'},
     'announce': {'node'},
     'send': {'node', 'label', 'recipient', 'recipient_key', 'propagation', 'body'},
     'fetch': {'node', 'source', 'source_key', 'propagation', 'limit_kb'},

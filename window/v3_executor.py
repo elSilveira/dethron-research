@@ -15,14 +15,41 @@ BASE = ('[reticulum]\n share_instance = No\n enable_transport = No\n'
         ' discover_interfaces = No\n[logging]\n loglevel = 3\n[interfaces]\n')
 
 
-def config_text(port, contacts):
-    """Contacts are host:port, because the peer is usually on the other machine."""
-    text = BASE+(' [[Listener]]\n type = TCPServerInterface\n enabled = Yes\n'
-                 f' listen_ip = 0.0.0.0\n listen_port = {port}\n')
+def base(transport):
+    """Transport is off everywhere except where a node has to bridge two media."""
+    return BASE.replace(' enable_transport = No\n',
+                        f' enable_transport = {"Yes" if transport else "No"}\n')
+
+
+def config_text(port, contacts, serial=None):
+    """Contacts are host:port, because the peer is usually on the other machine.
+
+    A serial link marked `only` gives the node exactly one interface, and it is not an
+    IP one. That is not decoration: it is what lets the audit say the object crossed a
+    non-IP medium, because the node had no other medium to cross. Declaring contacts for
+    such a node is a contradiction, so it is refused rather than quietly honoured.
+
+    A node holding a serial link that is *not* its only interface sits between two
+    different media, and a relay that cannot forward between them makes the second medium
+    decoration. Only that node is given transport; every other node keeps the narrow
+    configuration the earlier milestones ran with.
+    """
+    bridges = bool(serial) and not serial.get('only')
+    if serial and serial.get('only'):
+        if contacts:
+            raise ValueError('a serial-only node cannot also be given IP contacts')
+        text = base(bridges)
+    else:
+        text = base(bridges)+(' [[Listener]]\n type = TCPServerInterface\n enabled = Yes\n'
+                     f' listen_ip = 0.0.0.0\n listen_port = {port}\n')
     for index, contact in enumerate(contacts):
         host, _, remote = str(contact).partition(':')
         text += (f' [[Contact{index}]]\n type = TCPClientInterface\n enabled = Yes\n'
                  f' target_host = {host}\n target_port = {remote}\n')
+    if serial:
+        text += (f' [[Serial]]\n type = SerialInterface\n enabled = Yes\n'
+                 f" port = {serial['port']}\n speed = {int(serial.get('speed', 115200))}\n"
+                 f' databits = 8\n parity = N\n stopbits = 1\n')
     return text
 
 
@@ -51,7 +78,8 @@ class Executor:
             settings['credential'] = str(credential)
         node = Daemon(self.home, name, self.worker)
         node.launch(args['port'], [], settings,
-                    config=config_text(args['port'], args.get('contacts') or []))
+                    config=config_text(args['port'], args.get('contacts') or [],
+                                       args.get('serial')))
         self.nodes[name] = node
         return {'pid': node.pid, 'destination': node.info['destination'],
                 'propagation': node.info['propagation'], 'port': args['port']}

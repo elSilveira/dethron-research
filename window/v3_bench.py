@@ -18,6 +18,16 @@ from v3_schedule import plan, schedule, step
 
 PROFILE = {'version': 1, 'payload_bytes': 16384, 'window_seconds': 240, 'lead_seconds': 120,
            'object_id': 'c'*32, 'ports': {'A': 45810, 'O': 45811, 'D': 45812}}
+# A serial link is slower than a LAN and its paths take longer to settle, so the serial
+# bench gives every stage more room. The IP timings are left exactly as V3a ran them.
+SERIAL = {'speed': 115200, 'window_seconds': 480, 'lead_seconds': 180}
+TIMES = {
+    'ip': {'relay': 0, 'origin': 8, 'announce_a': 20, 'announce_o': 26, 'send': 34,
+           'status': 90, 'stop': 100, 'receiver': 0, 'announce_d': 30, 'fetch': (130, 170)},
+    'serial': {'relay': 0, 'origin': 10, 'announce_a': 30, 'announce_o': 45, 'send': 60,
+               'status': 200, 'stop': 240, 'receiver': 0, 'announce_d': 40,
+               'fetch': (220, 300, 380)},
+}
 
 
 def mint(folder, name):
@@ -31,17 +41,31 @@ def mint(folder, name):
             'propagation': RNS.Destination.hash(identity, 'lxmf', 'propagation').hex()}
 
 
-def build(root, relay_host, window_seconds=None, lead_seconds=None):
-    """One relay and origin on alpha, the recipient on beta, across the network."""
+def build(root, relay_host=None, window_seconds=None, lead_seconds=None, serial=None):
+    """One relay and origin on alpha, the recipient on beta.
+
+    `serial` names the COM port on each machine and makes the link between them the only
+    medium the recipient has: its node is given a serial interface and nothing else, so
+    an object that arrives cannot have come over IP, because there was no IP to come
+    over. Without it the machines meet over the network and `relay_host` is the relay
+    machine's address.
+    """
     root = Path(root)
     control = root/'control'
     if (control/'plan.json').exists():
         raise ValueError(f'{root} already holds a bench. A bench is single use: preparing a new '
                          f"one here would leave the previous run's nodes and evidence in place. "
                          f'Choose a new folder.')
+    if bool(serial) == bool(relay_host):
+        raise ValueError('give either a relay address, for a bench over the network, or a serial '
+                         'port per machine, for a bench over a link that carries no IP')
+    if serial and set(serial) != {'alpha', 'beta'}:
+        raise ValueError('a serial bench needs the port on each machine: alpha and beta')
+    medium = 'serial' if serial else 'ip'
+    at = TIMES[medium]
     identities = control/'identities'
-    window = window_seconds or PROFILE['window_seconds']
-    lead = lead_seconds if lead_seconds is not None else PROFILE['lead_seconds']
+    window = window_seconds or (SERIAL if serial else PROFILE)['window_seconds']
+    lead = lead_seconds if lead_seconds is not None else (SERIAL if serial else PROFILE)['lead_seconds']
     who = {name: mint(identities, name) for name in ('A', 'O', 'D')}
     ports = PROFILE['ports']
 
@@ -51,27 +75,30 @@ def build(root, relay_host, window_seconds=None, lead_seconds=None):
     envelope = data_envelope(who['O']['delivery'], who['D']['delivery'], encode(part), expires)
     body = base64.b64encode(encode(envelope)).decode()
 
+    relay_link = {'port': serial['alpha'], 'speed': SERIAL['speed']} if serial else None
     alpha = schedule('alpha', window, [
-        step(0, 'launch', node='A', role='relay', port=ports['A'], contacts=[], credential='A'),
-        step(8, 'launch', node='O', role='origin', port=ports['O'],
+        step(at['relay'], 'launch', node='A', role='relay', port=ports['A'], contacts=[],
+             credential='A', **({'serial': relay_link} if serial else {})),
+        step(at['origin'], 'launch', node='O', role='origin', port=ports['O'],
              contacts=[f"127.0.0.1:{ports['A']}"], credential='O'),
-        step(20, 'announce', node='A'),
-        step(26, 'announce', node='O'),
-        step(34, 'send', node='O', label='object', body=body,
+        step(at['announce_a'], 'announce', node='A'),
+        step(at['announce_o'], 'announce', node='O'),
+        step(at['send'], 'send', node='O', label='object', body=body,
              recipient=who['D']['delivery'], recipient_key=who['D']['public_key'],
              propagation=who['A']['propagation']),
-        step(90, 'status', node='A'),
-        step(100, 'stop', node='O'),
+        step(at['status'], 'status', node='A'),
+        step(at['stop'], 'stop', node='O'),
         step(window, 'status', node='A'),
     ])
     beta = schedule('beta', window, [
-        step(0, 'launch', node='D', role='receiver', port=ports['D'],
-             contacts=[f"{relay_host}:{ports['A']}"], credential='D'),
-        step(30, 'announce', node='D'),
-        step(130, 'fetch', node='D', source=who['O']['delivery'], source_key=who['O']['public_key'],
-             propagation=who['A']['propagation'], limit_kb=256),
-        step(170, 'fetch', node='D', source=who['O']['delivery'], source_key=who['O']['public_key'],
-             propagation=who['A']['propagation'], limit_kb=256),
+        step(at['receiver'], 'launch', node='D', role='receiver', port=ports['D'],
+             contacts=[] if serial else [f"{relay_host}:{ports['A']}"], credential='D',
+             **({'serial': {'port': serial['beta'], 'speed': SERIAL['speed'], 'only': True}}
+                if serial else {})),
+        step(at['announce_d'], 'announce', node='D'),
+        *[step(when, 'fetch', node='D', source=who['O']['delivery'],
+               source_key=who['O']['public_key'], propagation=who['A']['propagation'],
+               limit_kb=256) for when in at['fetch']],
         step(window, 'status', node='D'),
     ])
 
@@ -79,7 +106,8 @@ def build(root, relay_host, window_seconds=None, lead_seconds=None):
     control.mkdir(parents=True, exist_ok=True)
     (control/'plan.json').write_text(json.dumps(bench, indent=2), encoding='utf-8')
     (control/'manifest.json').write_text(json.dumps(
-        {'profile': PROFILE, 'relay_host': relay_host, 'identities': who,
+        {'profile': PROFILE, 'relay_host': relay_host, 'medium': medium,
+         'serial': serial, 'identities': who,
          'object': part['manifest'], 'expires': expires, 'input': envelope,
          'digest': hashlib.sha256(content).hexdigest()}, indent=2), encoding='utf-8')
     return bench
