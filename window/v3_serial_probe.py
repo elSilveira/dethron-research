@@ -21,8 +21,16 @@ whether a medium is worth building a bench on:
 
     window/.venv-gateway/Scripts/python.exe window/v3_serial_probe.py bulk-listen COM5
     window/.venv-gateway/Scripts/python.exe window/v3_serial_probe.py bulk-send   COM4
+
+`rns` goes one layer up and asks whether Reticulum itself can bring an interface up on
+the port, which is the thing a bench actually depends on and the thing a bench failure
+is expensive to learn from. Run it on both machines, alone, before building a window
+around it:
+
+    window/.venv-gateway/Scripts/python.exe window/v3_serial_probe.py rns COM5
 """
 import hashlib
+from pathlib import Path
 import sys
 import time
 
@@ -30,6 +38,7 @@ import serial
 from serial.tools import list_ports
 
 SPEED = 9600
+SERIAL_SPEED = 115200
 MARK = b'dethron-serial-probe'
 BULK = hashlib.shake_256(b'dethron-serial-bulk').digest(16384)
 DIGEST = hashlib.sha256(BULK).hexdigest()
@@ -125,6 +134,36 @@ def bulk_send(name):
     return 0
 
 
+def rns(name, seconds=20):
+    """Can Reticulum bring an interface up on this port, and does it stay up?
+
+    A port that opens for pyserial can still leave RNS with a dead interface, and a
+    bench discovers that the expensive way: eight minutes of window for one line of
+    answer. Ask directly instead.
+    """
+    import tempfile
+    import RNS
+    from v3_executor import config_text
+
+    home = Path(tempfile.mkdtemp())/'rns'
+    home.mkdir(parents=True)
+    (home/'config').write_text(config_text(0, [], {'port': name, 'speed': SERIAL_SPEED,
+                                                   'only': True}), encoding='utf-8')
+    print(f'bringing Reticulum up on {name} at {SERIAL_SPEED} for {seconds}s', flush=True)
+    RNS.Reticulum(str(home))
+    time.sleep(seconds)
+    interfaces = list(RNS.Transport.interfaces)
+    for interface in interfaces:
+        print(f'  {interface} online={interface.online} '
+              f'in={interface.rxb}B out={interface.txb}B', flush=True)
+    if not interfaces:
+        print('  no interface came up at all', flush=True)
+        return 1
+    up = [one for one in interfaces if one.online]
+    print(f'{len(up)} of {len(interfaces)} interfaces online', flush=True)
+    return 0 if up else 1
+
+
 def main():
     if len(sys.argv) < 2:
         raise SystemExit(__doc__)
@@ -141,6 +180,8 @@ def main():
         return bulk_listen(sys.argv[2], *[int(one) for one in sys.argv[3:4]])
     if mode == 'bulk-send':
         return bulk_send(sys.argv[2])
+    if mode == 'rns':
+        return rns(sys.argv[2], *[int(one) for one in sys.argv[3:4]])
     raise SystemExit(__doc__)
 
 
