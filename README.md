@@ -77,5 +77,7 @@ This repository contains work that predates Dethron — BitNet/Genesis probes, R
 crates, a neural worker and a browser dashboard. That material left the tree in
 September 2026 and **remains in the git history**, recoverable by anyone who wants it.
 
-Documents written before that point are in Portuguese and are being translated;
-the code and the commit messages have always been in English.
+The documents were written in Portuguese and translated into English in September
+2026; the code and the commit messages have always been in English. Where a document
+quotes a number from the tree of its own day, it says so rather than being silently
+updated.

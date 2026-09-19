@@ -1,118 +1,117 @@
-# Incentivos para manter a rede Dethron
+# Incentives for maintaining the Dethron network
 
-Data: 15/09/2026. Hipótese acrescentada pelo usuário à visão original.
-Documento de avaliação; nenhum token, pagamento, contrato ou mercado foi criado.
+Date: 15/09/2026. A hypothesis the user added to the original vision. An assessment
+document; no token, payment, contract or market was created.
 
-## Intenção
+## Intent
 
-Remunerar operadores de gadgets, gateways e servidores por processamento,
-armazenamento e conectividade úteis. Um token eventualmente negociável poderia
-ser uma forma de pagamento. O objetivo imediato é viabilizar a operação e
-reduzir abandono voluntário de recursos; renda distribuída em escala mundial
-permanece uma aspiração, sem promessa de rendimento ou adoção.
+Pay the operators of gadgets, gateways and servers for useful processing, storage and
+connectivity. An eventually tradable token could be one form of payment. The immediate
+objective is to make operation viable and to reduce the voluntary abandonment of resources;
+income distributed at world scale remains an aspiration, with no promise of yield or
+adoption.
 
-Pagamento pode incentivar disponibilidade, mas não evita falhas físicas,
-perda de energia, interrupção de enlaces ou saída de participantes. Recuperação
-continua necessária. A hipótese econômica não valida automaticamente a hipótese
-técnica de sobrevivência com 5% dos nós.
+Payment may encourage availability, but it prevents neither physical failures, nor loss of
+power, nor broken links, nor participants leaving. Recovery is still necessary. The economic
+hypothesis does not automatically validate the technical hypothesis of survival with 5 % of
+the nodes.
 
-## Antecedentes e histórico
+## Prior art and history
 
-- [Golem](https://docs.golem.network/docs/golem/overview): provedores oferecem
-  recursos computacionais a solicitantes em troca de GLM. Há custos de pagamento
-  e transação, descritos em [pagamentos](https://docs.golem.network/docs/golem/payments).
-- [Filecoin](https://docs.filecoin.io/basics/the-blockchain/proofs): utiliza provas
-  de replicação e armazenamento ao longo do tempo. Essas provas específicas não
-  são provas genéricas de processamento ou encaminhamento de mensagens.
-- [Economia histórica BitNet](backup/BITNET_WEB3_ECONOMY/README.md): já descrevia
-  token, recompensas e ponte com blockchains. Afirmações de valorização automática,
-  eficiência e liquidez nesse documento não são evidência econômica validada.
+- [Golem](https://docs.golem.network/docs/golem/overview): providers offer computational
+  resources to requestors in exchange for GLM. There are payment and transaction costs,
+  described in [payments](https://docs.golem.network/docs/golem/payments).
+- [Filecoin](https://docs.filecoin.io/basics/the-blockchain/proofs): uses proofs of
+  replication and of storage over time. Those specific proofs are not generic proofs of
+  processing or of message forwarding.
+- The historical BitNet economy, `backup/BITNET_WEB3_ECONOMY/README.md`, already described a
+  token, rewards and a bridge to blockchains. Claims of automatic appreciation, efficiency
+  and liquidity in that document are not validated economic evidence.
 
-A leitura do README histórico não é auditoria completa de sua implementação.
-Nesta etapa não foram executados contratos, bridges ou testes econômicos antigos.
-Remunerar infraestrutura com tokens já tem antecedentes; novidade e viabilidade
-da política Dethron exigem validação própria.
+Reading the historical README is not a complete audit of its implementation. No contracts,
+bridges or old economic tests were executed at this stage. Paying for infrastructure with
+tokens already has prior art; the novelty and viability of the Dethron policy require
+validation of their own.
 
-## Serviço útil primeiro, unidade de pagamento separada
+## A useful service first, the unit of payment separately
 
-| Serviço contratado | Evidência a projetar | Incentivo que deve ser evitado |
+| Contracted service | Evidence to design | The incentive to avoid |
 | --- | --- | --- |
-| Processamento | Resultado verificável da tarefa dentro do prazo | Pagar só por CPU ocupada, duração ou resultado autodeclarado |
-| Armazenamento | Dados contratados recuperáveis no período, com verificações apropriadas | Remunerar bytes inventados ou cópias desnecessárias |
-| Transporte | Encaminhamento/entrega contratado, com recibos e orçamento | Pagar tráfego fabricado, loops ou a mesma obrigação repetida |
-| Disponibilidade/reserva | Capacidade contratada e demonstrável quando solicitada | Pagar identidade online como se fosse serviço ou dispositivo independente |
+| Processing | A verifiable result of the task within the deadline | Paying for busy CPU, for duration, or for a self-declared result |
+| Storage | The contracted data recoverable over the period, with appropriate checks | Paying for invented bytes or unnecessary copies |
+| Transport | Contracted forwarding and delivery, with receipts and a budget | Paying for fabricated traffic, loops, or the same obligation repeated |
+| Availability and reserve | Contracted capacity, demonstrable on request | Paying for an online identity as though it were a service or an independent device |
 
-Uma assinatura prova a autoria de um recibo, não necessariamente trabalho útil.
-Emissor, provedor e destinatário podem combinar recibos de trabalho fictício.
-Múltiplas identidades também não provam múltiplos gadgets independentes.
-Verificação, disputa e detecção de abuso têm custo e limites a medir.
-Redundância necessária pode ser remunerada, desde que seja explicitamente
-contratada e contabilizada; não confundir réplica útil com duplicação de cobrança.
+A signature proves the authorship of a receipt, not necessarily useful work. Issuer,
+provider and recipient may agree on receipts for fictitious work. Multiple identities
+likewise do not prove multiple independent gadgets. Verification, dispute and abuse
+detection have costs and limits to be measured. Necessary redundancy may be paid for,
+provided it is explicitly contracted and accounted for; do not confuse a useful replica with
+a duplicated charge.
 
-## De onde vem o valor
+## Where the value comes from
 
-Escolher uma origem real de financiamento: usuários do serviço, organizações,
-assinaturas, contratos ou subsídios explícitos. Emitir tokens não demonstra
-receita recorrente, liquidez nem alguém disposto a comprá-los.
+Choose a real source of funding: users of the service, organisations, subscriptions,
+contracts or explicit subsidies. Issuing tokens demonstrates neither recurring revenue, nor
+liquidity, nor anybody willing to buy them.
 
-Medir separadamente:
+Measure separately:
 
 ```text
-resultado do operador = receita realizável pelo serviço
-                        - energia - conectividade - desgaste
-                        - operação - custos de cobrança/verificação
+operator's result = revenue realisable from the service
+                    - energy - connectivity - wear
+                    - operations - charging and verification costs
 ```
 
-Manter também a conta da rede: pagamentos dos usuários e subsídios, repasses,
-despesas de verificação/coordenação e eventuais obrigações futuras. Uma cotação
-hipotética do token não é receita realizada. Receber token, conseguir vendê-lo
-e ter resultado líquido positivo são eventos diferentes.
+Keep the network's accounts as well: user payments and subsidies, transfers, verification
+and coordination expenses, and any future obligations. A hypothetical token quotation is not
+realised revenue. Receiving a token, managing to sell it, and ending with a positive net
+result are different events.
 
-Financiamento inicial pode subsidiar cobertura antes de existir demanda local,
-mas precisa de orçamento e duração definidos. Medir o que acontece com a oferta
-de nós quando esse subsídio termina, sem presumir valorização futura.
+Initial funding may subsidise coverage before local demand exists, but it needs a defined
+budget and duration. Measure what happens to the supply of nodes when that subsidy ends,
+without presuming future appreciation.
 
-Não exigir que todo gadget seja rentável. Alguns recursos podem custar mais para
-comunicar, verificar e remunerar do que o trabalho que conseguem fornecer.
-Avaliar também concentração: grandes operadores podem ter vantagens de custo,
-reduzindo a diversidade de provedores que se pretendia incentivar.
+Do not require every gadget to be profitable. Some resources may cost more to communicate
+with, verify and pay than the work they can supply. Assess concentration too: large
+operators may hold cost advantages, reducing the very diversity of providers the incentive
+was meant to encourage.
 
-## Compatibilidade com desconexão e partições
+## Compatibility with disconnection and partitions
 
-Uma rede de transporte pode guardar mensagens durante uma partição. Um sistema
-de pagamento não pode presumir que registros isolados de gasto são globalmente
-consistentes. Assinar uma promessa offline não impede o mesmo saldo de ser
-prometido a vários operadores.
+A transport network may hold messages during a partition. A payment system cannot presume
+that isolated spending records are globally consistent. Signing an offline promise does not
+stop the same balance being promised to several operators.
 
-Opções a avaliar incluem créditos pré-alocados com exposição limitada, recibos
-provisórios e liquidação posterior. Documentar quem assume risco, quando uma
-cobrança é final e como conflitos são resolvidos. Não prometer pagamento final
-irrestrito em todas as ilhas e ausência de gasto duplo sem um mecanismo demonstrado.
+Options to assess include pre-allocated credits with bounded exposure, provisional receipts
+and later settlement. Document who bears the risk, when a charge is final, and how conflicts
+are resolved. Do not promise unrestricted final payment on every island, or the absence of
+double spending, without a demonstrated mechanism.
 
-Se a liquidação depender de uma blockchain acessível apenas pela internet,
-registrar essa dependência. A entrega pode continuar offline, enquanto a
-liquidação espera. Criar uma blockchain própria acrescenta consenso e segurança;
-sobrevivência do armazenamento com 5% não prova segurança ou progresso desse consenso.
+If settlement depends on a blockchain reachable only over the internet, record that
+dependency. Delivery may continue offline while settlement waits. Creating a blockchain of
+our own adds consensus and security; storage surviving with 5 % proves neither the security
+nor the progress of that consensus.
 
-## Experimento econômico proposto
+## Proposed economic experiment
 
-1. Escolher um serviço e um solicitante disposto a utilizá-lo; começar com custo
-   medido e recibos de uso. Créditos de teste não são negociáveis nem renda real.
-2. Comparar participação voluntária e serviço remunerado sob orçamento explícito,
-   sem misturar subsídio com demanda orgânica. Piloto financeiro exige definição
-   posterior de participantes, orçamento e autorização específica.
-3. Simular tentativas de cobrança duplicada, identidades múltiplas, conluio,
-   resultados incorretos, perda de dados e recibos conflitantes após partições.
-4. Medir utilidade entregue, custo de verificação, resultado líquido do operador,
-   custo ao usuário, disponibilidade e concentração. Não pagar pela simulação.
-5. Comparar cobrança convencional, créditos de serviço e token transferível.
-   Escolher token somente se resolver uma necessidade que compense seus custos.
+1. Choose a service and a requestor willing to use it; start with measured cost and usage
+   receipts. Test credits are neither tradable nor real income.
+2. Compare voluntary participation and paid service under an explicit budget, without mixing
+   subsidy with organic demand. A financial pilot requires a later definition of
+   participants, budget and specific authorisation.
+3. Simulate attempts at duplicate charging, multiple identities, collusion, incorrect
+   results, data loss and conflicting receipts after partitions.
+4. Measure the usefulness delivered, the cost of verification, the operator's net result,
+   the cost to the user, availability and concentration. Do not pay for the simulation.
+5. Compare conventional charging, service credits and a transferable token. Choose a token
+   only if it solves a need that outweighs its costs.
 
-Continuar se a remuneração sustentar serviço útil, verificável e competitivo.
-Simplificar ou abandonar o token se depender de valorização especulativa,
-recompensar trabalho fictício ou acrescentar dependência que viole o contrato
-de autonomia. A rede pode continuar sem uma moeda própria.
+Continue if remuneration sustains a useful, verifiable and competitive service. Simplify or
+abandon the token if it depends on speculative appreciation, rewards fictitious work, or
+adds a dependency that violates the autonomy contract. The network can continue without a
+currency of its own.
 
-Estado: hipótese documentada; nenhum teste econômico novo executado.
-Retomada: [plano de validação](DETHRON_VALIDATION_PLAN.md),
-[autonomia](DETHRON_AUTONOMY_CONTRACT.md) e [utilidade](DETHRON_UTILITY_VALIDATION.md).
+Status: a documented hypothesis; no new economic test executed. Resume at the
+[validation plan](DETHRON_VALIDATION_PLAN.md), [autonomy](DETHRON_AUTONOMY_CONTRACT.md) and
+[usefulness](DETHRON_UTILITY_VALIDATION.md).

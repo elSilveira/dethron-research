@@ -1,141 +1,140 @@
-# Autonomia da internet e sobrevivência com 5%
+# Autonomy from the internet, and survival with 5 %
 
-> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
-> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
-> árvore quando o repositório foi preparado para publicação. Os links para esse
-> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+> **Note, 19/09/2026.** This document cites work that predates Dethron — BitNet/Genesis
+> probes, Rust crates, a neural worker, a browser dashboard — which left the tree when the
+> repository was prepared for publication. The links to that material have been undone and
+> the text kept. The content remains in the git history.
 
-Data: 15/09/2026. Contrato proposto para avaliar a visão final do usuário.
-Não é resultado experimental nem garantia da implementação atual.
+Date: 15/09/2026. A proposed contract for assessing the user's final vision. It is neither
+an experimental result nor a guarantee about the current implementation.
 
-## Intenção a preservar
+## The intent to preserve
 
-A internet serve de via durante a expansão orgânica dos gateways. A ambição é
-que a rede Dethron adquira caminhos próprios suficientes para deixar de precisar
-dessa via e, mesmo após perder 95% dos nós, preservar sua continuidade.
-O desligamento automático da via internet é uma funcionalidade desejada a
-avaliar, não uma ação autorizada em equipamentos reais nesta etapa documental.
+The internet serves as a path during the organic expansion of the gateways. The ambition is
+for the Dethron network to acquire sufficient paths of its own to stop needing that path
+and, even after losing 95 % of the nodes, to preserve its continuity. Automatically
+switching the internet path off is a desired feature to assess, not an action authorised on
+real equipment at this documentary stage.
 
-## Duas hipóteses independentes
+## Two independent hypotheses
 
-**H-A — autonomia:** a rede sustenta o serviço declarado sem depender de enlaces
-de internet, servidores centrais ou infraestrutura de descoberta indispensável
-que só seja acessível por esses enlaces.
+**H-A — autonomy:** the network sustains the declared service without depending on internet
+links, central servers or indispensable discovery infrastructure reachable only over those
+links.
 
-**H-S — sobrevivência:** após perdas definidas, os sobreviventes conservam dados,
-identidades e estado suficientes para manter ou recuperar esse serviço.
+**H-S — survival:** after defined losses, the survivors keep enough data, identities and
+state to maintain or recover that service.
 
-Passar H-A não implica H-S. Recuperar um objeto em H-S não implica conectividade
-entre os sobreviventes nem entrega ao destinatário. O protocolo não substitui
-distância física, alcance de rádio, energia, hardware ou transporte disponível.
+Passing H-A does not imply H-S. Recovering an object in H-S implies neither connectivity
+between the survivors nor delivery to the recipient. The protocol does not substitute for
+physical distance, radio range, energy, hardware or available transport.
 
-## O que significa sobreviver
+## What surviving means
 
-| Nível | Critério | O que não decorre dele |
+| Level | Criterion | What does not follow from it |
 | --- | --- | --- |
-| Processo | Um executável continua ativo | Dados ou identidade preservados |
-| Informação | Um objeto é reconstruído exatamente | Destinatário alcançável |
-| Serviço | Usuários declarados recebem dentro do prazo | Alcance global ou mesma capacidade anterior |
-| Regeneração | Nós novos recuperam estado válido | Capacidade física criada do nada |
-| Autonomia | O serviço funciona sem a via internet no cenário | Impossibilidade de interrupção em outros cenários |
+| Process | An executable is still running | Data or identity preserved |
+| Information | An object is reconstructed exactly | The recipient being reachable |
+| Service | The declared users receive within the deadline | Global reach, or the same capacity as before |
+| Regeneration | New nodes recover valid state | Physical capacity created from nothing |
+| Autonomy | The service works without the internet path in the scenario | An impossibility of interruption in other scenarios |
 
-Se o destinatário foi destruído, definir previamente se há dispositivo substituto
-e mecanismo de recuperação da identidade. Não contar entrega a um processo que
-o avaliador criou com uma chave oculta como continuidade autônoma do destinatário.
+If the recipient was destroyed, define in advance whether there is a replacement device and
+a mechanism for recovering the identity. Do not count delivery to a process the evaluator
+created with a hidden key as the recipient's autonomous continuity.
 
-## "5%" exige denominador e modelo de falha
+## "5 %" requires a denominator and a failure model
 
-Declarar se são 5% dos processos, dispositivos, armazenamento, capacidade de
-rádio ou regiões. Processos no mesmo computador não são falhas independentes.
-Fixar o número de nós antes da injeção: excluir os mortos do denominador não
-transforma uma rede quebrada em 100% saudável.
+Declare whether it is 5 % of the processes, devices, storage, radio capacity or regions.
+Processes on the same computer are not independent failures. Fix the node count before the
+injection: excluding the dead from the denominator does not turn a broken network into a
+100 % healthy one.
 
-Separar:
+Separate:
 
-1. Sobreviventes escolhidos para preservar cópias e caminhos.
-2. Perdas aleatórias, com distribuição e sementes registradas.
-3. Falhas correlacionadas: uma região, energia compartilhada ou um gateway comum.
-4. Perdas direcionadas aos nós que concentram dados, chaves ou conectividade.
-5. Perdas simultâneas e perdas graduais com oportunidade de reparo.
+1. Survivors chosen so as to preserve copies and paths.
+2. Random losses, with the distribution and seeds recorded.
+3. Correlated failures: one region, shared power or a common gateway.
+4. Losses targeted at the nodes concentrating data, keys or connectivity.
+5. Simultaneous losses, and gradual losses with an opportunity to repair.
 
-Resultados do primeiro caso não demonstram os demais. Uma pequena rede pode ter
-todos os dados e perder sua única ponte. Milhares de nós podem permanecer ativos
-em ilhas sem contato futuro. Essa é uma impossibilidade de entrega naquele
-cenário, não uma falha corrigível apenas renomeando o roteamento como swarm.
+Results from the first case demonstrate none of the others. A small network may hold all the
+data and lose its only bridge. Thousands of nodes may stay alive on islands with no future
+contact. That is an impossibility of delivery in that scenario, not a fault fixable merely
+by renaming the routing a swarm.
 
-## Custo mínimo de garantir quaisquer 5%: argumento limitado
+## The minimum cost of guaranteeing any 5 %: a bounded argument
 
-Exemplo matemático, não medição do repositório: há 100 nós, cada um conserva
-`s` bytes da representação, e um objeto arbitrário tem `M` bytes de
-informação incompressível. Não há outra fonte de dados fora desses nós.
-Se **qualquer conjunto de cinco nós** deve reconstruir exatamente o objeto:
+A mathematical example, not a measurement of the repository: there are 100 nodes, each
+holding `s` bytes of the representation, and an arbitrary object has `M` bytes of
+incompressible information. There is no other source of data outside those nodes. If **any
+set of five nodes** must reconstruct the object exactly:
 
 ```text
 5 × s >= M
 100 × s >= 20 × M
 ```
 
-No modelo de armazenamento uniforme, são necessários pelo menos 20 volumes do
-objeto, antes de metadados e outros custos. É um limite de informação desse
-contrato forte, não uma recomendação de algoritmo. Compressão de dados com
-redundância se mede contra sua informação efetiva; uma receita ou chave pequena
-não elimina a necessidade de preservar informação arbitrária.
+Under the uniform storage model, at least 20 volumes of the object are needed, before
+metadata and other costs. It is an information bound on that strong contract, not an
+algorithm recommendation. Compressing data with redundancy is measured against its effective
+information; a small recipe or key does not remove the need to preserve arbitrary
+information.
 
-Esquemas com perdas probabilísticas, sobreviventes restritos ou reparos ao longo
-do tempo têm contratos diferentes e podem ter outras relações de custo. Não
-usar este exemplo como limite universal de toda política de sobrevivência.
-Mesmo redundância suficiente não garante que os fragmentos possam se encontrar.
+Schemes with probabilistic losses, restricted survivors or repairs over time have different
+contracts and may show other cost relations. Do not use this example as a universal bound on
+every survival policy. Even sufficient redundancy does not guarantee that the fragments can
+meet.
 
-## O que os testes atuais dizem
+## What the current tests say
 
-Sobrevivência de processos: 20 serviços no mesmo
-computador, um sobrevivente com cópia completa, chave e raiz confiável mantidas
-pelo controlador. Três provas registradas recompuseram os serviços.
-O teste demonstra recuperação local no cenário definido. Não prova um limiar
-universal de 5%, economia de armazenamento, perdas geográficas ou continuidade
-sem controlador e seus recursos.
+Process survival: 20 services on the same computer, one survivor with a complete copy, with
+the key and a trusted root kept by the controller. Three recorded proofs recomposed the
+services. The test demonstrates local recovery in the defined scenario. It proves no
+universal 5 % threshold, no storage saving, no geographical losses, and no continuity
+without the controller and its resources.
 
-O experimento anterior em memória também usa replicação completa.
-Seus 20/20 ensaios não devem ser somados às três provas de processos como se fossem
-ensaios independentes do mesmo contrato ou de uma rede mundial.
+The earlier in-memory experiment also uses complete replication. Its 20/20 runs must not be
+added to the three process proofs as though they were independent runs of the same contract,
+or of a worldwide network.
 
-## Desconexão automática da internet
+## Automatic disconnection from the internet
 
-O gatilho deve depender de capacidade observada no escopo atendido: destinos
-alcançáveis por caminhos alternativos, prazos, taxa de entrega, capacidade de
-filas e recuperação dos serviços de identidade/descoberta. Quantidade de gadgets
-ou percentual de adoção não é, sozinha, um gatilho válido.
+The trigger must depend on capacity observed within the scope being served: destinations
+reachable over alternative paths, deadlines, delivery rate, queue capacity, and recovery of
+the identity and discovery services. A count of gadgets or a percentage of adoption is not,
+on its own, a valid trigger.
 
-Avaliar separadamente:
+Assess separately:
 
-- Preferência por caminhos próprios mantendo a internet como opção.
-- Modo de operação que desativa a interface externa explicitamente.
-- Comutação automática, com política de reativação ou de permanência isolada
-  declarada antes do teste, e sem oscilar a cada contato breve.
+- A preference for our own paths while keeping the internet as an option.
+- An operating mode that disables the external interface explicitly.
+- Automatic switching, with a reactivation policy, or a declared policy of remaining
+  isolated, stated before the test, and without oscillating on every brief contact.
 
-A recomendação inicial é validar a autonomia por corte controlado da via externa.
-Isso testa a ambição sem presumir que desligar uma rota útil melhora o serviço.
-O produto pode oferecer escolha de política aos operadores. Nenhuma política
-de corte será habilitada em máquinas reais por estes documentos.
+The initial recommendation is to validate autonomy by a controlled cut of the external path.
+That tests the ambition without presuming that switching off a useful route improves the
+service. The product may offer operators a choice of policy. No cut policy will be enabled
+on real machines by these documents.
 
-O ensaio offline deve iniciar também a frio: descobrir pares, validar identidades,
-recuperar estado e receber mensagens com os serviços externos bloqueados.
-Sucesso apenas com caches quentes não estabelece autonomia de inicialização.
-Internet ausente não significa IP proibido: Wi-Fi local pode usar IP sem WAN.
-Um túnel IP que atravessa provedor externo continua dependente dessa via.
+The offline run must also start cold: discover peers, validate identities, recover state and
+receive messages with the external services blocked. Success only with warm caches does not
+establish autonomy at startup. An absent internet does not mean IP is forbidden: a local
+Wi-Fi may use IP without a WAN. An IP tunnel crossing an external provider stays dependent
+on that path.
 
-## Formulação que podemos tentar demonstrar
+## The formulation we can try to demonstrate
 
-"No cenário S, com a via internet indisponível e perdas F, preservamos os dados
-e entregamos X de Y mensagens elegíveis até o prazo T, usando recursos R."
+"In scenario S, with the internet path unavailable and losses F, we preserved the data and
+delivered X of Y eligible messages by deadline T, using resources R."
 
-Manter no relatório também mensagens não elegíveis, causas de impossibilidade
-e contagem total original. Não excluir destinos inacessíveis para inflar o placar.
-Não converter isso em "praticamente impossível desligar": seria preciso um
-modelo de ameaça, esforço de interrupção e evidência que hoje não existem.
+Also keep in the report the ineligible messages, the causes of impossibility and the total
+original count. Do not exclude unreachable destinations to inflate the score. Do not convert
+this into "practically impossible to switch off": that would require a threat model, an
+interruption effort and evidence that do not exist today.
 
-Referências: [DTN/BPv7](https://www.rfc-editor.org/rfc/rfc9171.html),
-[Reticulum e meios físicos](https://markqvist.github.io/Reticulum/manual/networks.html),
-[Tahoe-LAFS e codificação](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/docs/architecture.rst).
-O argumento numérico acima é uma derivação explícita, não resultado atribuído
-a essas fontes. Próximos passos no [plano de validação](DETHRON_VALIDATION_PLAN.md).
+References: [DTN/BPv7](https://www.rfc-editor.org/rfc/rfc9171.html),
+[Reticulum and physical media](https://markqvist.github.io/Reticulum/manual/networks.html),
+[Tahoe-LAFS and encoding](https://github.com/tahoe-lafs/tahoe-lafs/blob/master/docs/architecture.rst).
+The numerical argument above is an explicit derivation, not a result attributed to those
+sources. Next steps in the [validation plan](DETHRON_VALIDATION_PLAN.md).

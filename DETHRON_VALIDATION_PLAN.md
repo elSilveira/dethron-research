@@ -1,162 +1,160 @@
-# Dethron — plano de decisão, testes e implementação
+# Dethron — decision, test and implementation plan
 
-Consolidado no [plano mestre](DETHRON_MASTER_PLAN.md), que detalha a arquitetura
-e estende esta sequência com processamento (G8) e incentivos (G9).
+Consolidated into the [master plan](DETHRON_MASTER_PLAN.md), which details the architecture
+and extends this sequence with processing (G8) and incentives (G9).
 
-Versão documental: 4, 16/09/2026. G0 executado no recorte de mensagens completas:
-[configuração, controles e decisão de integrar](window/G0_REFERENCE.md).
-G1 foi validado como [integração de laboratório](window/G1_INTEGRATION.md).
-G2 está encerrado: [partes exatas e comparação pareada ampliada](window/G2_PARTS.md).
-G3 executou [duas gerações de nós e quatro supervisores](window/G3_GENERATIONS.md).
-G4 entregou [sem a pilha IP, com controles de corte](window/G4_INDEPENDENCE.md).
-A versão 7 do plano mestre reenquadra o foco para harness de evidência e entrega
-verificável, com a trilha V1–V3; G5 e G7 ficam adiados, G8 e G9 após aceitação
-externa. V1 está executado nas duas metades:
-[custódia, prova de entrada e pendência](window/V1_CUSTODY.md) e
-[recibo de volta sem contato direto](window/V1_RECEIPT_RETURN.md).
-V2 está [aprovado em máquina independente](window/V2_REPRODUCTION.md): passada
-completa em 58 minutos, oito caminhos com o veredito declarado. V3 começou pelo
-contrato de cronograma e pelo agente local.
-Ver [plano mestre](DETHRON_MASTER_PLAN.md).
-A visão está na [direção](DETHRON_NETWORK_DIRECTION.md)
-e as garantias de autonomia no [contrato](DETHRON_AUTONOMY_CONTRACT.md).
+Document version: 4, 16/09/2026. G0 executed within the whole-message scope:
+[configuration, controls and the decision to integrate](window/G0_REFERENCE.md).
+G1 was validated as a [laboratory integration](window/G1_INTEGRATION.md).
+G2 is closed: [exact parts and the widened paired comparison](window/G2_PARTS.md).
+G3 executed [two generations of nodes and four supervisors](window/G3_GENERATIONS.md).
+G4 delivered [without the IP stack, with cut controls](window/G4_INDEPENDENCE.md).
+Version 7 of the master plan reframes the focus towards an evidence harness and verifiable
+delivery, with the V1–V3 trail; G5 and G7 are deferred, G8 and G9 come after outside
+acceptance. V1 is executed in both halves:
+[custody, proof of entry and pendency](window/V1_CUSTODY.md) and
+[a receipt returning without direct contact](window/V1_RECEIPT_RETURN.md).
+V2 is [approved on an independent machine](window/V2_REPRODUCTION.md): a complete pass in 58
+minutes, eight paths with the declared verdict. V3 began with the schedule contract and the
+local agent. See the [master plan](DETHRON_MASTER_PLAN.md). The vision is in the
+[direction](DETHRON_NETWORK_DIRECTION.md) and the autonomy guarantees in the
+[contract](DETHRON_AUTONOMY_CONTRACT.md).
 
-## Ordem de decisão
+## Order of decision
 
-1. Validar um requisito e uma referência existente.
-2. Demonstrar uma lacuna mensurável.
-3. Implementar apenas o mecanismo que tenta resolver a lacuna.
-4. Reavaliar frente à mesma referência, incluindo todos os custos.
-5. Continuar, integrar a referência, reduzir o escopo ou abandonar a hipótese.
+1. Validate a requirement and an existing reference.
+2. Demonstrate a measurable gap.
+3. Implement only the mechanism that attempts to close the gap.
+4. Re-assess against the same reference, every cost included.
+5. Continue, integrate the reference, reduce the scope or abandon the hypothesis.
 
-Não tornar "terminar uma rede global" pré-requisito para decidir se existe valor.
-Os estudos de LLM permanecem secundários e não bloqueiam a validação da rede.
+Do not make "finishing a global network" a prerequisite for deciding whether value exists.
+The LLM studies remain secondary and do not block the network's validation.
 
-## Antes da primeira nova execução
+## Before the first new execution
 
-Criar uma configuração versionada contendo:
+Create a versioned configuration holding:
 
-- Uso e participante pretendidos; serviço solicitado e prazo tolerado.
-- Identidades, dispositivos, recursos, transporte e domínio de falha de cada nó.
-- Mensagens originais, tamanhos, hashes e destinatários; a fonte do avaliador não
-  pode ficar acessível ao sistema durante recuperação.
-- Topologia e calendário de contatos, falhas, expiração e orçamento de filas.
-- Política de réplicas/codificação, retenção, reparo e recuperação de identidade.
-- Dependências externas permitidas: chave, raiz, bootstrap, tempo e controlador.
-- Versões e configuração da referência, cenários de desenvolvimento e reservados.
-- Métricas, metas, repetições e critério de parada definidos antes de ver resultados.
+- The intended use and participant; the service requested and the tolerated deadline.
+- The identities, devices, resources, transport and failure domain of each node.
+- The original messages, sizes, hashes and recipients; the evaluator's source must not be
+  reachable by the system during recovery.
+- The topology and the calendar of contacts, failures, expiry and queue budget.
+- The policy for replicas and encoding, retention, repair and identity recovery.
+- The permitted external dependencies: key, root, bootstrap, time and controller.
+- The reference's versions and configuration, plus development and held-out scenarios.
+- The metrics, targets, repetitions and stopping criterion, defined before seeing results.
 
-Não há configuração reservada pronta nesta etapa. Valores iniciais candidatos:
-mensagens curtas e arquivos pequenos em classes separadas, várias ordens de
-contato e múltiplas sementes. Fixar números conforme o hardware/serviço escolhido;
-não alegar suficiência estatística por um número arbitrário de repetições.
+There is no held-out configuration ready at this stage. Candidate initial values: short
+messages and small files in separate classes, several contact orders and multiple seeds. Fix
+the numbers according to the hardware and service chosen; do not claim statistical
+sufficiency from an arbitrary number of repetitions.
 
-## Marcos e controles
+## Milestones and controls
 
-| Marco | Execução | Aprovação | Controle que deve falhar |
+| Milestone | Execution | Approval | The control that must fail |
 | --- | --- | --- | --- |
-| G0 — referência | Reticulum/LXMF ou implementação BPv7 adequada, identificada | Serviço funciona ou lacuna é reproduzida e atribuída | Sem destinatário, nenhuma confirmação final válida |
-| G1 — envelope e caixa | Persistir mensagem/fragmentos, reiniciar receptor | Bytes e identidade preservados; uma entrega lógica | Alteração de payload/versão/ID não pode passar |
-| G2 — complementos | Três caminhos individualmente incompletos, contatos separados | União suficiente reconstrói bytes exatos | Duplicatas não substituem partes; união insuficiente fica pendente |
-| G3 — gerações | Substituir todos os originais e supervisor em ciclos | Estado e mensagens pendentes continuam sem fonte oculta | Retirar recurso declarado indispensável produz falha explícita |
-| G4 — via externa | Cortar internet, inclusive antes da inicialização | Serviço no escopo definido usa caminhos físicos alternativos | Cortar também todas as pontes impede entrega, preservando pendência |
-| G5 — sobreviventes | Testar 5% escolhidos, aleatórios, correlacionados e direcionados | Placar separado por modelo de falha e nível de sobrevivência | Sobreviventes isolados não podem ser relatados como conectividade global |
-| G6 — hardware | Repetir em dispositivos distintos e pelo menos dois meios reais | Evidências de interfaces e transmissão, sem tunnel externo oculto | Meio desligado deixa de transportar dados |
-| G7 — custo | Mesma carga e garantias com e sem diferença Dethron | Benefício líquido reprodutível; incerteza declarada | Metadados/reparo/ociosidade não desaparecem da conta |
+| G0 — reference | Reticulum/LXMF, or an adequate identified BPv7 implementation | The service works, or the gap is reproduced and attributed | With no recipient, no valid final confirmation |
+| G1 — envelope and mailbox | Persist the message and fragments, restart the receiver | Bytes and identity preserved; one logical delivery | Altering payload, version or id must not pass |
+| G2 — complements | Three individually incomplete paths, separate contacts | A sufficient union reconstructs the exact bytes | Duplicates do not replace parts; an insufficient union stays pending |
+| G3 — generations | Replace every original and the supervisor in cycles | State and pending messages continue with no hidden source | Withdrawing a resource declared indispensable produces an explicit failure |
+| G4 — external path | Cut the internet, including before startup | The service in scope uses alternative physical paths | Cutting every bridge as well prevents delivery, preserving pendency |
+| G5 — survivors | Test 5 % chosen, random, correlated and targeted | A score separated by failure model and survival level | Isolated survivors must not be reported as global connectivity |
+| G6 — hardware | Repeat on distinct devices and at least two real media | Evidence of the interfaces and the transmission, with no hidden external tunnel | A medium switched off stops carrying data |
+| G7 — cost | The same load and guarantees with and without the Dethron difference | A reproducible net benefit; the uncertainty declared | Metadata, repair and idleness do not vanish from the accounting |
 
-G0 vem antes de ampliar código próprio. G1–G5 podem começar em laboratório local,
-mas devem ser rotulados como emulação de contatos/processos. G6 é necessário
-para alegar diversidade de meios físicos. Usar TCP em duas portas não é prova
-de dois rádios ou de dois domínios independentes de falha.
+G0 comes before widening any code of our own. G1–G5 may begin in a local laboratory, but
+must be labelled as an emulation of contacts and processes. G6 is necessary in order to
+claim diversity of physical media. Using TCP on two ports is not proof of two radios or of
+two independent failure domains.
 
-Para G5, medir perdas simultâneas e graduais separadamente. No cenário gradual,
-registrar a janela de reparo e a capacidade disponível para repor os nós.
-Relatar perda de capacidade e latência, mesmo quando a recuperação for correta.
+For G5, measure simultaneous and gradual losses separately. In the gradual scenario, record
+the repair window and the capacity available to restore the nodes. Report the loss of
+capacity and of latency, even where the recovery is correct.
 
-## Implementações pequenas, condicionadas à lacuna de G0
+## Small implementations, conditional on G0's gap
 
-Os nomes abaixo são propostos; arquivos e comandos de teste ainda não existem.
-Se a referência já cumprir o requisito, criar adaptadores e testes sobre ela,
-em vez de implementar o mesmo protocolo de novo no v2.
+The names below are proposals; the files and test commands do not exist yet. If the
+reference already meets the requirement, create adapters and tests over it, rather than
+implementing the same protocol again in v2.
 
-| Fatia | Arquivos propostos | Primeiro teste comportamental |
+| Slice | Proposed files | First behavioural test |
 | --- | --- | --- |
-| Mensagem verificável | `v2/src/network/message_envelope.rs`, `v2/tests/message_envelope.rs` | Conteúdo ou versão adulterada é rejeitado |
-| Progresso persistente | `v2/src/network/message_inbox.rs`, `v2/tests/message_inbox.rs` | Reinício não perde partes nem causa segunda entrega lógica |
-| Complementos | `v2/src/network/fragment_inventory.rs`, `v2/tests/fragment_inventory.rs` | Inventário pede informação ausente e ignora duplicatas |
-| Contatos e encaminhamento | `v2/src/network/contact_transport.rs`, `v2/tests/contact_transport.rs` | Mensagem atravessa contatos não simultâneos, dentro dos limites |
-| Experimento externo | `window/run_gateway_probe.py`, `window/gateway_audit.py`, `window/tests/test_gateway_audit.py` | Registro sem recepção final é rejeitado pelo auditor |
+| A verifiable message | `v2/src/network/message_envelope.rs`, `v2/tests/message_envelope.rs` | Tampered content or version is rejected |
+| Persistent progress | `v2/src/network/message_inbox.rs`, `v2/tests/message_inbox.rs` | A restart loses no parts and causes no second logical delivery |
+| Complements | `v2/src/network/fragment_inventory.rs`, `v2/tests/fragment_inventory.rs` | The inventory asks for absent information and ignores duplicates |
+| Contacts and forwarding | `v2/src/network/contact_transport.rs`, `v2/tests/contact_transport.rs` | A message crosses non-simultaneous contacts, within the limits |
+| External experiment | `window/run_gateway_probe.py`, `window/gateway_audit.py`, `window/tests/test_gateway_audit.py` | A record without final reception is rejected by the auditor |
 
-Após criar a interface mínima e o teste, executar, a partir de `v2`,
-`cargo test --locked --offline --test message_envelope` (ou o nome da fatia).
-Exigir falha pelo comportamento incorreto, não só por arquivo/import ausente.
-Implementar o mínimo, repetir o teste, executar a suíte relevante e então refatorar.
-Para o auditor: a partir da raiz, definir `PYTHONPATH=window` e executar
-`python -m pytest window/tests/test_gateway_audit.py -q` quando o arquivo existir.
+After creating the minimal interface and the test, run, from `v2`,
+`cargo test --locked --offline --test message_envelope` (or the slice's name). Require the
+failure to come from incorrect behaviour, not merely from a missing file or import.
+Implement the minimum, repeat the test, run the relevant suite and only then refactor. For
+the auditor: from the repository root, set `PYTHONPATH=window` and run
+`python -m pytest window/tests/test_gateway_audit.py -q` once the file exists.
 
-Manter cada arquivo de código/teste até 200 linhas. Preservar a execução dos
-experimentos existentes. Não reutilizar a autenticação simulada dos gateways
-históricos como implementação de segurança; usar primitivas estabelecidas.
-Selecionar esquema de codificação e dependências depois da comparação, sem
-inventar criptografia ou declarar RaptorQ implementado a partir de uma referência.
+Keep every code and test file under 200 lines. Preserve the execution of the existing
+experiments. Do not reuse the historical gateways' simulated authentication as a security
+implementation; use established primitives. Select the encoding scheme and the dependencies
+after the comparison, without inventing cryptography or declaring RaptorQ implemented on the
+strength of a reference.
 
-## Evidência mínima por execução
+## Minimum evidence per execution
 
-- Configuração e manifesto com hashes de código, dependências e binário.
-- Relógios e sequência de eventos; PIDs/dispositivos, sessões e interfaces reais.
-- Mensagens enviadas, partes recebidas, inventários, reparos e confirmação final.
-- Dependências sobreviventes e quem as forneceu, incluindo supervisor e identidade.
-- Registros parciais preservados em falha; status iniciado, incompleto, concluído
-  ou falhou. Prazo excedido e erro nunca viram entrega correta.
-- Auditor independente de contadores de sucesso do emissor: conferir bytes,
-  identidade do destinatário, causa de pendência e coerência de cada cenário.
-- Hashes fornecem rastreabilidade; não autenticam sozinhos uma execução remota.
+- The configuration and a manifest with hashes of code, dependencies and binary.
+- Clocks and the sequence of events; real pids/devices, sessions and interfaces.
+- Messages sent, parts received, inventories, repairs and the final confirmation.
+- The surviving dependencies and who supplied them, the supervisor and identity included.
+- Partial records preserved on failure; status started, incomplete, completed or failed. An
+  exceeded deadline and an error never become a correct delivery.
+- An auditor independent of the sender's success counters: check the bytes, the recipient's
+  identity, the cause of pendency and the coherence of each scenario.
+- Hashes give traceability; on their own they do not authenticate a remote execution.
 
-Contar todas as mensagens originais, entregues no prazo, tardias, pendentes,
-expiradas, corrompidas rejeitadas e entregas indevidas. Mostrar elegibilidade
-separadamente sem retirar silenciosamente os casos difíceis do denominador.
+Count every original message: delivered on time, late, pending, expired, rejected as
+corrupt, and undue deliveries. Show eligibility separately, without quietly removing the
+hard cases from the denominator.
 
-## Métricas de utilidade e custo
+## Usefulness and cost metrics
 
-Medir taxa de entrega íntegra no prazo, atraso, bytes úteis, tráfego total,
-bytes físicos persistidos, RAM e energia elétrica. Incluir descoberta, confirmações,
-criptografia, codificação, retransmissões, reparos e ociosidade atribuível.
-Não tratar throughput agregado como velocidade de uma tarefa única.
+Measure the rate of intact delivery within the deadline, delay, useful bytes, total traffic,
+physical bytes persisted, RAM and electrical energy. Include discovery, confirmations,
+encryption, encoding, retransmissions, repairs and attributable idleness. Do not treat
+aggregate throughput as the speed of a single task.
 
-Comparar modos em ensaios pareados, com ordens balanceadas. Variar falhas e
-contatos; repetições idênticas não criam cenários independentes. Documentar
-contaminação por aquecimento, hardware compartilhado e outras cargas.
+Compare modes in paired runs, with balanced orders. Vary failures and contacts; identical
+repetitions do not create independent scenarios. Document contamination from warm-up, shared
+hardware and other loads.
 
-As metas de economia de 5% em bytes e 5% em joules são separadas da sobrevivência
-com 5% dos nós. Para reivindicar o ganho, a incerteza da medição deve permitir
-distingui-lo de ruído, sob qualidade de serviço e recuperação equivalentes.
-Sem medidor adequado, o resultado energético fica **não medido**.
+The goals of 5 % saved in bytes and 5 % saved in joules are separate from survival with 5 %
+of the nodes. To claim the gain, the measurement's uncertainty must allow it to be told
+apart from noise, under equivalent service quality and recovery. Without an adequate meter,
+the energy result stays **unmeasured**.
 
-## Decisão após cada marco
+## Decision after each milestone
 
-| Resultado | Ação |
+| Result | Action |
 | --- | --- |
-| Referência já atende sem lacuna útil | Integrar/contribuir; interromper reimplementação equivalente |
-| Falha de correção reproduzível | Corrigir a fatia ou retirar o mecanismo; não aumentar escala |
-| Reconstrução correta, mas sem contatos suficientes | Rever implantação/uso; não prometer entrega universal |
-| Mecanismo próprio ganha em cenários reservados com custo aceitável | Piloto limitado e nova avaliação |
-| Só ganha com sobreviventes escolhidos ou custo omitido | Rejeitar a alegação geral e registrar escopo restrito |
-| Não há vantagem nem demanda de integração | Abandonar a hipótese/produto nesse escopo e arquivar evidências |
+| The reference already meets the need with no useful gap | Integrate or contribute; stop any equivalent reimplementation |
+| A reproducible correctness failure | Fix the slice or withdraw the mechanism; do not increase scale |
+| Correct reconstruction, but insufficient contacts | Revisit deployment and use; do not promise universal delivery |
+| A mechanism of our own wins on held-out scenarios at an acceptable cost | A bounded pilot and a new assessment |
+| It only wins with chosen survivors or with an omitted cost | Reject the general claim and record the restricted scope |
+| There is neither an advantage nor demand for integration | Abandon the hypothesis or product in that scope and archive the evidence |
 
-Imortalidade absoluta, sobrevivência de qualquer rede com quaisquer 5% e
-desconexão automática por mero tamanho devem ser abandonadas como garantias.
-Essa decisão não obriga abandonar redes resilientes com contratos condicionais.
+Absolute immortality, the survival of any network with any 5 %, and automatic disconnection
+by mere size must be abandoned as guarantees. That decision does not require abandoning
+resilient networks with conditional contracts.
 
-## Ponto de retomada
+## Resumption point
 
-A observação econômica do usuário está em [incentivos](DETHRON_INCENTIVES.md).
-Investigar demanda, custos e remuneração junto aos requisitos de G0; não usar
-emissão de tokens como substituto de validação da rede. Recibos e contabilidade
-de teste podem acompanhar os experimentos. Token negociável, pagamentos reais
-e consenso próprio não foram implementados nem autorizados por esse plano.
+The user's economic observation is in [incentives](DETHRON_INCENTIVES.md). Investigate
+demand, costs and remuneration alongside G0's requirements; do not use token issuance as a
+substitute for validating the network. Test receipts and accounting may accompany the
+experiments. A tradable token, real payments and a consensus of our own are neither
+implemented nor authorised by this plan.
 
-Ler [índice](README.md), [utilidade](DETHRON_UTILITY_VALIDATION.md) e
-[contrato de autonomia](DETHRON_AUTONOMY_CONTRACT.md). G0–G3 foram executados após a
-consolidação inicial. Retomar por G4, corte da via externa, antes de ampliar a
-autonomia ou a escala; o estado atual está em [G2](window/G2_PARTS.md) e
-[G3](window/G3_GENERATIONS.md).
+Read the [index](README.md), [usefulness](DETHRON_UTILITY_VALIDATION.md) and the
+[autonomy contract](DETHRON_AUTONOMY_CONTRACT.md). G0–G3 were executed after the initial
+consolidation. Resume at G4, the cut of the external path, before widening autonomy or
+scale; the current state is in [G2](window/G2_PARTS.md) and [G3](window/G3_GENERATIONS.md).

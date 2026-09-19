@@ -1,158 +1,162 @@
-# Mapa de evidências, antecedentes e documentação
+# Map of evidence, prior art and documentation
 
-> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
-> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
-> árvore quando o repositório foi preparado para publicação. Os links para esse
-> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+> **Note, 19/09/2026.** This document cites work that predates Dethron — BitNet/Genesis
+> probes, Rust crates, a neural worker, a browser dashboard — which left the tree when the
+> repository was prepared for publication. The links to that material have been undone and
+> the text kept. The content remains in the git history. Links to paths outside the
+> reproducible tree (`backup/`, `bkp-dethron/`, `Genesis-Protocol/`, `results/`) were undone
+> for the same reason: they resolved only on the author's machine and would break in a clone.
 
-Consolidação: 15/09/2026. Serve para retomar sem confundir planos com resultados.
-Entrada principal: [README](README.md). Plano atual: [G0–G7](DETHRON_VALIDATION_PLAN.md).
+Consolidated: 15/09/2026. It exists so that work can resume without confusing plans with
+results. Main entry point: [README](README.md). Current plan: [G0–G7](DETHRON_VALIDATION_PLAN.md).
 
-## Estado verificável no material examinado
+## The verifiable state in the material examined
 
-| Área | Evidência registrada | Limite |
+| Area | Evidence recorded | Limit |
 | --- | --- | --- |
-| Recuperação v2 | Unidades cifradas, hashes, referências, receitas e falha por dependência ausente | Não reconstrói informação perdida a partir de hash |
-| Regeneração em memória | 20/20 ensaios, 100 stores, cinco sobreviventes | Objetos no processo, replicação completa; não são máquinas |
-| Sobrevivência local | 3/3 provas, 20 processos, reposição a partir de um sobrevivente | Mesmo computador, controlador/raiz/chave disponíveis |
-| Comparação de respostas | 32 gerações: full 4/8, lexical 3/8, parágrafos 5/8, frases 2/8 | Desenvolvimento anotado; não prova swarm ou extração automática |
-| Testes Python da comparação | 124 testes passaram, incluindo 11 novos | Testes locais, executados antes desta consolidação documental |
-| Gateway histórico | Intenção registrada e alguns servidores/adaptadores | Descoberta/envio/autenticação simulados em caminhos examinados |
-| G0 com referência real | Reticulum 1.5.4/LXMF 1.1.1: três mensagens de 1 KiB a 1 MiB recebidas após crash dos propagadores e saída da origem; negativo retido | TCP no mesmo host, mensagens completas, contatos provisionados; não prova fragmentos ou rádio |
-| G1 integrado | Mensagem de 64 KiB, caixa/recibo atômicos, assinatura do destinatário, crashes, duplicata e negativos; auditoria passou | Entrega direta local; composição do recibo com propagação offline, rádio e produção ainda não validadas |
-| G2, primeira fatia | 96 KiB reconstruídos a partir de três partes após saída da origem e crash dos propagadores; parte ausente impede conclusão | Limite nativo de 64 kB por busca, mesmo host, colocação provisionada; sem codificação redundante ou custo total |
-| G2, comparação ampliada | 12 casos pareados: sem perda, partes exatas gastam menos tráfego; com uma rota perdida, só a paridade XOR conclui | Duas repetições, um host, perda induzida por omissão de contato; armazenamento cresce ao contrário do tráfego |
-| G3, gerações | Duas trocas completas de transportadores e quatro supervisores distintos; 24 KiB entregues exatos com recibo; retirada da credencial declarada recusa o serviço | Mesmo host e processos; bloqueio das gerações aposentadas é hook do Python, não isolamento do sistema operacional |
-| G4, independência lógica | 16 KiB entregues sem nenhuma interface IP, com zero endpoints em seis processos; linha de base IP mostra três endpoints; meio removido não entrega e preserva pendência | Independência da pilha IP, não física; ponte de arquivos no mesmo host, sem perda, latência ou alcance reais; amostra de netstat, não captura de pacotes |
-| V1, custódia | Três relés atestam por assinatura o que guardam; auditor deriva pendência, nomeia relé que atestou e descartou, e verifica recusa explícita para id nunca submetido | Custódia é alegação do relé, prova entrada e não saída; um host, uma rodada por cenário |
-| V1, recibo de volta | Recibo de 395 bytes replicado em três relés; origem volta como processo novo e obtém a prova de um único relé; relé que descartou a cópia aparece como prova ausente e outro relé resolve; sem conclusão, nenhuma prova surge | Sessões disjuntas por décimos de segundo, não longos períodos offline; relés cooperativos; retenção de cópias não medida; mecanismo de propagação é do LXMF |
-| Rádio e independência da internet | Plano e antecedentes externos | Sem prova nova do Dethron em hardware |
-| Sobrevivência universal com 5% | Nenhuma evidência suficiente | Percentual sozinho não garante dados ou contatos |
-| Energia e armazenamento global | Metas | Sem medição de economia líquida de 5% |
+| v2 recovery | Encrypted units, hashes, references, recipes, and failure on a missing dependency | It does not reconstruct lost information from a hash |
+| In-memory regeneration | 20/20 runs, 100 stores, five survivors | Objects in the process, complete replication; they are not machines |
+| Local survival | 3/3 proofs, 20 processes, restoration from one survivor | Same computer, with controller, root and key available |
+| Answer comparison | 32 generations: full 4/8, lexical 3/8, paragraphs 5/8, sentences 2/8 | Annotated development; it proves neither a swarm nor automatic extraction |
+| The comparison's Python tests | 124 tests passed, 11 of them new | Local tests, run before this documentary consolidation |
+| Historical gateway | The intent recorded and some servers and adapters | Discovery, sending and authentication simulated on the paths examined |
+| G0 with a real reference | Reticulum 1.5.4/LXMF 1.1.1: three messages from 1 KiB to 1 MiB received after the propagation nodes crashed and the origin left; the negative retained | TCP on the same host, whole messages, provisioned contacts; it proves neither fragments nor radio |
+| G1 integrated | A 64 KiB message, an atomic mailbox and receipt, the recipient's signature, crashes, a duplicate and the negatives; the audit passed | Local direct delivery; composing the receipt with offline propagation, radio and production are not yet validated |
+| G2, first slice | 96 KiB reconstructed from three parts after the origin left and the propagation nodes crashed; a missing part prevents completion | The native 64 kB per-fetch limit, one host, provisioned placement; no redundant encoding and no total cost |
+| G2, widened comparison | 12 paired cases: without loss, exact parts spend less traffic; with one route lost, only XOR parity completes | Two repetitions, one host, loss induced by omitting a contact; storage grows opposite to traffic |
+| G3, generations | Two complete carrier replacements and four distinct supervisors; 24 KiB delivered exactly with a receipt; withdrawing the declared credential refuses the service | Same host and processes; blocking the retired generations is a Python hook, not operating-system isolation |
+| G4, logical independence | 16 KiB delivered with no IP interface at all, zero endpoints across six processes; the IP baseline shows three endpoints; a removed medium does not deliver and preserves pendency | Independence from the IP stack, not physical; a file bridge on the same host, with no real loss, latency or range; a netstat sample, not packet capture |
+| V1, custody | Three relays attest by signature to what they hold; the auditor derives pendency, names the relay that attested and discarded, and checks the explicit refusal for an id never submitted | Custody is the relay's claim, proving entry and not exit; one host, one round per scenario |
+| V1, receipt return | A 395-byte receipt replicated at three relays; the origin comes back as a new process and obtains the proof from a single relay; the relay that discarded its copy shows as proof absent and another relay resolves it; without completion, no proof appears | Sessions disjoint by tenths of a second, not long offline periods; cooperative relays; copy retention not measured; the propagation mechanism is LXMF's |
+| Radio and independence from the internet | A plan and external prior art | No new Dethron proof on hardware |
+| Universal survival with 5 % | No sufficient evidence | A percentage alone guarantees neither data nor contacts |
+| Global energy and storage | Targets | No measurement of a net 5 % saving |
 
-## Documentação atual de decisão
+## Current decision documentation
 
-- [V1, segunda metade](window/V1_RECEIPT_RETURN.md): recibo publicado em
-  sequência pelos relés, origem que volta e verifica contra destinatários
-  persistidos, auditor com disjunção de sessões e rota da prova.
+- [V1, second half](window/V1_RECEIPT_RETURN.md): the receipt published in sequence by the
+  relays, an origin that comes back and checks against persisted recipients, an auditor with
+  session disjunction and the route of the proof.
 
-- [V1, primeira metade](window/V1_CUSTODY.md): envelopes de custódia, fatos do
-  LXMF confirmados na fonte, auditor que separa entrada, saída e pendência, e o
-  cenário que mentiu e foi recusado pelo auditor.
+- [V1, first half](window/V1_CUSTODY.md): the custody envelopes, LXMF facts confirmed in the
+  source, an auditor separating entry, exit and pendency, and the scenario that lied and was
+  refused by the auditor.
 
-- [G4 executado](window/G4_INDEPENDENCE.md): via externa definida como a pilha IP,
-  ponte alternativa sem socket, evidência de sistema operacional com controle
-  positivo e controles de corte total e reversível.
+- [G4 executed](window/G4_INDEPENDENCE.md): the external path defined as the IP stack, an
+  alternative bridge with no socket, operating-system evidence with a positive control, and
+  the total and reversible cut controls.
 
-- [G3 executado](window/G3_GENERATIONS.md): contrato de checkpoint público,
-  transferência nativa entre gerações, bloqueio do que foi aposentado e recusa
-  explícita sem o recurso declarado indispensável.
+- [G3 executed](window/G3_GENERATIONS.md): the public checkpoint contract, native transfer
+  between generations, blocking what was retired, and the explicit refusal without the
+  resource declared indispensable.
 
-- [G2 encerrado](window/G2_PARTS.md): comparação restrita, campanha pareada
-  ampliada, auditoria, controles e limites das conclusões.
+- [G2 closed](window/G2_PARTS.md): the restricted comparison, the widened paired campaign,
+  the audit, the controls and the limits of the conclusions.
 
-- [G1 e revisão de avanço](window/G1_INTEGRATION.md): contrato, persistência,
-  avaliação de satisfação e condição de utilidade para um G2 pequeno.
+- [G1 and the advance review](window/G1_INTEGRATION.md): the contract, persistence, the
+  satisfaction assessment, and the usefulness condition for a small G2.
 
-- [G0 executado](window/G0_REFERENCE.md): configuração, controles, artefatos,
-  limitações e decisão de integrar a referência em G1.
+- [G0 executed](window/G0_REFERENCE.md): the configuration, the controls, the artifacts, the
+  limitations, and the decision to integrate the reference in G1.
 
-- [Plano mestre](DETHRON_MASTER_PLAN.md): ponto de partida principal, matriz de
-  hipóteses, arquitetura, contratos, marcos G0–G9 e campanha inicial proposta.
+- [Master plan](DETHRON_MASTER_PLAN.md): the main starting point, the hypothesis matrix, the
+  architecture, the contracts, milestones G0–G9 and the proposed initial campaign.
 
-- [Incentivos e remuneração](DETHRON_INCENTIVES.md): hipótese econômica e
-  antecedentes Golem/Filecoin; nenhum token ou experimento econômico executado.
+- [Incentives and remuneration](DETHRON_INCENTIVES.md): the economic hypothesis and the
+  Golem/Filecoin prior art; no token and no economic experiment executed.
 
-- [Direção](DETHRON_NETWORK_DIRECTION.md): intenção histórica, swarm e gateways.
-- [Autonomia](DETHRON_AUTONOMY_CONTRACT.md): uso opcional da internet, sobrevivência,
-  denominadores, informação e conectividade.
-- [Utilidade](DETHRON_UTILITY_VALIDATION.md): referências existentes e lacunas a medir.
-- [Plano](DETHRON_VALIDATION_PLAN.md): requisitos, controles, fatias e decisões.
+- [Direction](DETHRON_NETWORK_DIRECTION.md): the historical intent, swarm and gateways.
+- [Autonomy](DETHRON_AUTONOMY_CONTRACT.md): optional use of the internet, survival,
+  denominators, information and connectivity.
+- [Usefulness](DETHRON_UTILITY_VALIDATION.md): existing references and the gaps to measure.
+- [Plan](DETHRON_VALIDATION_PLAN.md): requirements, controls, slices and decisions.
 
-## Núcleo e provas locais
+## Core and local proofs
 
 - v2 README.
-- Recuperação conectada.
-- Regeneração em memória.
-- Status de evidências semânticas.
+- Connected recovery.
+- In-memory regeneration.
+- Semantic evidence status.
 - [Window README](window/README.md).
-- Sobrevivência com processos.
+- Survival with processes.
 
-Registros de referência:
+Reference records:
 
-- [Relatório de sobrevivência](window/results/survival-20260915T125653Z-71e25ad2/report.json).
-- [Resumo da regeneração em memória](v2/results/survival-20260915/summary.json).
-- [Relatório dos quatro modos](window/results/comparison-20260915T132942Z-19a1b580/report.json).
+- The survival report, `window/results/survival-20260915T125653Z-71e25ad2/report.json`.
+- The in-memory regeneration summary, `v2/results/survival-20260915/summary.json`.
+- The four-modes report, `window/results/comparison-20260915T132942Z-19a1b580/report.json`.
 
-Esses arquivos são artefatos locais e podem não acompanhar um clone limpo,
-pois resultados são ignorados pelo Git. Disponibilidade local não equivale a
-publicação externa. Preservar cópias ao compartilhar a evidência.
+Those files are local artifacts and will not accompany a clean clone, because results are
+ignored by Git and because the work they belong to has left the tree. Local availability is
+not external publication. The artifacts the current milestones cite are published under
+[`window/evidence/`](window/evidence/README.md); keep copies of anything else when sharing
+the evidence.
 
-## Aplicações e diagnósticos de modelo, escopo secundário
+## Model applications and diagnostics, a secondary scope
 
-- Comparação atual.
-- Documento inicial.
-- Átomos.
-- Reconstrução visual.
-- Auditoria do harness.
-- Avaliadores.
-- Contrato de capacidade.
-- Plano anterior de inferência.
-- Roadmap DeepSeek.
+- The current comparison.
+- The initial document.
+- Atoms.
+- Visual reconstruction.
+- The harness audit.
+- The evaluators.
+- The capability contract.
+- The earlier inference plan.
+- The DeepSeek roadmap.
 
-As regras de integridade continuam úteis. Acertos de modelo não medem
-conectividade e não são pré-requisito de G0. Não promover resultados em dados
-de desenvolvimento a prova de generalização ou economia global.
+The integrity rules remain useful. A model's correct answers do not measure connectivity and
+are not a prerequisite for G0. Do not promote results on development data to proof of
+generalisation or of a global saving.
 
-## História e intenção
+## History and intent
 
-- Síntese conceitual.
-- Auditoria do repositório em 13/09: achados
-  históricos, anteriores às provas novas do v2/Window; não é inventário atual.
-- Arquitetura de 2025.
-- Guia de implementação de 2025.
-- Templates e casos de uso.
-- [Plano Genesis Gateway](bkp-dethron/future-plans/01-genesis-gateway-service.md).
+- The conceptual synthesis.
+- The repository audit of 13/09: historical findings, earlier than the new v2/Window proofs;
+  it is not a current inventory.
+- The 2025 architecture.
+- The 2025 implementation guide.
+- Templates and use cases.
+- The Genesis Gateway plan, `bkp-dethron/future-plans/01-genesis-gateway-service.md`.
 
-Os três guias de 2025 contêm afirmações e exemplos que exigem caracterização,
-como disponibilidade de APIs e propriedades biológicas. Avisos de contexto
-foram adicionados; corpos históricos não foram reescritos como especificação nova.
+The three 2025 guides contain claims and examples requiring characterisation, such as API
+availability and biological properties. Context notices were added; the historical bodies
+were not rewritten as a new specification.
 
-## Código histórico de gateway examinado estaticamente
+## Historical gateway code examined statically
 
-Os caminhos desta seção e o plano Genesis Gateway citado acima apontam para
-instantâneos históricos (`backup/`, `bkp-dethron/`, `Genesis-Protocol/`) que ficam
-**fora do repositório** por decisão registrada no `.gitignore` raiz: são cópias
-locais de código antigo, não parte da árvore reproduzível. Num clone limpo esses
-links não resolvem; a análise abaixo é documental e não é pré-requisito de G0–V1.
+The paths in this section, and the Genesis Gateway plan cited above, point at historical
+snapshots (`backup/`, `bkp-dethron/`, `Genesis-Protocol/`) that sit **outside the
+repository** by a decision recorded in the root `.gitignore`: they are local copies of old
+code, not part of the reproducible tree. In a clean clone those paths do not exist; the
+analysis below is documentary and is not a prerequisite for G0–V1.
 
+- The P2P extension, `backup/bitnet_extension/bitnet-p2p-gateway.js`: the DHT returns an
+  empty list; WebRTC discovery establishes no data exchange; sending contains logs.
+- The Genesis Gateway Service, `bkp-dethron/Dethron/services/genesis_gateway_service.py`: a
+  mock fallback and a "signature" check by string format.
+- Rust roles and discovery, `Genesis-Protocol/src/network.rs`: Gateway and Relay declared;
+  discovery fills in simulated loopback nodes.
+- The HTTP/SSE gateway,
+  `backup/BitNet-lib/bitnet_lib/core/tron_streaming/living_tron_internet_gateway.py`: HTTP
+  server code present, proving neither mesh nor reconstruction over radio.
 
-- [Extensão P2P](backup/bitnet_extension/bitnet-p2p-gateway.js): DHT devolve lista
-  vazia; descoberta WebRTC não estabelece troca de dados; envio contém logs.
-- [Genesis Gateway Service](bkp-dethron/Dethron/services/genesis_gateway_service.py):
-  fallback mock e verificação de "assinatura" por formato de string.
-- [Papéis e descoberta Rust](Genesis-Protocol/src/network.rs): Gateway/Relay
-  declarados; descoberta preenche nós loopback simulados.
-- [Gateway HTTP/SSE](backup/BitNet-lib/bitnet_lib/core/tron_streaming/living_tron_internet_gateway.py):
-  código de servidor HTTP presente, sem comprovar mesh ou reconstrução por rádio.
+Those gateways were not executed in this analysis. Do not claim that every duplicated backup
+file or every dependency was audited. The current code lives in v2; any reuse must pass
+behavioural tests of its own.
 
-Não foram executados esses gateways nesta análise. Não afirmar que cada arquivo
-duplicado em backup ou cada dependência foi auditado. Código atual fica no v2;
-qualquer reaproveitamento deve passar por testes comportamentais próprios.
+## Scope of the consolidation
 
-## Escopo da consolidação
+The vision and decision documents were consolidated, and the evidence and plan pages
+identified in that conversation were connected. Historical documents received context
+without erasing earlier results, examples or claims. Thousands of backup files were not
+rewritten, and not every project was certified. `1.md` is a separate note on neural emulation
+and was not modified.
 
-Foram consolidados os documentos de visão/decisão e conectadas as páginas de
-evidência e planos identificados nesta conversa. Documentos históricos receberam
-contexto sem apagar resultados, exemplos ou alegações anteriores. Não foi feita
-reescrita de milhares de arquivos de backup, nem certificação de todos os projetos.
-`1.md` é uma nota separada sobre emulação neural e não foi modificada.
+The documentary check confirms the local targets of the new links and the presence of the
+notices; it is not a repetition of the experiments cited. Old metrics keep their date and
+scope, including where the result is negative.
 
-A verificação documental confere os destinos locais dos links novos e a presença
-dos avisos; não é uma repetição dos experimentos citados. Métricas antigas
-mantêm sua data e escopo, inclusive quando o resultado é negativo.
-
-Consolidação anterior conferida: seis páginas centrais e 21 documentos contextualizados;
-128 referências locais verificadas sem destino ausente. Corpos históricos
-foram preservados ao inserir os avisos. Não foram repetidos testes de código,
-inferência, rádio ou recuperação nesta atualização exclusivamente documental.
+The previous consolidation was checked: six central pages and 21 documents given context;
+128 local references verified with no missing target. The historical bodies were preserved
+when the notices were inserted. No code, inference, radio or recovery tests were repeated in
+that exclusively documentary update.
