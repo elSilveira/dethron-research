@@ -1,280 +1,276 @@
-# Dethron — arquitetura, hipóteses e plano mestre de validação
+# Dethron — architecture, hypotheses and master validation plan
 
-> **Nota de 19/09/2026.** Este documento cita trabalho anterior ao Dethron — sondas
-> BitNet/Genesis, *crates* Rust, *worker* neural, painel de navegador — que saiu da
-> árvore quando o repositório foi preparado para publicação. Os links para esse
-> material foram desfeitos, e o texto mantido. O conteúdo continua no histórico do git.
+> **Note, 19/09/2026.** This document cites work that predates Dethron — BitNet/Genesis
+> probes, Rust crates, a neural worker, a browser dashboard — which left the tree when the
+> repository was prepared for publication. The links to that material have been undone and
+> the text kept. The content remains in the git history.
 
-**Versão 7 — 17/09/2026. G0–G4 executados; foco reenquadrado para harness de evidência e entrega verificável sobre Reticulum/LXMF. Documento principal para continuar.**
+**Version 7 — 17/09/2026. G0–G4 executed; the focus reframed towards an evidence harness and verifiable delivery over Reticulum/LXMF. The main document for continuing.**
 
-Esta é uma especificação proposta. Distingue evidência existente, decisões de
-arquitetura e experimentos ainda não executados. Consolida a intenção original
-BitNet/Genesis/Dethron e as correções desta investigação. Quando houver dúvida
-sobre a ordem futura nos documentos anteriores, seguir este plano; os resultados
-históricos mantêm suas datas, configurações e limites.
+This is a proposed specification. It separates existing evidence, architecture decisions
+and experiments not yet run. It consolidates the original BitNet/Genesis/Dethron intent
+and this investigation's corrections. Where earlier documents leave the future order in
+doubt, follow this plan; the historical results keep their dates, configurations and
+limits.
 
-## 1. Objetivo e decisão inicial
+## 1. Objective and initial decision
 
-Construir ou integrar uma rede em que gadgets e servidores participantes possam
-guardar, encaminhar e complementar partes de mensagens. O destinatário reúne
-informação suficiente e reconstrói o conteúdo original, mesmo após contatos
-intermitentes e substituição de transportadores.
+Build or integrate a network in which participating gadgets and servers can hold, forward
+and complement parts of messages. The recipient gathers enough information and
+reconstructs the original content, even after intermittent contacts and the replacement of
+carriers.
 
-A internet é uma via disponível durante a adoção e expansão. Caminhos locais,
-rádio e outros transportes podem sustentar partes do serviço quando essa via
-desaparece. Autonomia integral depende de infraestrutura física e contatos
-suficientes. Remuneração pode incentivar participação, desde que o serviço seja
-verificável e exista financiamento. Armazenamento e processamento eficientes
-são objetivos adicionais que exigem suas próprias medições.
+The internet is an available path during adoption and expansion. Local paths, radio and
+other transports may sustain parts of the service when that path disappears. Full autonomy
+depends on physical infrastructure and sufficient contacts. Remuneration may encourage
+participation, provided the service is verifiable and funding exists. Efficient storage and
+processing are additional objectives requiring measurements of their own.
 
-**Decisão recomendada:** começar por um cenário pequeno e uma referência
-executável. Implementar uma diferença própria somente depois de identificar
-uma lacuna útil. Uma integração com uma rede existente é um resultado válido.
+**Recommended decision:** start from a small scenario and an executable reference.
+Implement a difference of our own only after identifying a useful gap. Integrating with an
+existing network is a valid outcome.
 
-### Reenquadramento da versão 7
+### Version 7's reframing
 
-Quatro marcos executados mostraram que as propriedades de rede demonstradas —
-persistência após crash, travessia de gerações, transporte sem a pilha IP — são
-do Reticulum/LXMF, integrado como referência. O único marco desenhado para medir
-vantagem própria, G2, encontrou um compromisso conhecido, sem novidade. Os elos
-da visão de rede que a história externa mais castigou, migração de overlay para
-meios próprios e token como motor de oferta, entram como hipóteses H19–H21 com
-critério de rejeição, não como premissas.
+Four executed milestones showed that the network properties demonstrated — persistence
+after a crash, crossing generations, transport without the IP stack — belong to
+Reticulum/LXMF, integrated as the reference. The one milestone designed to measure an
+advantage of our own, G2, found a known trade-off with no novelty. The links in the network
+vision that outside history has punished hardest, an overlay migrating to its own media and
+a token as a supply engine, enter as hypotheses H19–H21 with rejection criteria, not as
+premises.
 
-O entregável passa a ser, nesta ordem: **um harness de evidência reproduzível por
-terceiros** e **entrega verificável** — recibo criptográfico do destinatário ou
-estado de pendência auditável, nunca um "enviado" fingindo ser "entregue" — como
-camada de aplicação open source sobre Reticulum/LXMF. Uma rede própria, tokens e
-processamento distribuído ficam adiados até haver uso e reconhecimento externos.
-A missão é open source independente; demanda comercial não é o portão, mas
-reprodução e aceitação por quem não somos nós, sim.
+The deliverable becomes, in this order: **an evidence harness reproducible by third
+parties** and **verifiable delivery** — a cryptographic receipt from the recipient or an
+auditable pendency state, never a "sent" pretending to be "delivered" — as an open source
+application layer over Reticulum/LXMF. A network of our own, tokens and distributed
+processing are deferred until there is outside use and recognition. The mission is
+independent open source; commercial demand is not the gate, but reproduction and acceptance
+by people who are not us is.
 
-### Primeiro uso candidato
+### First candidate use
 
-Trocar mensagens e documentos não urgentes entre equipes com conexão irregular,
-contatos breves e dispositivos substituíveis. O benefício procurado é completar
-entregas que, com a alternativa atual, falham ou custam excessivamente.
-É uma hipótese de uso; ainda não há demanda comercial ou adoção comprovada.
+Exchanging non-urgent messages and documents between teams with irregular connectivity,
+brief contacts and replaceable devices. The benefit sought is completing deliveries that,
+with the current alternative, fail or cost excessively. This is a usage hypothesis; there is
+no commercial demand or proven adoption yet.
 
-### Garantias que não serão prometidas
+### Guarantees that will not be promised
 
-- Imortalidade absoluta ou impossibilidade de desligamento.
-- Entrega sem informação suficiente, energia ou contato futuro.
-- Sobrevivência universal baseada apenas no número "5%".
-- Reconstrução exata de dados arbitrários usando somente um hash ou semente pequena.
-- Economia elétrica inferida de tokens, tempo ou bytes sem medição adequada.
-- Valorização automática de token, liquidez garantida ou renda universal.
-- **Entrega garantida.** Nenhum protocolo garante entrega sobre contato
-  intermitente. O que se promete é prova quando há entrega e pendência visível
-  quando não há.
+- Absolute immortality or an impossibility of being switched off.
+- Delivery without sufficient information, energy or a future contact.
+- Universal survival based on the number "5 %" alone.
+- Exact reconstruction of arbitrary data from only a hash or a small seed.
+- Electrical savings inferred from tokens, time or bytes without adequate measurement.
+- Automatic token appreciation, guaranteed liquidity or universal income.
+- **Guaranteed delivery.** No protocol guarantees delivery over intermittent contact. What
+  is promised is proof when there is delivery and visible pendency when there is not.
 
-Essas restrições definem o contrato técnico; não retiram a intenção de
-resiliência, participação aberta e autonomia do projeto.
+These restrictions define the technical contract; they do not remove the project's intent
+of resilience, open participation and autonomy.
 
-### O que a evidência pode e não pode garantir
+### What the evidence can and cannot guarantee
 
-O manifesto do objeto — id, tamanho, digest, comprimentos e hashes das partes —
-é a representação versionada que os documentos históricos chamam de DNA. Ele já
-viaja dentro de cada parte desde G2. Espalhar partes entre nós melhora a entrega
-sob perda; espalhar recibos melhora a obtenção da prova. Nenhum dos dois cria
-certeza, e cada prova tem alcance diferente:
+The object's manifest — id, size, digest, part lengths and hashes — is the versioned
+representation the historical documents call DNA. It has travelled inside every part since
+G2. Spreading parts across nodes improves delivery under loss; spreading receipts improves
+obtaining the proof. Neither creates certainty, and each proof has a different reach:
 
-| Prova | Alcance | Mecanismo |
+| Proof | Reach | Mechanism |
 | --- | --- | --- |
-| **Entrada** — o objeto foi confiado à rede | Praticamente sempre; é local ao remetente e ao primeiro relé | Recibo de custódia assinado pelo relé no handoff. Hoje o handoff é um callback sem assinatura nem persistência: é a peça a construir |
-| **Pendência** — onde o objeto está parado | Praticamente sempre; deriva dos recibos de custódia | Partes em A e C, ausente em B, sem recibo do destino após o prazo: estado auditável, não silêncio |
-| **Saída** — o destinatário reconstruiu | Existe sempre que há entrega; **chega à origem só quando há caminho de volta** | Recibo assinado pelo destinatário. Levá-lo à origem exige que ela volte a ser alcançável por alguém que o carregue. É o problema dos dois generais; não há protocolo que o elimine |
+| **Entry** — the object was entrusted to the network | Practically always; it is local to the sender and the first relay | A custody receipt signed by the relay at handoff. Today the handoff is a callback with no signature and no persistence: that is the piece to build |
+| **Pendency** — where the object is stuck | Practically always; derived from the custody receipts | Parts at A and C, absent at B, no receipt from the destination after the deadline: an auditable state, not a silence |
+| **Exit** — the recipient reconstructed | Exists wherever there was delivery; **reaches the origin only when there is a way back** | A receipt signed by the recipient. Taking it to the origin requires the origin to become reachable again by somebody carrying it. This is the two generals problem; no protocol eliminates it |
 
-Recibo de custódia é **alegação do relé**: um relé malicioso assina e descarta.
-Custódia prova entrada; só o recibo do destinatário prova saída. O recibo tem
-poucas centenas de bytes, então dispensa partes e paridade: réplica simples em
-todo relé basta. DNA para a carga, réplica para a prova. A afirmação honesta
-sobre saída é: *a prova sempre existe onde houve entrega e é obtida por quem
-alcançar qualquer nó que a carregue*.
+A custody receipt is **the relay's claim**: a malicious relay signs and discards. Custody
+proves entry; only the recipient's receipt proves exit. The receipt is a few hundred bytes,
+so it needs neither parts nor parity: plain replication at every relay is enough. DNA for
+the payload, replication for the proof. The honest statement about exit is: *the proof
+always exists where there was delivery, and is obtained by whoever reaches any node
+carrying it*.
 
-## 2. Ponto de partida: o que já existe
+## 2. Starting point: what already exists
 
-| Área | Evidência examinada | Uso nesta arquitetura |
+| Area | Evidence examined | Use in this architecture |
 | --- | --- | --- |
-| `v2` | Unidades cifradas, hashes, referências, receitas, armazenamento e recuperação limitada | Reaproveitar componentes com contratos e testes adequados |
-| Sobrevivência local | 3/3 provas com 20 processos; um sobrevivente com cópia completa recompõe os demais | Reutilizar infraestrutura de injeção de falhas; não chamar de mesh físico |
-| Gateway histórico | Papéis, planos, extensão, HTTP/SSE; há caminhos simulados de descoberta/envio/autenticação | Extrair requisitos; caracterizar código antes de reaproveitar |
-| Modelos | Comparação local de 32 gerações; melhor modo teve 5/8 acertos e uma resposta sustentada aceita | Aplicação posterior, sem papel obrigatório no roteamento |
-| Economia histórica | Planos de tokens/recompensas e alegações sem validação suficiente | Fonte de hipóteses; não usar placares antigos como prova econômica |
+| `v2` | Encrypted units, hashes, references, recipes, storage and limited recovery | Reuse components with adequate contracts and tests |
+| Local survival | 3/3 proofs with 20 processes; one survivor with a complete copy recomposes the rest | Reuse the fault-injection infrastructure; do not call it a physical mesh |
+| Historical gateway | Roles, plans, an extension, HTTP/SSE; there are simulated discovery, send and authentication paths | Extract requirements; characterise code before reusing it |
+| Models | A local comparison of 32 generations; the best mode got 5/8 right with one sustained answer accepted | A later application, with no mandatory role in routing |
+| Historical economy | Token and reward plans, and claims without sufficient validation | A source of hypotheses; do not use old scores as economic proof |
 
-O transporte de `v2/src/network/node_wire.rs` é restrito a loopback. A recuperação
-atual usa raiz/chave fornecidas pelo chamador e exige unidades necessárias
-presentes. Não equivale a descoberta oportunista, codificação redundante ou
-mensageria cifrada ponta a ponta através de gateways sem chave de leitura.
+The transport in `v2/src/network/node_wire.rs` is restricted to loopback. The current
+recovery uses a root and key supplied by the caller and requires the necessary units to be
+present. It is not equivalent to opportunistic discovery, redundant encoding, or end-to-end
+encrypted messaging through gateways holding no reading key.
 
-Fontes locais: [mapa de evidências](DETHRON_EVIDENCE_MAP.md),
-recuperação, processos,
-comparação de modelo.
+Local sources: [evidence map](DETHRON_EVIDENCE_MAP.md), recovery, processes, model
+comparison.
 
-## 3. Hipóteses e testes que podem rejeitá-las
+## 3. Hypotheses and the tests that could reject them
 
-Todas as hipóteses de vantagem abaixo estão **não demonstradas no Dethron**.
-Evidência local de componentes não é evidência do serviço completo.
+Every advantage hypothesis below is **undemonstrated in Dethron**. Local evidence about
+components is not evidence about the complete service.
 
-| ID | Hipótese | Teste necessário | Quando rejeitar ou reduzir a hipótese |
+| ID | Hypothesis | Test needed | When to reject or reduce the hypothesis |
 | --- | --- | --- | --- |
-| H01 | Existe necessidade útil não atendida suficientemente | G0: uso, referência e lacuna reproduzível | Referência atende e não há demanda de integração |
-| H02 | A adoção de gadgets acrescenta rotas úteis | G4/G6: variar quantidade, posição, contatos e domínio de falha | Mais dispositivos só repetem a mesma dependência ou pioram custo |
-| H03 | Identidade e descoberta sobrevivem sem serviço central obrigatório | G1/G4: início a frio, bootstrap externo ausente, identidade mantida | Serviço só funciona com cache quente ou servidor oculto |
-| H04 | Fragmentos de caminhos incompletos podem completar uma mensagem | G2: união de partes de três caminhos, fora de ordem | Mensagem só chega quando um caminho já continha tudo |
-| H05 | Codificação redundante melhora entrega ou custo | G2/G7: réplica/partes exatas versus código estabelecido | Ganho desaparece ao incluir codificação, metadados e reparos |
-| H06 | A mensagem atravessa gerações de nós | G3: todos os originais e supervisor substituídos | Recuperação consulta origem, snapshot ou chave não declarada |
-| H07 | Transportes diferentes podem compor a rede | G6: meios físicos distintos e ponte real | Só há portas TCP diferentes sobre a mesma infraestrutura |
-| H08 | A internet pode tornar-se opcional | G4/G6: corte externo e arranque offline | Destinos declarados dependem exclusivamente da via cortada |
-| H09 | 5% de sobreviventes podem manter um serviço definido | G5: sobreviventes escolhidos, aleatórios, correlacionados e direcionados | Resultado vale apenas para subconjunto escolhido ou só preserva bytes |
-| H10 | Atomização reduz ao menos 5% do armazenamento físico | G7: mesmos dados e recuperação, toda redundância incluída | Só reduz representação exibida ou perde informação |
-| H11 | A rede reduz ao menos 5% da energia total | G7: ensaios elétricos pareados, serviço equivalente | Ganho fica dentro do ruído ou depende de custos omitidos |
-| H12 | Processamento em mini nós tem ganho líquido | G8: tarefa verificável local versus distribuída | Comunicação, verificação e repetição anulam o benefício |
-| H13 | Adaptação/evolução supera política simples | G7/G8: mesma carga, política fixa versus adaptativa em casos reservados | Só ganha nos casos usados para ajuste |
-| H14 | Remunerar aumenta oferta útil e sustentável | G9: serviço contratado, custo e disponibilidade, subsídio separado | Operador não cobre custos ou oferta depende de emissão sem demanda |
-| H15 | É possível contabilizar contribuição sem fraude dominante | G9: duplicatas, identidades múltiplas, conluio e recibos falsos | Custo/erro da verificação torna o serviço inviável |
-| H16 | Token transferível agrega valor à cobrança | G9: comparar crédito, cobrança convencional e token, incluindo partições | Só adiciona custo, especulação ou dependência externa incompatível |
-| H17 | Participação aberta aumenta autonomia dos usuários | G0/G4/piloto: remover operador central e testar portabilidade | Cadastro, diretório, chaves ou pagamento recriam dependência obrigatória |
-| H18 | Aplicações de IA se beneficiam da rede | Após G8: tarefa real, modelo identificado, correção e custo total | Modelo ou distribuição não supera referência no uso declarado |
-| H19 | Um overlay nascido sobre a internet move tráfego para meios próprios | Fração de bytes fora da via base, medida pelo instrumento do G4, ao longo da adoção | Atingido o número declarado de nós ou de tempo, mais de 95% dos bytes seguem na via base. Tor, I2P, Yggdrasil e cjdns apontam para a rejeição |
-| H20 | A prova de entrega alcança a origem em fração útil dos casos | V1: recibo replicado nos relés, origem intermitente, prazo declarado | Origem só obtém o recibo quando o destino está simultaneamente alcançável, ou a fração fica abaixo do prazo declarado |
-| H21 | Recibos de custódia permitem localizar pendência sem confiar em um relé | V1: relé que assina e descarta, relé que nega ter recebido | Auditor não distingue pendência real de custódia falsa, ou a verificação custa mais que o serviço |
+| H01 | There is a useful need not sufficiently met | G0: use, reference and a reproducible gap | The reference meets it and there is no demand for integration |
+| H02 | Adopting gadgets adds useful routes | G4/G6: vary quantity, position, contacts and failure domain | More devices only repeat the same dependency or worsen cost |
+| H03 | Identity and discovery survive without a mandatory central service | G1/G4: cold start, no external bootstrap, identity kept | The service only works with a warm cache or a hidden server |
+| H04 | Fragments from incomplete paths can complete a message | G2: the union of parts from three paths, out of order | The message only arrives when one path already held everything |
+| H05 | Redundant encoding improves delivery or cost | G2/G7: replication and exact parts versus an established code | The gain disappears once encoding, metadata and repairs are included |
+| H06 | The message crosses generations of nodes | G3: every original and the supervisor replaced | Recovery consults the origin, a snapshot or an undeclared key |
+| H07 | Different transports can compose the network | G6: distinct physical media and a real bridge | There are only different TCP ports over the same infrastructure |
+| H08 | The internet can become optional | G4/G6: an external cut and an offline start | The declared destinations depend exclusively on the cut path |
+| H09 | 5 % of survivors can sustain a defined service | G5: chosen, random, correlated and targeted survivors | The result holds only for a chosen subset, or preserves bytes alone |
+| H10 | Atomisation reduces physical storage by at least 5 % | G7: the same data and recovery, all redundancy included | It only reduces the displayed representation, or loses information |
+| H11 | The network reduces total energy by at least 5 % | G7: paired electrical runs, equivalent service | The gain sits inside the noise or depends on omitted costs |
+| H12 | Processing on mini nodes has a net gain | G8: a verifiable task, local versus distributed | Communication, verification and repetition cancel the benefit |
+| H13 | Adaptation/evolution beats a simple policy | G7/G8: the same load, fixed versus adaptive policy on held-out cases | It only wins on the cases used for tuning |
+| H14 | Paying increases useful and sustainable supply | G9: a contracted service, cost and availability, subsidy accounted separately | The operator does not cover costs, or supply depends on issuance without demand |
+| H15 | Contribution can be accounted for without dominant fraud | G9: duplicates, multiple identities, collusion and forged receipts | The cost or error of verification makes the service unviable |
+| H16 | A transferable token adds value to charging | G9: compare credit, conventional charging and a token, partitions included | It only adds cost, speculation or an incompatible external dependency |
+| H17 | Open participation increases users' autonomy | G0/G4/pilot: remove the central operator and test portability | Registration, a directory, keys or payment recreate a mandatory dependency |
+| H18 | AI applications benefit from the network | After G8: a real task, an identified model, correctness and total cost | The model or the distribution does not beat the reference in the declared use |
+| H19 | An overlay born on the internet moves traffic to its own media | The fraction of bytes off the base path, measured with G4's instrument, across adoption | At the declared node count or elapsed time, more than 95 % of bytes stay on the base path. Tor, I2P, Yggdrasil and cjdns all point towards rejection |
+| H20 | The proof of delivery reaches the origin in a useful fraction of cases | V1: a receipt replicated at the relays, an intermittent origin, a declared deadline | The origin only obtains the receipt when the destination is simultaneously reachable, or the fraction falls below the declared deadline |
+| H21 | Custody receipts allow pendency to be localized without trusting a relay | V1: a relay that signs and discards, a relay that denies having received | The auditor cannot tell real pendency from false custody, or verification costs more than the service |
 
-H19–H21 são da versão 7. Token como motor de oferta segue em H14–H16, com o
-registro de que Helium e Filecoin produziram oferta abundante e demanda mínima:
-token manufatura oferta, não demanda. Decidir token só após uso medido em
-crédito ou cobrança convencional.
+H19–H21 belong to version 7. A token as a supply engine stays in H14–H16, with the record
+that Helium and Filecoin produced abundant supply and minimal demand: a token manufactures
+supply, not demand. Decide on a token only after usage is measured under credit or
+conventional charging.
 
-"Criptografia viva" será traduzida em requisitos testáveis de identidade, rotação,
-revogação e recuperação de chaves; não em primitivas criptográficas novas.
-"DNA" significa uma representação versionada de dados e dependências; sua
-existência não implica aprendizado, extração automática ou compressão universal.
+"Living cryptography" will be translated into testable requirements of identity, rotation,
+revocation and key recovery; not into new cryptographic primitives. "DNA" means a versioned
+representation of data and dependencies; its existence implies no learning, no automatic
+extraction and no universal compression.
 
-## 4. Arquitetura recomendada
+## 4. Recommended architecture
 
-### 4.1. Separação de responsabilidades
+### 4.1. Separation of responsibilities
 
 ```mermaid
 flowchart TB
-    App[Aplicação: mensagem ou arquivo] --> Core[Núcleo de mensagem e estados]
-    Core --> Verify[Identidade e verificação]
-    Core --> Store[Caixa persistente e fragmentos]
-    Core --> Rebuild[Reconstrução e codificação opcional]
-    Core --> Route[Inventário, contatos e encaminhamento]
-    Route --> Adapter[Adaptador de transporte]
-    Adapter --> Existing[Stack existente ou TCP de laboratório]
-    Adapter --> Physical[Interfaces físicas validadas]
-    Core --> Events[Eventos e recibos]
-    Events --> Audit[Auditor externo do experimento]
-    Events --> Usage[Contabilidade de serviço opcional]
-    Usage --> Settle[Liquidação posterior opcional]
-    Task[Tarefas verificáveis: etapa posterior] --> App
+    App[Application: message or file] --> Core[Message and state core]
+    Core --> Verify[Identity and verification]
+    Core --> Store[Persistent mailbox and fragments]
+    Core --> Rebuild[Reconstruction and optional encoding]
+    Core --> Route[Inventory, contacts and forwarding]
+    Route --> Adapter[Transport adapter]
+    Adapter --> Existing[Existing stack or laboratory TCP]
+    Adapter --> Physical[Validated physical interfaces]
+    Core --> Events[Events and receipts]
+    Events --> Audit[External auditor of the experiment]
+    Events --> Usage[Optional service accounting]
+    Usage --> Settle[Optional later settlement]
+    Task[Verifiable tasks: a later stage] --> App
 ```
 
-É um desenho proposto, não a estrutura já implementada. O auditor observa a
-execução; não fornece fragmentos, chaves ou gabaritos ao núcleo. A contabilidade
-não interfere na correção do transporte; futuras políticas de admissão por
-orçamento ficam explícitas na fronteira do serviço.
+This is a proposed design, not the structure already implemented. The auditor observes the
+execution; it supplies no fragments, keys or answer keys to the core. Accounting does not
+interfere with the transport's correctness; future budget-based admission policies stay
+explicit at the service boundary.
 
-### 4.2. Decisões de implementação
+### 4.2. Implementation decisions
 
-1. **Núcleo de recuperação em Rust no `v2`.** Validar entradas e produzir
-   transições/ações explícitas. Relógio, armazenamento e transporte entram por
-   interfaces; decisões de negócio não dependem de sleeps ou variáveis globais.
-2. **Processo de nó com estado próprio.** Possui identidade, caixa, configuração
-   e limites. Um processo por nó é suficiente para a primeira prova local;
-   microserviços adicionais não são necessários para testar o contrato.
-3. **Adaptadores substituíveis.** Comparar primeiro Reticulum/LXMF ou BPv7;
-   manter transporte fora da lógica de reconstrução. Se já houver solução para
-   uma função, integrá-la e testar a fronteira. Escolher uma referência inicial,
-   não implementar simultaneamente várias stacks.
-4. **Python/Window como harness e integração inicial com LXMF.** G1 implementa
-   caixa/transições de aplicação em Python/SQLite, junto à API nativa; a
-   [decisão e seus limites](window/G1_INTEGRATION.md) substituem a hipótese de
-   colocar essas primeiras transições também em Rust. Criar processos, controlar contatos, injetar
-   falhas e auditar. O plano conhecido pelo harness não pode aparecer como
-   conhecimento mágico do roteador. O roteador usa observações disponíveis ao nó.
-5. **Persistência com semântica de crash explícita.** Avaliar o store atual antes
-   de escolhê-lo para caixa/outbox. Registro de entrega e atualização de estado
-   precisam de garantia transacional ou protocolo equivalente demonstrado.
-   Escolher backend em decisão curta documentada, sem assumir que rename prova
-   durabilidade em qualquer queda de energia.
-6. **Observabilidade desde a primeira fatia.** Eventos versionados, contagem de
-   tráfego completo, custos e falhas; dashboards apresentam registros reais.
-7. **Economia e tarefas como módulos posteriores.** Nenhum token, blockchain ou
-   LLM é necessário para testar a entrega de um arquivo.
+1. **A Rust recovery core in `v2`.** Validate inputs and produce explicit transitions and
+   actions. Clock, storage and transport enter through interfaces; business decisions do not
+   depend on sleeps or global variables.
+2. **A node process with its own state.** It holds an identity, a mailbox, a configuration
+   and limits. One process per node suffices for the first local proof; further
+   microservices are not needed to test the contract.
+3. **Replaceable adapters.** Compare Reticulum/LXMF or BPv7 first; keep transport outside
+   the reconstruction logic. Where a solution for a function already exists, integrate it
+   and test the boundary. Choose one initial reference rather than implementing several
+   stacks at once.
+4. **Python/Window as the harness and the first LXMF integration.** G1 implements the
+   application's mailbox and transitions in Python/SQLite next to the native API; the
+   [decision and its limits](window/G1_INTEGRATION.md) replace the hypothesis of putting
+   those first transitions in Rust as well. Create processes, control contacts, inject
+   failures and audit. The plan known to the harness must not appear as magical knowledge in
+   the router. The router uses observations available to the node.
+5. **Persistence with explicit crash semantics.** Assess the current store before choosing
+   it for the mailbox and outbox. Recording a delivery and updating state need a
+   transactional guarantee, or a demonstrated equivalent protocol. Choose a backend in a
+   short documented decision, without assuming that a rename proves durability under any
+   power loss.
+6. **Observability from the first slice.** Versioned events, a full traffic count, costs and
+   failures; dashboards show real records.
+7. **Economy and tasks as later modules.** No token, blockchain or LLM is needed to test the
+   delivery of a file.
 
-### 4.3. Contratos de dados propostos
+### 4.3. Proposed data contracts
 
-| Objeto | Campos/regras essenciais |
+| Object | Essential fields and rules |
 | --- | --- |
-| Mensagem | Versão de protocolo, ID único, origem/destino, expiração, tamanho, referência ao manifesto e política de recursos |
-| Manifesto | Compromisso autenticado com conteúdo, versão, esquema de fragmentação/codificação e parâmetros; tamanho limitado |
-| Fragmento | ID de mensagem/bloco, índice ou ID de símbolo, esquema, tamanho e bytes; evidência de integridade verificável |
-| Inventário | O que o nó realmente conserva; anúncios limitados, paginados e vinculados à versão correta |
-| Contato | Par observado, interface, sessão, prazo, limites e capacidade observada; nunca capacidade inventada |
-| Recibo | Tipo explícito: aceito localmente, persistido, encaminhado ou entregue; emissor e referência à obrigação |
-| Uso | Serviço contratado, orçamento, unidade, evidência, estado provisório/final e chave de idempotência |
+| Message | Protocol version, unique id, origin and destination, expiry, size, a reference to the manifest, and a resource policy |
+| Manifest | An authenticated commitment to the content, version, fragmentation/encoding scheme and parameters; bounded in size |
+| Fragment | Message and block id, index or symbol id, scheme, size and bytes; verifiable integrity evidence |
+| Inventory | What the node actually holds; announcements bounded, paginated and bound to the correct version |
+| Contact | The observed peer, interface, session, deadline, limits and observed capacity; never an invented capacity |
+| Receipt | An explicit type: accepted locally, persisted, forwarded or delivered; the issuer and a reference to the obligation |
+| Usage | The contracted service, budget, unit, evidence, provisional or final state, and an idempotency key |
 
-IDs de mensagem distinguem envios. IDs de conteúdo podem permitir deduplicação,
-mas não provam origem, frescor ou independência de réplicas. Não assumir que
-igualdade de arquivos cifrados seja detectável entre usuários/chaves diferentes.
+Message ids distinguish sends. Content ids may allow deduplication, but they do not prove
+origin, freshness or independence of replicas. Do not assume equality of encrypted files is
+detectable across different users and keys.
 
-Para gateways sem acesso ao conteúdo, autenticar manifesto e partes sobre a
-representação transportada. O destinatário valida também o conteúdo decifrado.
-Não distribuir a chave privada do destinatário para que o gateway possa verificar
-integridade. A construção criptográfica completa exige escolha de formato
-estabelecido e revisão; hashes isolados não autenticam um remetente.
+For gateways with no access to the content, authenticate the manifest and the parts over the
+transported representation. The recipient also validates the decrypted content. Do not
+distribute the recipient's private key so that the gateway can check integrity. The complete
+cryptographic construction requires choosing an established format and a review; hashes
+alone do not authenticate a sender.
 
-Fragmentação inicialmente simples e limitada. Depois comparar código estabelecido
-de recuperação; não implementar uma variante caseira de RaptorQ ou criptografia.
-Nós sem informação suficiente podem encaminhar símbolos existentes; gerar novos
-símbolos de reparo exige informação e algoritmo apropriados, não só um identificador.
+Fragmentation initially simple and bounded. Compare an established recovery code afterwards;
+do not implement a home-made variant of RaptorQ or of cryptography. Nodes without sufficient
+information may forward existing symbols; generating new repair symbols requires the
+appropriate information and algorithm, not merely an identifier.
 
-### 4.4. Estados e invariantes
+### 4.4. States and invariants
 
-Fluxo conceitual de recepção:
+The conceptual reception flow:
 
 ```text
-manifesto válido -> parcial persistido -> informação suficiente
--> reconstruído -> validado -> disponibilizado ao destinatário -> confirmado
+valid manifest -> partial persisted -> sufficient information
+-> reconstructed -> validated -> made available to the recipient -> confirmed
 ```
 
-Expiração, rejeição por corrupção e falha de recursos têm registros separados.
-Uma tentativa de reconstrução malsucedida não deve apagar partes válidas.
-O envio tem fila própria: pendente, tentativa, aguardando confirmação, confirmado
-ou expirado. Persistência local não equivale a entrega final.
+Expiry, rejection for corruption and resource failure have separate records. An
+unsuccessful reconstruction attempt must not delete valid parts. Sending has a queue of its
+own: pending, attempted, awaiting confirmation, confirmed or expired. Local persistence is
+not final delivery.
 
-Invariantes a testar:
+Invariants to test:
 
-- Misturar mensagens, revisões, parâmetros ou índices incompatíveis não completa um objeto.
-- Duplicatas não aumentam a informação disponível nem geram cobrança repetida.
-- Recibo do gateway não substitui confirmação autenticada do destinatário.
-- Retransmissão é permitida; a entrega lógica é idempotente. Não prometer
-  exatamente uma execução de efeitos externos sem suporte da aplicação.
-- Reinício pode causar reenvio; não pode converter uma tentativa em entrega comprovada.
-- Metadados, filas, fragmentos, tentativas e tempo de trabalho têm limites explícitos.
-- Versão desconhecida falha claramente; atualização não apaga silenciosamente dados legíveis antigos.
-- Rotação de chave preserva a política declarada para mensagens antigas;
-  perda/revogação têm testes distintos. Nova identidade não é a antiga por ter o mesmo nome.
+- Mixing incompatible messages, revisions, parameters or indices does not complete an object.
+- Duplicates neither increase the available information nor generate repeated charges.
+- A gateway receipt does not replace an authenticated confirmation from the recipient.
+- Retransmission is allowed; logical delivery is idempotent. Do not promise exactly-once
+  execution of external effects without support from the application.
+- A restart may cause a resend; it must not turn an attempt into a proven delivery.
+- Metadata, queues, fragments, attempts and working time have explicit limits.
+- An unknown version fails clearly; an upgrade does not silently erase old readable data.
+- Key rotation preserves the declared policy for old messages; loss and revocation have
+  separate tests. A new identity is not the old one merely by sharing its name.
 
-## 5. Referências e o que comparar
+## 5. References and what to compare
 
-| Referência | Função a comparar | Limite da comparação |
+| Reference | Function to compare | Limit of the comparison |
 | --- | --- | --- |
-| Reticulum/LXMF | Rede heterogênea, descoberta, mensagens e propagação | Não presumir que implementa exatamente nosso encontro de fragmentos |
-| DTN/BPv7 | Mensagens persistentes sobre contatos intermitentes | Especificação não escolhe sozinha roteador, adaptadores ou implementação |
-| Partes exatas e replicação | Controle simples de recuperação | Incluir armazenamento/tráfego de todas as cópias |
-| Código estabelecido de apagamento/fountain | Recuperação com redundância | Medir CPU/RAM, metadados, probabilidade de decodificação e reparos |
-| Cobrança convencional/créditos | Controle econômico | Incluir custo operacional e risco de pagamentos durante partições |
+| Reticulum/LXMF | A heterogeneous network, discovery, messages and propagation | Do not presume it implements exactly our meeting of fragments |
+| DTN/BPv7 | Persistent messages over intermittent contacts | A specification does not choose the router, the adapters or the implementation by itself |
+| Exact parts and replication | A simple recovery control | Include the storage and traffic of every copy |
+| An established erasure or fountain code | Recovery with redundancy | Measure CPU/RAM, metadata, decoding probability and repairs |
+| Conventional charging and credits | An economic control | Include operating cost and payment risk during partitions |
 
-G0 escolhe qual referência executar e registra versão, configuração, instalação
-e limitações. Resultados documentados pelos autores não são nossos benchmarks.
-Se a referência falhar, investigar configuração e requisitos antes de chamar a
-falha de vantagem do Dethron. O método de comparação deve dar a ambos orçamento
-equivalente de ajuste e o mesmo acesso às mensagens e contatos.
+G0 chooses which reference to run and records the version, configuration, installation and
+limitations. Results documented by the authors are not our benchmarks. If the reference
+fails, investigate the configuration and the requirements before calling that failure a
+Dethron advantage. The comparison method must give both an equivalent tuning budget and the
+same access to messages and contacts.
 
-Referências primárias já consultadas:
+Primary references already consulted:
 [Reticulum](https://markqvist.github.io/Reticulum/manual/networks.html),
 [LXMF](https://github.com/markqvist/LXMF),
 [BPv7](https://www.rfc-editor.org/rfc/rfc9171.html),
@@ -283,357 +279,361 @@ Referências primárias já consultadas:
 [Golem](https://docs.golem.network/docs/golem/overview),
 [Filecoin](https://docs.filecoin.io/basics/the-blockchain/proofs).
 
-## 6. Ordem de execução e condições para avançar
+## 6. Execution order and conditions for advancing
 
-Esta ordem preserva G0–G7 do plano anterior e acrescenta G8/G9. Alguns estudos
-de requisito/custo podem ocorrer cedo; isso não antecipa lançamento de pagamentos.
+This order preserves G0–G7 from the earlier plan and adds G8/G9. Some requirement and cost
+studies may happen early; that does not bring forward any launch of payments.
 
-| Marco | O que entregar | Critério para avançar |
+| Milestone | What to deliver | Criterion for advancing |
 | --- | --- | --- |
-| G0 — requisito e referência | Configuração congelada, referência executada, controles e relatório de lacuna | Necessidade observável e diferença justificável, ou decisão de integrar |
-| G1 — mensagem persistente | Envelope, manifesto, identidade e caixa/outbox, uma entrega local | Corrupção rejeitada, estado recuperado após crash, recibo final correto |
-| G2 — caminhos complementares | Três rotas incompletas, chegada fora de ordem, repetição e perda | União suficiente entrega bytes exatos; união insuficiente permanece incompleta |
-| G3 — gerações | Troca de todos os originais, incluindo supervisor, em ciclos | Serviço continua sob dependências declaradas, sem consultar fonte oculta |
-| G4 — independência lógica | Corte da via externa, início a frio e ponte alternativa | Mensagens do escopo seguem por contatos alternativos; isolamento total não gera falso sucesso |
-| G5 — sobrevivência | **Adiado na v7**: só faz sentido sobre a bancada multi-máquina de V3; em um host mede o provisionamento, não a rede | Resultados separados por cenário, dados, contatos, prazo e capacidade |
-| G6 — hardware | **Reformulado na v7 como V3**: meios que realmente controlamos | Evidência de uso dos meios e falhas independentes; nenhuma via externa oculta |
-| G7 — eficiência/adaptação | **Adiado na v7**: G2 já mostrou compromisso, não ganho | Ganho reprodutível em casos reservados com serviço equivalente |
-| G8 — processamento | **Após aceitação externa** | Benefício líquido após transferência, validação, coordenação e repetição |
-| G9 — incentivos | **Após aceitação externa e uso medido sem token** | Serviço verificável e financiável; decisão separada sobre necessidade de token |
+| G0 — requirement and reference | A frozen configuration, the reference executed, controls, and a gap report | An observable need and a justifiable difference, or a decision to integrate |
+| G1 — a persistent message | Envelope, manifest, identity and mailbox/outbox, one local delivery | Corruption rejected, state recovered after a crash, a correct final receipt |
+| G2 — complementary paths | Three incomplete routes, out-of-order arrival, repetition and loss | A sufficient union delivers the exact bytes; an insufficient union stays incomplete |
+| G3 — generations | Replacing every original, the supervisor included, in cycles | The service continues under declared dependencies, without consulting a hidden source |
+| G4 — logical independence | Cutting the external path, a cold start and an alternative bridge | Messages in scope travel over alternative contacts; total isolation produces no false success |
+| G5 — survival | **Deferred in v7**: it only makes sense on V3's multi-machine bench; on one host it measures the provisioning, not the network | Results separated by scenario, data, contacts, deadline and capacity |
+| G6 — hardware | **Recast in v7 as V3**: media we actually control | Evidence of the media being used and of independent failures; no hidden external path |
+| G7 — efficiency and adaptation | **Deferred in v7**: G2 already showed a trade-off, not a gain | A reproducible gain on held-out cases with an equivalent service |
+| G8 — processing | **After outside acceptance** | A net benefit after transfer, validation, coordination and repetition |
+| G9 — incentives | **After outside acceptance and usage measured without a token** | A verifiable and fundable service; a separate decision on whether a token is needed |
 
-### Trilha V — entrega verificável e harness, ordem da versão 7
+### The V trail — verifiable delivery and harness, version 7's order
 
-| Marco | O que entregar | Critério para avançar | Controle que deve falhar |
+| Milestone | What to deliver | Criterion for advancing | The control that must fail |
 | --- | --- | --- | --- |
-| V1 — recibo de volta | Recibo de custódia assinado no handoff; recibo do destinatário replicado nos relés; origem intermitente obtém a prova por qualquer relé; auditor deriva pendência dos recibos de custódia | Origem obtém recibo válido sem contato direto com o destino; ausência de recibo após o prazo produz pendência localizada, não silêncio | Handoff sem assinatura não conta como custódia; recibo de custódia não conta como entrega; relé que assina e descarta é detectado pela ausência do recibo do destino |
-| V2 — reprodução por estranho | Clone limpo em segunda máquina, ambiente fixado, um comando por marco, mesmo veredito | Quem não escreveu o código obtém o veredito e a auditoria a partir do clone, sem ajuda | Artefato que só existe na máquina de origem, passo não documentado ou dependência do ambiente local reprovam |
-| V3 — bancada multi-máquina | Agente local por máquina executando cronograma pré-declarado; supervisor **não dirige nós na janela isolada**; coleta posterior por canal declarado e excluído da medição; G6 sobre Ethernet, Wi-Fi e um enlace serial/USB não-IP | Evidência de G1–G4 sustenta em dispositivos distintos; fração de bytes fora da via base medida por máquina | Plano de controle que dê conectividade IP durante a janela isolada invalida a rodada; ausência de controle positivo do `netstat` por máquina invalida o zero |
+| V1 — receipt return | A custody receipt signed at handoff; the recipient's receipt replicated at the relays; an intermittent origin obtaining the proof from any relay; an auditor deriving pendency from the custody receipts | The origin obtains a valid receipt without direct contact with the destination; an absent receipt after the deadline produces localized pendency, not silence | A handoff without a signature does not count as custody; a custody receipt does not count as delivery; a relay that signs and discards is caught by the absence of the destination's receipt |
+| V2 — reproduction by a stranger | A clean clone on a second machine, a pinned environment, one command per milestone, the same verdict | Somebody who did not write the code obtains the verdict and the audit from the clone, without help | An artifact existing only on the origin machine, an undocumented step, or a dependency on the local environment all fail it |
+| V3 — multi-machine bench | A local agent per machine executing a pre-declared schedule; the supervisor **does not steer nodes inside the isolated window**; later collection over a channel that is declared and excluded from the measurement; G6 over Ethernet, Wi-Fi and a non-IP serial/USB link | The evidence of G1–G4 holds on distinct devices; the fraction of bytes off the base path measured per machine | A control plane giving IP connectivity during the isolated window invalidates the round; the absence of a positive `netstat` control per machine invalidates the zero |
 
-V1 fecha a promessa de entrega verificável. V2 é o que separa "temos evidência"
-de "evidência que os outros aceitam". V3 aposenta a ressalva "mesmo host, mesmo
-SO, mesmo sistema de arquivos" que todos os marcos carregam. Só depois de V3 faz
-sentido reabrir G5 e a conversa de rede. Toda contribuição para o Reticulum/LXMF
-gerada pelo harness — defeito, limite ou medição — é resultado de primeira classe.
+V1 closes the promise of verifiable delivery. V2 is what separates "we have evidence" from
+"evidence others accept". V3 retires the "same host, same OS, same file system" caveat every
+milestone carries. Only after V3 does reopening G5 and the network conversation make sense.
+Every contribution to Reticulum/LXMF produced by the harness — a defect, a limit or a
+measurement — is a first-class result.
 
-G1–G4 e V1–V2 podem correr como laboratório de processos. Alegar rádio ou
-autonomia física exige V3, e apenas sobre os meios acessíveis: Ethernet, Wi-Fi,
-serial/USB e LoRa/ISM. Celulares, roteadores alheios, carros e satélite têm o
-hardware, não a permissão — a barreira é de sistema operacional, jurídica e
-comercial, e nenhum marco pode contorná-la por engenharia. A ordem não significa
-testar blockchain antes de necessidade; G9 pode concluir que créditos ou
-pagamentos convencionais bastam.
+G1–G4 and V1–V2 may run as a laboratory of processes. Claiming radio or physical autonomy
+requires V3, and only over the accessible media: Ethernet, Wi-Fi, serial/USB and LoRa/ISM.
+Phones, other people's routers, cars and satellites have the hardware but not the permission
+— the barrier is one of operating system, law and commerce, and no milestone can engineer
+around it. The order does not mean testing a blockchain before there is a need; G9 may
+conclude that credits or conventional payments are enough.
 
-### Suíte mínima transversal
+### The minimal cross-cutting suite
 
-| Teste | Comportamento esperado |
+| Test | Expected behaviour |
 | --- | --- |
-| Destinatário ausente | Sem confirmação final; pendência/expiração registradas |
-| Fragmento corrompido e depois réplica válida | Rejeitar o primeiro, aceitar a informação válida posterior |
-| Falta de manifesto ou chave necessária | Falha/pendência explícita, sem inferir conteúdo |
-| Manifesto de outra versão | Rejeitar mistura mesmo que IDs parciais pareçam coincidir |
-| Muitos duplicados | Limite de recursos respeitado; completude e cobrança não aumentam |
-| Crash antes/depois de persistência e confirmação | Estado coerente e reenvio seguro |
-| Relógio incorreto/rollback | Política temporal documentada; prazo não é estendido silenciosamente |
-| Fila/disco cheio ou payload excessivo | Recusa explícita e preservação dos dados já confirmados como duráveis |
-| Gateway único retirado | Nenhuma falsa alegação de caminho alternativo |
-| Chave/identidade rotacionada ou revogada | Política declarada aplicada a mensagens novas e antigas |
-| Inventário falso/par que deixa de colaborar | Não contabilizar dados ausentes; repetir de forma limitada ou aguardar |
-| Recibo alterado, reapresentado ou de outro destinatário | Sem entrega/cobrança final indevida |
-| Recibos assinados por participantes em conluio | Assinatura isolada não é aceita como prova suficiente de serviço econômico |
+| An absent recipient | No final confirmation; pendency and expiry recorded |
+| A corrupted fragment followed by a valid replica | Reject the first, accept the later valid information |
+| A missing manifest or a missing necessary key | An explicit failure or pendency, with no content inferred |
+| A manifest of another version | Reject the mixture even where partial ids appear to coincide |
+| Many duplicates | The resource limit respected; completeness and charging do not increase |
+| A crash before and after persistence and confirmation | A coherent state and a safe resend |
+| An incorrect clock or a rollback | A documented temporal policy; the deadline is not silently extended |
+| A full queue or disk, or an excessive payload | An explicit refusal, preserving the data already confirmed as durable |
+| The single gateway withdrawn | No false claim of an alternative path |
+| A key or identity rotated or revoked | The declared policy applied to new and old messages |
+| A false inventory, or a peer that stops cooperating | Absent data is not counted; retry in a bounded way or wait |
+| A receipt altered, replayed, or belonging to another recipient | No undue final delivery or charge |
+| Receipts signed by colluding participants | A signature alone is not accepted as sufficient proof of economic service |
 
-Para todos: o teste deve observar comportamento. Encontrar a palavra "mock" no
-código ajuda a revisão, mas não substitui controle que detecte uma entrega falsa.
+For all of them: the test must observe behaviour. Finding the word "mock" in the code helps
+a review, but does not replace a control that detects a false delivery.
 
-## 7. Primeira campanha concreta
+## 7. The first concrete campaign
 
-### Perfil inicial proposto: `gateway-dev-v1`
+### Proposed initial profile: `gateway-dev-v1`
 
-Configuração de desenvolvimento, não benchmark global nem avaliação inédita:
+A development configuration, not a global benchmark and not an unprecedented evaluation:
 
-- Cinco processos locais: origem O, transportadores A/B/C e destino D.
-- Três mensagens determinísticas de 1 KiB, 64 KiB e 1 MiB, para testar tamanhos
-  distintos. Esses volumes não definem viabilidade de envio por qualquer rádio.
-- Caso básico: dividir cada objeto transportado em três conjuntos de partes;
-  nenhum transportador possui o objeto completo.
-- Origem distribui, termina e seu diretório fica inacessível ao fluxo ativo.
-- A encontra D; D reinicia; B e C encontram D em momentos diferentes.
-- Variante negativa: retirar definitivamente uma parte indispensável, mantendo
-  duplicatas das outras; não pode haver reconstrução completa.
-- Variante de continuidade: substituir transportadores antes de completar a
-  entrega, declarando precisamente quais dados sobreviveram e como foram repostos.
-- Prazo de laboratório proposto: 120 segundos após a distribuição. Congelar
-  esse valor antes da rodada; ajustes posteriores criam uma versão nova.
+- Five local processes: origin O, carriers A/B/C and destination D.
+- Three deterministic messages of 1 KiB, 64 KiB and 1 MiB, to test distinct sizes. These
+  volumes do not settle the feasibility of sending over any given radio.
+- Basic case: split each transported object into three sets of parts; no carrier holds the
+  complete object.
+- The origin distributes, finishes, and its directory becomes inaccessible to the active flow.
+- A meets D; D restarts; B and C meet D at different moments.
+- Negative variant: permanently withdraw an indispensable part, keeping duplicates of the
+  others; complete reconstruction must not occur.
+- Continuity variant: replace carriers before delivery completes, declaring precisely which
+  data survived and how it was restored.
+- Proposed laboratory deadline: 120 seconds after distribution. Freeze that value before the
+  round; later adjustments create a new version.
 
-O harness mantém os originais apenas como referência inacessível ao candidato.
-Resultado esperado é igualdade dos bytes e hash, confirmação do destino e
-registro íntegro do fluxo. Mensagens da variante negativa devem permanecer
-incompletas até o prazo/expiração. Não usar gabarito para reconstruir o conteúdo.
+The harness keeps the originals only as a reference inaccessible to the candidate. The
+expected result is equality of bytes and hash, confirmation at the destination, and an
+intact record of the flow. Messages in the negative variant must stay incomplete until the
+deadline or expiry. Do not use the answer key to reconstruct the content.
 
-Começar em G0 reproduzindo a função equivalente na referência escolhida. Se ela
-não expuser fragmentos pela API, documentar isso e criar comparação no nível de
-objeto com um adaptador equivalente; não declarar que um teste incompatível
-prova incapacidade da referência. A variante com codificação vem depois do
-controle com partes exatas, alterando um mecanismo por vez.
+Start at G0 by reproducing the equivalent function in the chosen reference. If it does not
+expose fragments through the API, document that and build the comparison at object level
+with an equivalent adapter; do not declare that an incompatible test proves the reference
+incapable. The variant with encoding comes after the control with exact parts, changing one
+mechanism at a time.
 
-O recorte G0 com **mensagens completas** foi materializado e executado em
-15/09/2026: [configuração, resultados e decisão](window/G0_REFERENCE.md).
-Reticulum/LXMF atendeu ao requisito local; seguir com integração em G1.
-O cenário de partes complementares descrito acima continua proposto para G2.
+The G0 scope with **whole messages** was built and executed on 15/09/2026:
+[configuration, results and decision](window/G0_REFERENCE.md). Reticulum/LXMF met the local
+requirement; continue with integration in G1. The complementary-parts scenario described
+above remains proposed for G2.
 
-## 8. Estrutura de código e entrega incremental
+## 8. Code structure and incremental delivery
 
-Manter `v2` como núcleo reutilizável e `window` como harness/adapter. Os nomes
-abaixo são propostos e precisam ser confirmados contra a decisão de G0.
-Não reorganizar todo o repositório nem importar gateways antigos sem validação.
+Keep `v2` as the reusable core and `window` as harness and adapter. The names below are
+proposals and need confirming against G0's decision. Do not reorganise the whole repository
+and do not import old gateways without validation.
 
-| Fatia | Arquivos propostos | Teste que deve falhar primeiro |
+| Slice | Proposed files | The test that must fail first |
 | --- | --- | --- |
-| Harness de referência | `window/run_gateway_probe.py`, `window/gateway_reference.py`, `window/gateway_audit.py`, `window/tests/test_gateway_audit.py` | Log do emissor sem confirmação do destino não pode aprovar |
-| Envelope | `v2/src/network/message_envelope.rs`, `v2/tests/message_envelope.rs` | Adulteração de conteúdo, versão ou destino é rejeitada |
-| Manifesto/partes | `v2/src/network/message_manifest.rs`, `v2/tests/message_manifest.rs` | Mistura de mensagens e contagem por duplicatas não completa objeto |
-| Caixa/outbox | `v2/src/network/message_inbox.rs`, `v2/src/network/message_outbox.rs`, testes correspondentes | Reinício perde estado ou entrega lógica duplica |
-| Inventário | `v2/src/network/fragment_inventory.rs`, `v2/tests/fragment_inventory.rs` | Solicitante pede complemento errado ou aceita inventário sem dados |
-| Contatos | `v2/src/network/contact_transport.rs`, `v2/tests/contact_transport.rs` | Contatos separados não completam o fluxo positivo |
-| Reconstrução | `v2/src/network/message_reassembly.rs`, `v2/tests/message_reassembly.rs` | Partes suficientes não recompõem ou insuficientes são aceitas |
-| Política | `v2/src/network/forwarding_policy.rs`, `v2/tests/forwarding_policy.rs` | Loop/reenvio sem limite ultrapassa orçamento |
-| Contabilidade futura | `v2/src/network/usage_receipt.rs`, `v2/tests/usage_receipt.rs` | Mesmo serviço gera crédito duplicado ou gasto offline conflitante é finalizado |
+| Reference harness | `window/run_gateway_probe.py`, `window/gateway_reference.py`, `window/gateway_audit.py`, `window/tests/test_gateway_audit.py` | A sender's log without confirmation from the destination cannot pass |
+| Envelope | `v2/src/network/message_envelope.rs`, `v2/tests/message_envelope.rs` | Tampering with content, version or destination is rejected |
+| Manifest and parts | `v2/src/network/message_manifest.rs`, `v2/tests/message_manifest.rs` | Mixing messages and counting duplicates does not complete an object |
+| Mailbox and outbox | `v2/src/network/message_inbox.rs`, `v2/src/network/message_outbox.rs`, and their tests | A restart loses state, or logical delivery duplicates |
+| Inventory | `v2/src/network/fragment_inventory.rs`, `v2/tests/fragment_inventory.rs` | The requester asks for the wrong complement, or accepts an inventory without data |
+| Contacts | `v2/src/network/contact_transport.rs`, `v2/tests/contact_transport.rs` | Separate contacts do not complete the positive flow |
+| Reconstruction | `v2/src/network/message_reassembly.rs`, `v2/tests/message_reassembly.rs` | Sufficient parts fail to recompose, or insufficient ones are accepted |
+| Policy | `v2/src/network/forwarding_policy.rs`, `v2/tests/forwarding_policy.rs` | An unbounded loop or resend exceeds the budget |
+| Future accounting | `v2/src/network/usage_receipt.rs`, `v2/tests/usage_receipt.rs` | The same service produces a duplicate credit, or a conflicting offline spend is finalised |
 
-Criar submódulos por responsabilidade quando necessário; cada arquivo de código
-e teste deve ficar até 200 linhas. Testes de integração e atores de teste não
-devem virar um arquivo monolítico que mistura transporte, auditoria e economia.
+Create submodules by responsibility where needed; every code and test file should stay under
+200 lines. Integration tests and test actors must not become one monolithic file mixing
+transport, audit and economy.
 
-### Ciclo obrigatório por comportamento
+### The mandatory cycle per behaviour
 
-1. Interface mínima e teste do contrato.
-2. Executar e observar falha pelo comportamento, não por import/arquivo ausente.
-3. Implementar a menor mudança que passe.
-4. Executar o teste e a suíte relevante; manter o experimento anterior executável.
-5. Refatorar com testes verdes, conferir tamanho de arquivos e repetir validação
-   somente quando houver alteração ou risco ainda não resolvido.
+1. A minimal interface and a contract test.
+2. Run it and observe the failure through behaviour, not through a missing import or file.
+3. Implement the smallest change that passes.
+4. Run the test and the relevant suite; keep the previous experiment executable.
+5. Refactor with green tests, check file sizes, and repeat validation only where something
+   changed or a risk is still unresolved.
 
-Comandos propostos, **somente após criar os arquivos correspondentes**:
+Proposed commands, **only after creating the corresponding files**:
 
 ```powershell
-# Na raiz
+# At the repository root
 $env:PYTHONPATH='window'
 python -m pytest window/tests/test_gateway_audit.py -q
 
-# Dentro de v2; substituir o nome para a fatia em trabalho
+# Inside v2; substitute the name of the slice being worked on
 cargo test --locked --offline --test message_envelope
 cargo test --locked --offline
 cargo fmt --check
 cargo clippy --locked --offline --all-targets -- -D warnings
 ```
 
-O modo offline requer dependências previamente disponíveis; uma falha por
-dependência ausente não é reprovação funcional. Registrar a preparação do ambiente
-separadamente. Nenhum desses comandos de testes propostos foi executado aqui.
+Offline mode requires dependencies to be available in advance; a failure caused by a missing
+dependency is not a functional failure. Record the environment preparation separately. None
+of these proposed test commands was run here.
 
-## 9. Autonomia e 5%: requisitos adicionais
+## 9. Autonomy and 5 %: further requirements
 
-Definir o denominador: dispositivos, processos, regiões ou capacidade. Fixar o
-conjunto antes das perdas. Separar sobrevivência do processo, dados recuperados,
-serviço disponível e capacidade de regeneração.
+Define the denominator: devices, processes, regions or capacity. Fix the set before the
+losses. Separate process survival, recovered data, available service and the capacity to
+regenerate.
 
-Testar perdas escolhidas, aleatórias, por domínio compartilhado e direcionadas
-a pontos críticos; distinguir simultâneas de graduais com tempo para reparo.
-Chaves, bootstrap e supervisor também entram no inventário de dependências.
-Não repor nós com dados ocultos do avaliador.
+Test chosen, random, shared-domain and critical-point losses; distinguish simultaneous from
+gradual ones with time to repair. Keys, bootstrap and the supervisor also enter the
+inventory of dependencies. Do not restore nodes with data hidden from the evaluator.
 
-Exemplo limitado: 100 nós com armazenamento uniforme `s`, um objeto de `M` bytes
-de informação arbitrária e nenhuma fonte externa. Exigir recuperação por
-**quaisquer cinco** implica `5s >= M`, portanto `100s >= 20M`. Isso mostra o custo
-do contrato forte; não é limite universal de políticas probabilísticas ou de
-reparo gradual. Redundância suficiente ainda não cria contato entre os nós.
+A bounded example: 100 nodes with uniform storage `s`, one object of `M` bytes of arbitrary
+information and no external source. Requiring recovery from **any five** implies `5s >= M`,
+hence `100s >= 20M`. This shows the cost of the strong contract; it is not a universal limit
+on probabilistic policies or on gradual repair. Sufficient redundancy still does not create
+contact between the nodes.
 
-A desconexão automática da internet precisa de política explícita e capacidade
-observada: destinos, prazos e filas atendidos por outros meios. Testar a frio,
-sem serviço central obrigatório e com perda posterior da alternativa. Registrar
-se a política permite voltar à internet ou mantém isolamento voluntário.
-Não ativar corte em equipamentos reais como consequência de editar este plano.
+Automatically disconnecting from the internet needs an explicit policy and observed
+capacity: destinations, deadlines and queues served by other means. Test it cold, with no
+mandatory central service, and with the alternative lost afterwards. Record whether the
+policy allows a return to the internet or keeps voluntary isolation. Do not activate a cut
+on real equipment as a consequence of editing this plan.
 
-Detalhes: [contrato de autonomia](DETHRON_AUTONOMY_CONTRACT.md).
+Details: [autonomy contract](DETHRON_AUTONOMY_CONTRACT.md).
 
-## 10. Custos, processamento e economia
+## 10. Costs, processing and economy
 
-### Armazenamento e energia
+### Storage and energy
 
-Comparar mesmas informações originais e garantias. Somar payload, índices,
-manifestos, autenticação, réplicas, símbolos de reparo e ocupação física relevante.
-Armazenamento liberado não implica automaticamente menos energia elétrica.
-Medir joules de CPU, rádio, disco, manutenção e ociosidade atribuível à carga.
+Compare the same original information and the same guarantees. Add up payload, indices,
+manifests, authentication, replicas, repair symbols and the relevant physical footprint.
+Storage freed does not automatically imply less electrical energy. Measure joules of CPU,
+radio, disk, maintenance and the idleness attributable to the load.
 
-As três porcentagens são independentes: 5% de nós sobreviventes, 5% de economia
-de bytes e 5% de economia elétrica. Nenhuma demonstra as outras. Para afirmar
-economia de pelo menos 5%, a comparação e sua incerteza devem sustentar esse
-limiar; sem instrumento/precisão adequados, declarar energia não medida.
+The three percentages are independent: 5 % of nodes surviving, 5 % of bytes saved and 5 % of
+electricity saved. None demonstrates the others. To claim a saving of at least 5 %, the
+comparison and its uncertainty must sustain that threshold; without an adequate instrument
+and precision, declare energy unmeasured.
 
-### Processamento
+### Processing
 
-Em G8, escolher uma tarefa divisível com referência determinística e verificar
-resultado completo. Executar localmente e em nós reais, incluindo comunicação,
-checagem e recomputação após falhas. Não pagar por CPU ocupada como substituto
-de resultado. Dividir textos e concatenar respostas não demonstra sharding de LLM.
+In G8, choose a divisible task with a deterministic reference and verify the complete
+result. Run it locally and on real nodes, including communication, checking and
+recomputation after failures. Do not pay for busy CPU as a substitute for a result.
+Splitting texts and concatenating answers does not demonstrate LLM sharding.
 
-### Remuneração e token
+### Remuneration and token
 
-Definir comprador, serviço, orçamento e comprovação antes de emissão ou preço
-de token. Separar receita do serviço, subsídio e negociação de ativo. Resultado
-do operador inclui energia, rede, desgaste, operação e custo de cobrança.
+Define the buyer, the service, the budget and the proof before any token issuance or price.
+Separate service revenue, subsidy and asset trading. The operator's result includes energy,
+network, wear, operations and the cost of charging.
 
-Simular identidades múltiplas, conluio, tráfego fabricado, perda de dados, recibos
-reapresentados e gasto duplo. Créditos de laboratório não são renda nem ativo
-negociável. Recibos assinados não comprovam sozinhos utilidade econômica.
+Simulate multiple identities, collusion, fabricated traffic, data loss, replayed receipts
+and double spending. Laboratory credits are neither income nor a tradable asset. Signed
+receipts alone do not prove economic usefulness.
 
-Partições exigem distinguir promessa provisória de liquidação final. Se uma
-blockchain externa for necessária, declarar a dependência e o que continua
-offline. Não criar consenso próprio só para ocultar essa limitação. Sobrevivência
-com 5% não demonstra segurança ou disponibilidade de um sistema de consenso.
+Partitions require telling a provisional promise apart from final settlement. If an external
+blockchain turns out to be necessary, declare the dependency and what stays offline. Do not
+create a consensus of our own merely to hide that limitation. Surviving with 5 % does not
+demonstrate the security or availability of a consensus system.
 
-Mais detalhes em [incentivos](DETHRON_INCENTIVES.md). Pagamentos reais, lançamento
-de token e piloto financeiro não são ações desta entrega documental.
+More detail in [incentives](DETHRON_INCENTIVES.md). Real payments, a token launch and a
+financial pilot are not actions of this documentary delivery.
 
-Precedente registrado na versão 7: Helium pagou cobertura em token e obteve
-cobertura abundante com uso mínimo, instalada onde era barato e não onde era
-útil; Filecoin repetiu o padrão com armazenamento. Token manufatura oferta, não
-demanda. Por isso G9 fica após uso medido sem token.
+A precedent recorded in version 7: Helium paid for coverage in a token and obtained abundant
+coverage with minimal usage, installed where it was cheap rather than where it was useful;
+Filecoin repeated the pattern with storage. A token manufactures supply, not demand. Hence
+G9 sits after usage measured without a token.
 
-## 11. Como medir sem reproduzir os testes irreais do histórico
+## 11. How to measure without repeating the history's unreal tests
 
-Cada execução deve salvar configuração, versões, hashes de código/binários,
-dependências, topologia, calendário de falhas e registros brutos. Eventos precisam
-identificar processo/dispositivo, sessão, mensagem, meio e resultado observado.
-Preservar arquivos parciais e status de erro; destinos novos evitam sobrescrever
-evidências. Hashes ajudam a rastrear versões, não autenticam toda a execução.
+Every execution must save the configuration, the versions, the hashes of code and binaries,
+the dependencies, the topology, the failure calendar and the raw records. Events must
+identify the process or device, the session, the message, the medium and the observed
+result. Preserve partial files and error statuses; new destinations avoid overwriting
+evidence. Hashes help track versions; they do not authenticate a whole execution.
 
-O auditor confere recepção e conteúdo independentemente dos contadores de sucesso
-do emissor. Injetar falso sucesso e confirmar que o auditor rejeita. Um teste
-positivo sem controles negativos não basta. Distinguir laboratório controlado,
-hardware e implantação de campo em todos os relatórios.
+The auditor checks reception and content independently of the sender's success counters.
+Inject a false success and confirm the auditor rejects it. A positive test without negative
+controls is not enough. Distinguish a controlled laboratory, hardware, and a field
+deployment in every report.
 
-Contar **todas** as mensagens originais: entregues no prazo, tardias, pendentes,
-expiradas, rejeitadas e indevidas. Elegibilidade/topologia aparecem separadamente;
-não excluir destinos inacessíveis para melhorar o percentual.
+Count **every** original message: delivered on time, late, pending, expired, rejected and
+undue. Eligibility and topology appear separately; do not exclude unreachable destinations
+in order to improve the percentage.
 
-Separar desenvolvimento e cenários reservados. Congelar configuração, critérios
-e política antes da avaliação; versões ajustadas recebem uma nova rodada.
-Alternar ordem das variantes e repetir cenários pareados. Falhas no mesmo local
-ou mensagens do mesmo experimento são correlacionadas; não tratá-las como provas
-independentes de comportamento global. Informar distribuição e incerteza.
+Separate development from held-out scenarios. Freeze the configuration, the criteria and the
+policy before the evaluation; adjusted versions get a new round. Alternate the order of the
+variants and repeat paired scenarios. Failures at the same place, or messages from the same
+experiment, are correlated; do not treat them as independent proofs of global behaviour.
+Report the distribution and the uncertainty.
 
-Resultados de interesse: entrega íntegra no prazo, atraso, tráfego por byte útil,
-bytes físicos, RAM máxima, tempo de reparo e joules totais. Para remuneração,
-acrescentar fraude aceita/rejeitada, custo de verificação e resultado líquido.
-Para adoção, medir participantes ativos e diversidade real dos caminhos, não
-somente downloads, identidades geradas ou população mundial de gadgets.
+Results of interest: intact delivery within the deadline, delay, traffic per useful byte,
+physical bytes, peak RAM, repair time and total joules. For remuneration, add fraud accepted
+and rejected, the cost of verification and the net result. For adoption, measure active
+participants and the real diversity of the paths, not merely downloads, generated identities
+or the world population of gadgets.
 
-## 12. Decisões de continuar, integrar ou abandonar
+## 12. Decisions to continue, integrate or abandon
 
-**Regra permanente de avanço:** antes de cada marco, reavaliar a evidência do
-anterior. Ao fechar cada marco, registrar: critérios satisfeitos ou não,
-controles negativos, falhas e limites, utilidade concreta do próximo experimento,
-custo adicional e decisão de continuar/integrar/reduzir/parar. Testes verdes
-demonstram correção dentro do recorte, não novidade, demanda ou vantagem econômica.
-Se houver falha de correção ou avaliação inconclusiva, resolver ou reduzir o
-escopo antes de aumentar a ambição. Nenhum marco aprova automaticamente o seguinte.
+**Permanent rule for advancing:** before each milestone, re-assess the previous one's
+evidence. On closing each milestone, record: the criteria met and unmet, the negative
+controls, the failures and limits, the concrete usefulness of the next experiment, the
+additional cost, and a decision to continue, integrate, reduce or stop. Green tests
+demonstrate correctness within the scope, not novelty, demand or economic advantage. Where
+there is a correctness failure or an inconclusive assessment, resolve it or reduce the scope
+before increasing the ambition. No milestone automatically approves the next.
 
-| Achado | Decisão |
+| Finding | Decision |
 | --- | --- |
-| Referência atende e não existe lacuna útil | Integrar ou usar a referência; encerrar reimplementação equivalente |
-| Falha de correção numa fatia | Corrigir ou remover mecanismo; não aumentar escala para esconder falha |
-| Funciona apenas sob condições restritas | Publicar contrato restrito; avaliar se ainda atende alguém |
-| Melhora reproduzível em cenários reservados | Piloto limitado com recursos e critérios explícitos |
-| Não há ganho técnico, mas existe demanda por facilidade de uso | Validar integração/produto e custo de operação |
-| Sem ganho e sem demanda concreta | Arquivar resultado e abandonar o produto/hipótese nesse escopo |
-| Token depende de valorização ou trabalho fictício | Abandonar token; reavaliar serviço e cobrança separadamente |
+| The reference meets the need and there is no useful gap | Integrate or use the reference; close any equivalent reimplementation |
+| A correctness failure in a slice | Fix or remove the mechanism; do not increase scale to hide a failure |
+| It works only under restricted conditions | Publish the restricted contract; assess whether it still serves anybody |
+| A reproducible improvement on held-out scenarios | A bounded pilot with explicit resources and criteria |
+| No technical gain, but demand for ease of use | Validate the integration or product and its operating cost |
+| No gain and no concrete demand | Archive the result and abandon the product or hypothesis in that scope |
+| The token depends on appreciation or fictitious work | Abandon the token; re-assess the service and charging separately |
 
-Não há obrigação de provar todas as hipóteses para entregar um serviço delimitado.
-Também não há motivo para manter uma hipótese rejeitada para preservar a narrativa.
-Toda decisão deve indicar qual hipótese foi afetada e quais componentes continuam úteis.
+There is no obligation to prove every hypothesis in order to deliver a bounded service.
+Neither is there a reason to keep a rejected hypothesis in order to preserve the narrative.
+Every decision must say which hypothesis it affected and which components remain useful.
 
-## 13. Próxima ação e definição de conclusão da primeira etapa
+## 13. Next action and what concludes the first stage
 
-**G0 concluído no recorte documentado:** [referência e resultados](window/G0_REFERENCE.md).
-**G1 satisfatório no laboratório:** [integração, resultados e avaliação](window/G1_INTEGRATION.md).
-**G2 encerrado:** [partes exatas e comparação pareada ampliada](window/G2_PARTS.md).
-**G3 executado:** [gerações de nós e supervisores](window/G3_GENERATIONS.md).
-**G4 executado:** [independência da pilha IP e controles de corte](window/G4_INDEPENDENCE.md).
-**Reenquadramento v7:** harness e entrega verificável.
-**V1 executado nas duas metades:** [custódia, prova de entrada e pendência](window/V1_CUSTODY.md)
-e [recibo de volta a uma origem que nunca esteve online com o destino](window/V1_RECEIPT_RETURN.md).
-A lacuna registrada em todos os marcos — o recibo não retornava à origem offline —
-está fechada no escopo de laboratório. Próxima fatia: **V2, reprodução por
-estranho**, com [roteiro, pré-requisitos e resultados esperados](window/V2_REPRODUCTION.md)
-e o executor `window/run_v2_reproduction.py`. Em 17/09/2026 o repositório passou a
-ser clonável: um clone limpo nesta máquina reproduziu a suíte rápida, e os oito
-caminhos reais passaram na árvore commitada. Em 17/09/2026 o V2 foi executado por
-outra pessoa em outra máquina pela primeira vez e **reprovou**, com sete dos oito
-caminhos reproduzindo veredito idêntico. As falhas expostas não eram da máquina:
-a suíte exigia Rust sem detectar sua ausência, o roteiro usava sintaxe que só
-funciona no PowerShell e reportava verde para um teste que se pulou, e o G3
-esbarrava num defeito do **LXMF 1.1.1** — `generate_stamp` descarta um carimbo
-válido com `ZeroDivisionError` quando a busca termina sem o relógio avançar,
-matando em silêncio a *thread* que gera a chave de peering e adiando toda
-sincronização. A frequência depende da granularidade do relógio da máquina, o que
-explica por que parecia problema local; aumentar o custo do carimbo não resolve. O mesmo `traceback` estava nos artefatos desta máquina, em rodadas
-que passaram por sorte de temporização. Todos corrigidos ou contornados, com
-teste que avisa quando a montante consertar. Depois das correções, a execução completa numa única passada
-**passou** em 18/09/2026: veredito `v2_pass` em 58,0 minutos, oito caminhos com o
-veredito declarado e a suíte verde. **V2 está fechado** no escopo do seu critério —
-reprodução em máquina independente por quem não escreveu o código, seguindo apenas
-o documento; não por um estranho sem contato com o autor. **V3a executado, e não fechado**, em
-18/09/2026: [janelas abertas com 0,007 s de diferença](window/V3A_BENCH.md) sem
-canal vivo, canal de controle lacrado nas duas, objeto entregue e auditado sobre
-endereços não-loopback. O veredito, porém, é `v3a_pass_without_machine_evidence`:
-os agentes ainda não gravavam identidade de host, e **que as duas pastas rodaram em
-máquinas diferentes continua sendo observação do operador, não evidência** — o que
-este projeto não aceita. **V3c aprovado** no mesmo dia, e é ele que fecha
-a questão: [um objeto de 16 KiB atravessou entre as duas máquinas por um enlace
-Bluetooth SPP](window/V3C_BENCH.md), com o nó do destinatário provado — pelo
-arquivo de configuração que ele mesmo escreveu — sem nenhuma interface IP, e as
-máquinas provadas distintas por processador, nome e endereços disjuntos. Veredito
-`v3c_scoped_pass`. **A ressalva de host único sai de G0–V1**, e existe uma rodada
-em que a entrega verificável não usou a pilha da internet. Isso não é a H19:
-migração de tráfego sob escala é outra pergunta, e Bluetooth divide rádio e banda
-com o Wi-Fi, então o que se provou é ausência de IP, não ausência de domínio de
-falha comum. O V3b, segundo meio físico via cabo Ethernet, foi descartado: Wi-Fi e
-Ethernet carregam os dois IP, e provar diversidade de cabo não é provar
-diversidade de meio. O mesmo
-comando a partir de um clone
-em caminho de 135 caracteres reprovou os oito com `inconclusive`: o limite de 260
-caracteres do Windows impedia o Reticulum de gravar em `rns/storage`. O executor
-passou a medir o caminho e recusar antes de rodar, e o roteiro exige caminho curto
-— um pré-requisito que a árvore de trabalho jamais revelaria. A execução por outra
-pessoa em outra máquina ainda não aconteceu. Ainda não foi demonstrada vantagem própria do
-Dethron, e a versão 7 deixa de exigir isso para continuar.
-Os critérios usados para concluir G0 foram:
+**G0 concluded within the documented scope:** [reference and results](window/G0_REFERENCE.md).
+**G1 satisfactory in the laboratory:** [integration, results and assessment](window/G1_INTEGRATION.md).
+**G2 closed:** [exact parts and the widened paired comparison](window/G2_PARTS.md).
+**G3 executed:** [generations of nodes and supervisors](window/G3_GENERATIONS.md).
+**G4 executed:** [independence from the IP stack and the cut controls](window/G4_INDEPENDENCE.md).
+**Version 7 reframing:** harness and verifiable delivery.
+**V1 executed in both halves:** [custody, proof of entry and pendency](window/V1_CUSTODY.md)
+and [a receipt returning to an origin never online with the destination](window/V1_RECEIPT_RETURN.md).
+The gap recorded in every milestone — the receipt not returning to the offline origin — is
+closed within the laboratory scope.
 
-1. Especificação curta do serviço, limites e perfil de contatos.
-2. Registro de escolha da referência e backend de persistência, com motivos.
-3. Configuração reproduzível, preparação de ambiente e evidência de controles.
-4. Relatório que diga: atende, não atende por causa conhecida ou inconclusivo.
-5. Se houver lacuna, teste comportamental da primeira fatia e plano de implementação.
+**V2, reproduction by a stranger** — [guide, prerequisites and expected results](window/V2_REPRODUCTION.md),
+with the `window/run_v2_reproduction.py` runner:
 
-O encerramento de G0 não é uma prova de rádio, 5%, economia ou mercado.
-Essas condições pertencem aos marcos posteriores. O software deve continuar
-executável ao final de cada fatia, mesmo quando um experimento rejeitar a hipótese.
+- On 17/09/2026 the repository became clonable: a clean clone on this machine reproduced the
+  fast suite, and the eight real paths passed on the committed tree.
+- On 17/09/2026 V2 was executed by another person on another machine for the first time and
+  **failed**, with seven of the eight paths reproducing an identical verdict. The failures
+  exposed did not belong to the machine: the suite demanded Rust without detecting its
+  absence; the guide used syntax that only works in PowerShell and reported green for a test
+  that skipped itself; and G3 hit a defect in **LXMF 1.1.1** — `generate_stamp` discards a
+  valid stamp with `ZeroDivisionError` when the search finishes without the clock advancing,
+  silently killing the thread that generates the peering key and deferring every sync. The
+  frequency depends on the machine's clock granularity, which explains why it looked like a
+  local problem; raising the stamp cost does not solve it. The same `traceback` was in this
+  machine's artifacts, in rounds that passed by timing luck. All were fixed or worked
+  around, with a test that warns once upstream fixes it.
+- The same command from a clone on a 135-character path failed all eight with
+  `inconclusive`: Windows' 260-character limit stopped Reticulum writing into `rns/storage`.
+  The runner now measures the path and refuses before running, and the guide requires a short
+  path — a prerequisite the working tree would never have revealed.
+- After the corrections, the complete execution in a single pass **passed** on 18/09/2026:
+  verdict `v2_pass` in 58.0 minutes, eight paths with the declared verdict and a green suite.
+  **V2 is closed** within the scope of its own criterion — reproduction on an independent
+  machine by somebody who did not write the code, following the document alone; not by a
+  stranger with no contact with the author. Execution by another person on another machine
+  has still not happened.
 
-## 14. Documentação de apoio e estado desta entrega
+**V3a executed, and not closed**, on 18/09/2026:
+[windows opened 0.007 s apart](window/V3A_BENCH.md) with no live channel, the control channel
+sealed on both, the object delivered and audited over non-loopback addresses. The verdict,
+however, is `v3a_pass_without_machine_evidence`: the agents did not yet record host
+identity, and **that the two folders ran on different machines remains the operator's
+observation, not evidence** — which this project does not accept.
 
-[Índice](README.md) · [Direção](DETHRON_NETWORK_DIRECTION.md) ·
-[Utilidade](DETHRON_UTILITY_VALIDATION.md) · [Autonomia](DETHRON_AUTONOMY_CONTRACT.md) ·
-[Plano anterior G0–G7](DETHRON_VALIDATION_PLAN.md) ·
-[Evidências](DETHRON_EVIDENCE_MAP.md) · [Incentivos](DETHRON_INCENTIVES.md).
+**V3c approved** the same day, and it is what settles the question: [a 16 KiB object crossed
+between the two machines over a Bluetooth SPP link](window/V3C_BENCH.md), with the
+recipient's node proved — by the configuration file it wrote itself — to hold no IP
+interface, and the machines proved distinct by processor, name and disjoint addresses.
+Verdict `v3c_scoped_pass`. **The single-host caveat leaves G0–V1**, and there is a run in
+which verifiable delivery did not use the internet stack. This is not H19: traffic migrating
+under scale is a different question, and Bluetooth shares radio and band with Wi-Fi, so what
+was proved is the absence of IP, not the absence of a common failure domain. V3b, a second
+physical medium over an Ethernet cable, was dropped: Wi-Fi and Ethernet both carry IP, and
+proving cable diversity is not proving medium diversity.
 
-O plano mestre foi seguido pela execução do [G0](window/G0_REFERENCE.md), com
-harness de processos reais, configuração congelada e auditoria dos pacotes
-recebidos. G1 acrescentou integração real com caixa transacional e recibos
-autenticados; G2 encerrou com a comparação pareada de três políticas sob perda de
-rota; G3 atravessou duas gerações completas de transportadores e quatro
-supervisores; G4 entregou o objeto sem nenhuma interface IP, com corte total e
-corte reversível como controles. A versão 7 reenquadra o entregável para harness e
-entrega verificável: V1 executou custódia assinada pelos relés com pendência
-derivada, e o recibo do destinatário voltou a uma origem que nunca esteve online
-com ele, com pendência de prova visível quando o relé visitado não a tinha; V2 e
-V3 são a próxima trilha; G5 e G7 ficam adiados, G8 e G9 após aceitação externa. Esses resultados sustentam experimentos pequenos e
-comparativos, sem provar novidade ou viabilidade global.
+An advantage of Dethron's own has still not been demonstrated, and version 7 stops requiring
+that in order to continue.
+
+The criteria used to conclude G0 were:
+
+1. A short specification of the service, the limits and the contact profile.
+2. A record of the choice of reference and persistence backend, with reasons.
+3. A reproducible configuration, environment preparation and evidence of the controls.
+4. A report saying: meets, does not meet for a known cause, or inconclusive.
+5. Where there is a gap, a behavioural test of the first slice and an implementation plan.
+
+Closing G0 is not a proof of radio, of 5 %, of savings or of a market. Those conditions
+belong to later milestones. The software must stay executable at the end of each slice, even
+when an experiment rejects the hypothesis.
+
+## 14. Supporting documentation and the state of this delivery
+
+[Index](README.md) · [Direction](DETHRON_NETWORK_DIRECTION.md) ·
+[Usefulness](DETHRON_UTILITY_VALIDATION.md) · [Autonomy](DETHRON_AUTONOMY_CONTRACT.md) ·
+[Earlier G0–G7 plan](DETHRON_VALIDATION_PLAN.md) ·
+[Evidence](DETHRON_EVIDENCE_MAP.md) · [Incentives](DETHRON_INCENTIVES.md).
+
+The master plan was followed by the execution of [G0](window/G0_REFERENCE.md), with a
+harness of real processes, a frozen configuration and an audit of the received packets. G1
+added real integration with a transactional mailbox and authenticated receipts; G2 closed
+with the paired comparison of three policies under route loss; G3 crossed two complete
+generations of carriers and four supervisors; G4 delivered the object with no IP interface
+at all, with a total cut and a reversible cut as controls. Version 7 reframes the
+deliverable towards a harness and verifiable delivery: V1 executed custody signed by the
+relays with derived pendency, and the recipient's receipt returned to an origin that was
+never online with it, with proof pendency visible when the visited relay did not hold it; V2
+and V3 are the next trail; G5 and G7 are deferred, G8 and G9 come after outside acceptance.
+These results sustain small comparative experiments, without proving novelty or global
+viability.
