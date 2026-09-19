@@ -46,7 +46,7 @@ class GuideConsistencyTests(unittest.TestCase):
     def test_fast_suite_counts_in_the_guide_match_the_runner(self):
         ran, skipped = FAST_EXPECTED
         self.assertIn(f'ran={ran} skipped={skipped} PASS', self.guide)
-        self.assertIn(f'{ran} e {skipped};', self.guide)
+        self.assertIn(f'{ran} and {skipped};', self.guide)
 
     def test_every_verdict_and_reference_time_is_in_the_guide(self):
         for test, verdict in EXPECTED.items():

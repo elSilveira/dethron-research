@@ -1,54 +1,50 @@
 # Dethron
 
-Entrega verificável de mensagens sobre [Reticulum](https://reticulum.network/) e
-LXMF, com um harness que trata cada afirmação como algo a ser derrubado antes de
-ser publicado.
+Verifiable message delivery over [Reticulum](https://reticulum.network/) and LXMF,
+with a harness that treats every claim as something to knock down before publishing.
 
-> *Verifiable message delivery over Reticulum/LXMF, with an evidence harness. Every
-> milestone document states its contract, its result, the controls that must fail,
-> and its limits. Documents are in Portuguese; code and commit messages in English.*
+## What this solves
 
-## O que isto resolve
+**Guaranteed** delivery is impossible over intermittent contact: if the recipient
+never appears, nothing reaches them. What is possible is **verifiable** delivery —
+knowing, with cryptographic proof and without trusting the relay, which state a
+message is in:
 
-Entrega **garantida** é impossível sobre contato intermitente: se o destinatário
-nunca aparece, nada o alcança. O que é possível é **verificável** — saber, com
-prova criptográfica e sem confiar no relé, em que estado uma mensagem está:
-
-| Estado | Prova |
+| State | Proof |
 | --- | --- |
-| **Entrou** | O relé assina uma custódia daquela mensagem, para aquele destinatário. Um relé que atesta e não entrega **é nomeado** |
-| **Pendente** | Distinguindo *aguardando contato* de *atestado e não entregue* — pendência localizável, não um silêncio |
-| **Saiu** | O destinatário assina um recibo que volta à origem, mesmo que origem e destino nunca estejam online juntos |
+| **Entered** | The relay signs a custody attestation for that message, for that recipient. A relay that attests and does not deliver **is named** |
+| **Pending** | Telling *awaiting contact* apart from *attested and not delivered* — localizable pendency, not a silence |
+| **Left** | The recipient signs a receipt that returns to the origin, even when origin and destination are never online together |
 
-## O que está provado
+## What is proved
 
-Cada linha tem documento, controles que precisam falhar, limites declarados e
-[artefato publicado](window/evidence/README.md):
+Each line has a document, controls that must fail, declared limits, and
+[published artifacts](window/evidence/README.md):
 
-- **[V1](window/V1_CUSTODY.md)** — custódia assinada, prova de entrada, pendência
-  localizável, e [recibo de volta](window/V1_RECEIPT_RETURN.md).
-- **[V2](window/V2_REPRODUCTION.md)** — reprodução em máquina independente,
-  seguindo só o documento.
-- **[V3c](window/V3C_BENCH.md)** — um objeto de 16 KiB atravessou entre duas
-  máquinas por um enlace **que não carrega IP**, com o destinatário provado sem
-  nenhuma interface IP, e as máquinas provadas distintas.
+- **[V1](window/V1_CUSTODY.md)** — signed custody, proof of entry, localizable
+  pendency, and a [receipt returning](window/V1_RECEIPT_RETURN.md) to the origin.
+- **[V2](window/V2_REPRODUCTION.md)** — reproduction on an independent machine,
+  following the document alone.
+- **[V3c](window/V3C_BENCH.md)** — a 16 KiB object crossed between two machines over
+  a link that **carries no IP**, with the recipient proved to hold no IP interface
+  at all, and the machines proved distinct.
 
-O índice completo, de G0 a V3, está em [window/](window/README.md). O
-[plano mestre](DETHRON_MASTER_PLAN.md) traz hipóteses, critérios e o que foi
-abandonado — inclusive o G2, encerrado **sem vantagem geral**, registrado como tal.
+The full index, G0 through V3, is in [window/](window/README.md). The
+[master plan](DETHRON_MASTER_PLAN.md) carries the hypotheses, the criteria, and what
+was abandoned — including G2, closed with **no general advantage**, recorded as such.
 
-## O que ainda não existe
+## What does not exist yet
 
-Isto é um harness com evidência, não um produto. Honestamente:
+This is a harness with evidence, not a product. Plainly:
 
-- **Não há cliente.** Os nós são dirigidos por bancadas. Ninguém instala e manda
-  uma mensagem.
-- **Escala nunca medida.** Uma mensagem, um relé, um destinatário, 16 KiB.
-- **Só Windows.** Nunca rodou em Linux nem Android.
-- **Chaves de laboratório.** Não há troca de chaves nem descoberta de contatos.
-- **Sem modelo de ameaça escrito.** Os testes cobrem casos; falta o documento.
+- **There is no client.** Nodes are driven by benches. Nobody installs this and sends
+  a message.
+- **Scale was never measured.** One message, one relay, one recipient, 16 KiB.
+- **Windows only.** It has never run on Linux or Android.
+- **Laboratory keys.** There is no key exchange and no contact discovery.
+- **No written threat model.** The tests cover cases; the document is missing.
 
-## Verificar
+## Verify
 
 ```powershell
 python -m venv window/.venv-gateway
@@ -56,28 +52,30 @@ window/.venv-gateway/Scripts/python.exe -m pip install -r window/requirements-ga
 window/.venv-gateway/Scripts/python.exe window/run_v2_reproduction.py --fast-only
 ```
 
-Esperado: `ran=166 skipped=8 PASS`. O roteiro completo, incluindo as oito
-reproduções reais, está em [V2_REPRODUCTION.md](window/V2_REPRODUCTION.md).
+Expected: `ran=166 skipped=8 PASS`. The full guide, including the eight real
+reproductions, is [V2_REPRODUCTION.md](window/V2_REPRODUCTION.md).
 
-## Como este repositório trata evidência
+## How this repository treats evidence
 
-- Um controle que **não pode** passar acompanha cada alegação. O `dark` do G4 já
-  passou por acidente; o registro diz isso.
-- Números vêm de artefatos, não de memória. Os artefatos citados estão publicados.
-- O que falhou fica escrito. Cada documento tem uma seção de rodadas e verificações
-  com os erros encontrados, inclusive os meus.
-- Um defeito real do LXMF foi encontrado, reproduzido e corrigido: veja
-  [window/upstream/](window/upstream/lxmf-stamp-zerodivision.md). A submissão à
-  montante está bloqueada — o mantenedor se retirou e as *issues* estão desativadas.
+- A control that **must not** pass accompanies every claim. G4's `dark` control once
+  passed by accident; the record says so.
+- Numbers come from artifacts, not from memory. The cited artifacts are published.
+- What failed stays written. Every document has a rounds-and-checks section listing
+  the errors found, including mine.
+- A real LXMF defect was found, reproduced and fixed: see
+  [window/upstream/](window/upstream/lxmf-stamp-zerodivision.md). Submitting it
+  upstream is blocked — the maintainer has withdrawn and issues are disabled.
 
-## Licença
+## Licence
 
-[Apache 2.0](LICENSE). O Reticulum e o LXMF são dependências sob suas próprias
-licenças; este trabalho os importa, não os deriva.
+[Apache 2.0](LICENSE). Reticulum and LXMF are dependencies under their own licences;
+this work imports them, it does not derive from them.
 
-## História
+## History
 
-Este repositório contém trabalho anterior ao Dethron — sondas BitNet/Genesis,
-*crates* Rust, um *worker* neural e um painel de navegador. Esse material saiu da
-árvore em setembro de 2026 e **continua no histórico do git**, recuperável por
-quem quiser.
+This repository contains work that predates Dethron — BitNet/Genesis probes, Rust
+crates, a neural worker and a browser dashboard. That material left the tree in
+September 2026 and **remains in the git history**, recoverable by anyone who wants it.
+
+Documents written before that point are in Portuguese and are being translated;
+the code and the commit messages have always been in English.

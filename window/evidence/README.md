@@ -1,29 +1,28 @@
-# Evidência publicada
+# Published evidence
 
-Os artefatos que os documentos de marco citam. `window/results/` continua sendo o
-diretório de trabalho descartável que as sondas escrevem; isto aqui é o subconjunto
-que sustenta as afirmações, para que se possa **recalcular em vez de acreditar**.
+The artifacts the milestone documents cite. `window/results/` remains the disposable
+working directory the probes write into; this is the subset that carries the claims,
+so that a reader can **recompute instead of believe**.
 
-| Pasta | Marco |
+| Folder | Milestone |
 | --- | --- |
-| `gateway-g0-*` | [G0](../G0_REFERENCE.md) — integração de referência |
-| `gateway-g1-*` | [G1](../G1_INTEGRATION.md) — protocolo e caixa postal |
-| `gateway-g2-*`, `g2-comparison-*` | [G2](../G2_PARTS.md) — partes e reconstrução |
-| `gateway-g3-*` | [G3](../G3_GENERATIONS.md) — gerações de nó |
-| `gateway-g4-*` | [G4](../G4_INDEPENDENCE.md) — independência da pilha IP |
-| `gateway-v1-*` | [V1](../V1_CUSTODY.md) — custódia e [recibo](../V1_RECEIPT_RETURN.md) |
-| `v3a-network-20260918/` | [V3a](../V3A_BENCH.md) — bancada em duas máquinas por rede |
-| `v3c-serial-20260918/` | [V3c](../V3C_BENCH.md) — bancada por enlace sem IP |
+| `gateway-g0-*` | [G0](../G0_REFERENCE.md) — reference integration |
+| `gateway-g1-*` | [G1](../G1_INTEGRATION.md) — protocol and mailbox |
+| `gateway-g2-*`, `g2-comparison-*` | [G2](../G2_PARTS.md) — parts and reconstruction |
+| `gateway-g3-*` | [G3](../G3_GENERATIONS.md) — node generations |
+| `gateway-g4-*` | [G4](../G4_INDEPENDENCE.md) — independence from the IP stack |
+| `gateway-v1-*` | [V1](../V1_CUSTODY.md) — custody and [receipt](../V1_RECEIPT_RETURN.md) |
+| `v3a-network-20260918/` | [V3a](../V3A_BENCH.md) — two-machine bench over the network |
+| `v3c-serial-20260918/` | [V3c](../V3C_BENCH.md) — bench over a link with no IP |
 
-## Duas ressalvas de proveniência
+## Two provenance caveats
 
-Os relatórios do V3a e do V3c trazem um campo `commit`. No do **V3a** ele nomeia o
-código que **auditou** a rodada, não o que a executou: aquele relatório nasceu com o
-campo quebrado — o `git` recusava o repositório por *dubious ownership* — e foi
-regerado depois, a partir da mesma evidência intacta. O do V3c nomeia o código que
-de fato rodou a bancada.
+The V3a and V3c reports each carry a `commit` field. In **V3a** it names the code that
+**audited** the run, not the code that executed it: that report was born with the field
+broken — git was refusing the repository over *dubious ownership* — and was regenerated
+later from the same intact evidence. V3c's names the code that actually ran the bench.
 
-O `report.json` do G3 contém um caminho absoluto com o nome de usuário do Windows
-de quem executou. Ele faz parte da mensagem de um **controle negativo** — uma
-credencial declarada e ausente — e foi mantido como saiu. Editar um artefato para
-deixá-lo apresentável custaria mais do que o nome vale.
+G3's `report.json` contains an absolute path holding the Windows username of whoever
+ran it. It is part of the message of a **negative control** — a declared credential that
+is absent — and was kept exactly as it came out. Editing an artifact to make it
+presentable would cost more than the name is worth.

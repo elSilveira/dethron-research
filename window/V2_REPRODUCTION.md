@@ -1,44 +1,44 @@
-# V2 — roteiro de reprodução por estranho
+# V2 — a reproduction guide for a stranger
 
-Este roteiro é para quem **não escreveu o código** e vai reproduzir, em outra
-máquina, os resultados de G0 a V1 usando apenas o repositório clonado. Se algum
-passo exigir ajuda de quem escreveu, ou algum arquivo que não esteja no clone,
-isso é uma reprovação do V2 — e é exatamente o que este marco quer descobrir.
+This guide is for somebody who **did not write the code** and will reproduce, on
+another machine, the results from G0 to V1 using only the cloned repository. If any
+step needs help from whoever wrote it, or any file that is not in the clone, that is a
+V2 failure — and it is exactly what this milestone exists to find out.
 
-Tempo total: cerca de **15 minutos de preparação** e **40 minutos de execução**
-sem intervenção. Durante a execução, não use a máquina para nada pesado e não a
-deixe suspender.
+Total time: about **15 minutes of preparation** and **40 minutes of execution** without
+intervention. During execution, do not use the machine for anything heavy and do not
+let it suspend.
 
-## Regra única
+## The single rule
 
-**Nada da máquina original entra.** Não copie `results/`, ambientes virtuais,
-chaves, nem qualquer arquivo por fora. O clone é a única entrada. Se você já tem
-uma cópia antiga deste projeto na máquina, use uma pasta nova.
+**Nothing from the original machine comes in.** Do not copy `results/`, virtual
+environments, keys, or any file from outside. The clone is the only input. If you
+already have an old copy of this project on the machine, use a new folder.
 
-## Pré-requisitos
+## Prerequisites
 
-| Item | Exigência | Como conferir |
+| Item | Requirement | How to check |
 | --- | --- | --- |
-| Sistema | Windows 10 ou 11 | A evidência do G4 usa `netstat`; outros sistemas não foram exercitados |
-| Python | **3.10.x**, no PATH como `python` (foi executado com 3.10.11) | `python --version` |
-| Git | qualquer versão recente | `git --version` |
-| Caminho do clone | **curto (até 100 caracteres) e sem espaços, aspas ou acentos**, por exemplo `C:\dethron` | O Windows limita caminhos a 260 caracteres e os artefatos dos experimentos acrescentam cerca de 150; a ponte do G4 recusa espaços. O executor mede isso e para antes de rodar se o caminho for longo |
-| Rede | internet apenas para o `pip install`; os experimentos usam só `127.0.0.1` | O Firewall do Windows pode perguntar sobre `python.exe`: permitir |
-| Espaço | ~300 MB (ambiente virtual e artefatos) | — |
+| System | Windows 10 or 11 | G4's evidence uses `netstat`; other systems have not been exercised |
+| Python | **3.10.x**, on PATH as `python` (it was run with 3.10.11) | `python --version` |
+| Git | any recent version | `git --version` |
+| Clone path | **short (up to 100 characters) and without spaces, quotes or accents**, for example `C:\dethron` | Windows caps paths at 260 characters and the experiment artifacts add about 150; G4's bridge refuses spaces. The runner measures this and stops before running if the path is long |
+| Network | internet only for `pip install`; the experiments use `127.0.0.1` alone | Windows Firewall may ask about `python.exe`: allow it |
+| Disk | ~300 MB (virtual environment and artifacts) | — |
 
-Instale Python pelo instalador oficial de python.org marcando "Add to PATH";
-o atalho da Microsoft Store não serve para criar o ambiente virtual.
+Install Python from the official python.org installer, ticking "Add to PATH"; the
+Microsoft Store shortcut cannot create the virtual environment.
 
-## Qual terminal usar
+## Which terminal to use
 
-Os comandos abaixo funcionam **tanto no PowerShell quanto no Prompt de Comando
-(cmd)**, porque nenhum deles depende de variável de ambiente: o executor define
-o que precisa sozinho. Se você encontrar em outro documento uma linha começando
-com `$env:`, ela só funciona no PowerShell — prefira sempre o executor.
+The commands below work in **both PowerShell and Command Prompt (cmd)**, because none
+of them depends on an environment variable: the runner sets what it needs by itself. If
+you find a line starting with `$env:` in another document, it only works in PowerShell —
+always prefer the runner.
 
-## Passo 1 — clonar
+## Step 1 — clone
 
-No terminal:
+In the terminal:
 
 ```powershell
 git clone https://github.com/elSilveira/dethron.git C:\dethron
@@ -46,10 +46,10 @@ cd C:\dethron
 git log --oneline -1
 ```
 
-**Esperado:** a última linha mostra o hash e a mensagem do commit mais recente.
-Anote esse hash: ele vai no seu relatório.
+**Expected:** the last line shows the hash and the message of the most recent commit.
+Write that hash down: it goes in your report.
 
-## Passo 2 — ambiente fixado
+## Step 2 — pinned environment
 
 ```powershell
 python --version
@@ -58,54 +58,53 @@ window\.venv-gateway\Scripts\python.exe -m pip install -r window\requirements-ga
 window\.venv-gateway\Scripts\python.exe -c "import importlib.metadata as m; print({n: m.version(n) for n in ('rns','lxmf','cryptography')})"
 ```
 
-**Esperado:**
+**Expected:**
 
 - `Python 3.10.x`
-- `pip` termina sem `ERROR` (avisos sobre versão nova do pip são normais)
-- a última linha imprime exatamente
+- `pip` finishes without `ERROR` (warnings about a newer pip are normal)
+- the last line prints exactly
   `{'rns': '1.5.4', 'lxmf': '1.1.1', 'cryptography': '50.0.1'}`
 
-Qualquer outra versão é reprovação do passo: não continue, relate.
+Any other version fails the step: do not continue, report it.
 
-## Passo 3 — suíte rápida
+## Step 3 — fast suite
 
 ```powershell
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-only
 ```
 
-**Esperado:**
+**Expected:**
 
 ```
 fast full                   ran=166 skipped=8 PASS
-V2 PASS - summary: ...\windowesults2-...\summary.json
+V2 PASS - summary: C:\dethron\window\results\v2-...\summary.json
 ```
 
-Os 8 pulados são os testes de reprodução real, que só rodam no passo 4. Leva
-cerca de 60 segundos. Nada além de Python é necessário: a contagem é uma só, e
-era duas quando a árvore ainda continha trabalho anterior ao Dethron.
+The 8 skipped are the real reproduction tests, which only run in step 4. It takes about
+60 seconds. Nothing beyond Python is needed: there is one count, and there were two
+while the tree still held work that predates Dethron.
 
-Se **um único** teste falhar, repita o comando uma vez com a máquina ociosa. Se
-falhar de novo, é reprovação: relate a saída completa.
+If **a single** test fails, repeat the command once with the machine idle. If it fails
+again, that is a failure: report the complete output.
 
-A primeira linha impressa, `environment: {...}`, deve terminar com `"problems": []`.
-Se aparecer `PROBLEM: repository path too long`, o clone está num caminho longo
-demais: mova-o para algo como `C:\dethron` e recomece do passo 2. Esse caso foi
-observado na máquina de origem: um clone em caminho de 135 caracteres passou a
-suíte rápida e reprovou **os oito** experimentos reais com `inconclusive`, porque
-o Reticulum não conseguia gravar em `rns\storage`.
+The first line printed, `environment: {...}`, must end with `"problems": []`. If
+`PROBLEM: repository path too long` appears, the clone sits on too long a path: move it
+to something like `C:\dethron` and start again from step 2. That case was observed on
+the origin machine: a clone on a 135-character path passed the fast suite and failed
+**all eight** real experiments with `inconclusive`, because Reticulum could not write
+into `rns\storage`.
 
-## Passo 4 — os oito caminhos de reprodução real
+## Step 4 — the eight real reproduction paths
 
 ```powershell
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py
 ```
 
-O comando repete a suíte rápida e depois
-executa, um por vez, os oito experimentos reais. Cada um sobe processos
-Reticulum/LXMF de verdade em `127.0.0.1`, grava um diretório em
-`window\results\` e produz um veredito. **Esperado**, na ordem:
+The command repeats the fast suite and then runs, one at a time, the eight real
+experiments. Each brings up genuine Reticulum/LXMF processes on `127.0.0.1`, writes a
+directory into `window\results\` and produces a verdict. **Expected**, in order:
 
-| Linha impressa começa com | Veredito esperado | Tempo de referência |
+| The printed line starts with | Expected verdict | Reference time |
 | --- | --- | --- |
 | `test_gateway_reference.py` | `meets_scoped_requirement` | 208 s |
 | `test_g1_reference.py` | `meets_g1_lab_contract` | 31 s |
@@ -116,130 +115,128 @@ Reticulum/LXMF de verdade em `127.0.0.1`, grava um diretório em
 | `test_v1_reference.py` | `v1_custody_scoped_pass` | 213 s |
 | `test_v1_return_reference.py` | `v1_return_scoped_pass` | 332 s |
 
-Cada linha deve terminar com `PASS` e a última linha deve ser
-`V2 PASS - summary: ...`. **Nenhuma janela de console deve abrir** durante a
-execução; os processos dos experimentos rodam ocultos. Se janelas piscarem,
-anote quando e relate — isso aconteceu na máquina de origem antes de uma correção
-e é um dado útil. Os tempos de referência foram medidos na máquina de
-origem. Numa segunda máquina já validada, os mesmos caminhos levaram de 1,0 a
-2,3 vezes esses valores — o G3, por exemplo, 663 s contra 295 s. **Até o triplo**
-não indica problema. Um caminho que passe do
-triplo do tempo de referência ou trave por mais de 15 minutos sem imprimir nada
-deve ser interrompido com `Ctrl+C` e relatado.
+Every line must end with `PASS` and the last line must be `V2 PASS - summary: ...`.
+**No console window should open** during execution; the experiment processes run hidden.
+If windows flash, note when and report it — that happened on the origin machine before a
+fix and is useful data. The reference times were measured on the origin machine. On an
+already validated second machine, the same paths took between 1.0 and 2.3 times those
+values — G3, for example, 663 s against 295 s. **Up to three times** indicates no
+problem. A path that exceeds three times its reference, or hangs for more than 15
+minutes printing nothing, should be interrupted with `Ctrl+C` and reported.
 
-## O que deve ser idêntico e o que pode diferir
+## What must be identical and what may differ
 
-**Idêntico ao esperado, senão é reprovação:**
+**Identical to what is expected, or it is a failure:**
 
-- as oito strings de veredito e o `V2 PASS` final;
-- as contagens da suíte rápida: 166 e 8;
-- dentro de cada `report.json`, os resultados de cenário: quais completaram,
-  as listas de pendência, a rota da prova, a presença da recusa, zero endpoints
-  IP nos cenários isolados do G4 e pelo menos um na linha de base `ip`.
+- the eight verdict strings and the final `V2 PASS`;
+- the fast suite counts: 166 and 8;
+- inside each `report.json`, the scenario results: which completed, the pendency lists,
+  the route of the proof, the presence of the refusal, zero IP endpoints in G4's
+  isolated scenarios and at least one in the `ip` baseline.
 
-**Pode e vai diferir, sem problema:**
+**May and will differ, with no problem:**
 
-- todos os tempos em segundos;
-- hashes, identidades, `transient_id`, PIDs, portas e nomes de diretório em
-  `results/`;
-- número exato de bytes transportados e o número de endpoints na linha de base
-  `ip` do G4 (aqui foram três; qualquer valor maior que zero serve).
+- every time in seconds;
+- hashes, identities, `transient_id`, PIDs, ports and directory names under `results/`;
+- the exact number of bytes carried and the number of endpoints in G4's `ip` baseline
+  (here there were three; any value above zero will do).
 
-Os documentos em `window/*.md` apontam para diretórios `results/…` da máquina
-original; esses links **não existem no seu clone** até você rodar o passo 4, e
-mesmo então terão outros nomes. Isso é esperado e está declarado neles.
+The documents under `window/*.md` point at `results/…` directories from the original
+machine; those links **do not exist in your clone** until you run step 4, and even then
+will carry different names. This is expected and is declared in them.
 
-## Resultado: aprovado em 18/09/2026
+## Result: approved on 18/09/2026
 
-A execução completa numa segunda máquina, numa única passada, **passou**:
-veredito `v2_pass` em 58,0 minutos, com os oito caminhos produzindo o veredito
-declarado e a suíte em 113 e 8 — o `cargo` estava ausente e o executor o detectou
-sozinho, como deve.
+The complete execution on a second machine, in a single pass, **passed**: verdict
+`v2_pass` in 58.0 minutes, with the eight paths producing the declared verdict and the
+suite at 113 and 8 — `cargo` was absent and the runner detected that by itself, as it
+should.
 
-| Caminho | Veredito | Tempo | Referência |
+| Path | Verdict | Time | Reference |
 | --- | --- | --- | --- |
-| `test_gateway_reference.py` | `meets_scoped_requirement` | 214,8 s | 208 s |
-| `test_g1_reference.py` | `meets_g1_lab_contract` | 30,1 s | 31 s |
-| `test_g2_reference.py` | `meets_g2_scoped_contract` | 181,0 s | 185 s |
-| `test_g2_comparison_reference.py` | `g2_scoped_pass` | 744,6 s | 754 s |
-| `test_g3_reference.py` | `g3_scoped_pass` | 704,1 s | 295 s |
-| `test_g4_reference.py` | `g4_scoped_pass` | 366,6 s | 167 s |
-| `test_v1_reference.py` | `v1_custody_scoped_pass` | 501,9 s | 213 s |
-| `test_v1_return_reference.py` | `v1_return_scoped_pass` | 658,6 s | 332 s |
+| `test_gateway_reference.py` | `meets_scoped_requirement` | 214.8 s | 208 s |
+| `test_g1_reference.py` | `meets_g1_lab_contract` | 30.1 s | 31 s |
+| `test_g2_reference.py` | `meets_g2_scoped_contract` | 181.0 s | 185 s |
+| `test_g2_comparison_reference.py` | `g2_scoped_pass` | 744.6 s | 754 s |
+| `test_g3_reference.py` | `g3_scoped_pass` | 704.1 s | 295 s |
+| `test_g4_reference.py` | `g4_scoped_pass` | 366.6 s | 167 s |
+| `test_v1_reference.py` | `v1_custody_scoped_pass` | 501.9 s | 213 s |
+| `test_v1_return_reference.py` | `v1_return_scoped_pass` | 658.6 s | 332 s |
 
-O código executado foi o commit `1e2d190`, deduzido das contagens da suíte e das
-expectativas registradas no resumo; o executor **não gravava** qual commit rodava,
-o que é uma falha do instrumento e não do resultado. Desde então ele grava, e o
-resumo falha de forma visível se o `git` não responder.
+The code executed was commit `1e2d190`, deduced from the suite counts and the
+expectations recorded in the summary; the runner **did not record** which commit it ran,
+which is a failure of the instrument and not of the result. It records it now, and the
+summary fails visibly if `git` does not answer.
 
-### O que este resultado é, e o que não é
+### What this result is, and what it is not
 
-É reprodução em máquina independente, por quem não escreveu o código, seguindo
-apenas o documento. Não é reprodução por um estranho no sentido estrito: quem
-executou é o autor do projeto, teve contato com quem escreveu o código e, na
-primeira tentativa, precisou de explicação fora do roteiro — o que por este
-próprio critério foi uma reprovação, registrada abaixo. Esta passada testou o
-roteiro já corrigido e não exigiu ajuda.
+It is reproduction on an independent machine, by somebody who did not write the code,
+following the document alone. It is not reproduction by a stranger in the strict sense:
+whoever ran it is the project's author, had contact with whoever wrote the code and, on
+the first attempt, needed an explanation outside the guide — which by this very
+criterion was a failure, recorded below. This pass tested the already corrected guide
+and needed no help.
 
-## Primeira execução real, 17/09/2026
+## First real execution, 17/09/2026
 
-A primeira execução deste roteiro numa segunda máquina **reprovou**, e vale
-registrar o que ela encontrou, porque é para isso que o marco existe:
+The first execution of this guide on a second machine **failed**, and what it found is
+worth recording, because that is what the milestone exists for:
 
-| O que falhou | Causa | Onde ficou a correção |
+| What failed | Cause | Where the fix landed |
 | --- | --- | --- |
-| Dois testes da suíte | `cargo` ausente, e o executor exigia `--no-survival` manual | O executor detecta `cargo` sozinho |
-| G3, `inconclusive` | Defeito do LXMF 1.1.1: um carimbo válido descartado por `ZeroDivisionError` numa linha de log, matando em silêncio a chave de peering | [G3](G3_GENERATIONS.md) e `dethron_gateway/lxmf_stamp.py` |
-| Repetir o G3 pelo roteiro | A instrução usava `$env:` do PowerShell; no cmd a variável não é definida e o teste **se pula reportando `OK`** | `--only <marco>`, sem variável de ambiente |
+| Two suite tests | `cargo` absent, and the runner demanded a manual `--no-survival` | The runner detects `cargo` by itself |
+| G3, `inconclusive` | An LXMF 1.1.1 defect: a valid stamp discarded by `ZeroDivisionError` on a logging line, silently killing the peering key | [G3](G3_GENERATIONS.md) and `dethron_gateway/lxmf_stamp.py` |
+| Repeating G3 per the guide | The instruction used PowerShell's `$env:`; in cmd the variable is not set and the test **skips itself reporting `OK`** | `--only <milestone>`, with no environment variable |
 
-Os outros sete caminhos reproduziram com veredito idêntico na primeira tentativa.
-Depois das correções, o G3 também passou na segunda máquina, em 663 s. Falta a
-execução completa numa única passada para fechar o marco.
+The other seven paths reproduced with an identical verdict on the first attempt. After
+the fixes, G3 passed on the second machine too, in 663 s. What was missing was the
+complete execution in a single pass, to close the milestone.
 
-## Repetir um marco isolado
+## Repeating a single milestone
 
-Se só um dos oito falhou e você quer repetir apenas ele, sem esperar os 40 minutos:
+If only one of the eight failed and you want to repeat just that one, without waiting
+the 40 minutes:
 
 ```
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --only g3
 ```
 
-Os nomes aceitos são `gateway`, `g1`, `g2`, `g2_comparison`, `g3`, `g4`, `v1` e
-`v1_return`. A saída é uma linha `PASS` ou `FAIL` e o veredito obtido.
+The accepted names are `gateway`, `g1`, `g2`, `g2_comparison`, `g3`, `g4`, `v1` and
+`v1_return`. The output is one `PASS` or `FAIL` line and the verdict obtained.
 
-## Se algo falhar
+## If something fails
 
-Rode, na mesma pasta:
+Run, in the same folder:
 
 ```powershell
 window\.venv-gateway\Scripts\python.exe window\v2_diagnose.py
 ```
 
-Ele grava um arquivo de texto com o ambiente, o nome e o traceback de cada teste
-que falhou, e o erro registrado no experimento que não passou. O caminho aparece
-na última linha. Envie esse arquivo: ele costuma bastar para o diagnóstico.
+It writes a text file with the environment, the name and traceback of every test that
+failed, and the error recorded in the experiment that did not pass. The path appears on
+the last line. Send that file: it is usually enough for the diagnosis.
 
-## O que enviar de volta
+## What to send back
 
-1. O arquivo `window\results\v2-...\summary.json` (o caminho aparece na última
-   linha impressa). Ele contém ambiente, contagens, vereditos e tempos.
-2. A saída completa do console dos passos 2, 3 e 4, copiada como texto.
-3. O hash do passo 1, `python --version`, a versão do Windows e o processador.
-4. Se algo falhou: o que você fez, o que apareceu, e se precisou perguntar algo a
-   alguém — **isso é um dado**, não um constrangimento.
+1. The `window\results\v2-...\summary.json` file (the path appears on the last printed
+   line). It contains environment, counts, verdicts and times.
+2. The complete console output of steps 2, 3 and 4, copied as text.
+3. The hash from step 1, `python --version`, the Windows version and the processor.
+4. If something failed: what you did, what appeared, and whether you had to ask anybody
+   anything — **that is data**, not an embarrassment.
 
-Não envie os diretórios `results\gateway-*`: contêm chaves descartáveis de
-laboratório e não são necessários; o `summary.json` basta.
+Do not send the `results\gateway-*` directories: they hold disposable laboratory keys
+and are not needed; `summary.json` is enough.
 
-## Como o resultado será julgado
+## How the result will be judged
 
-| Situação | Julgamento |
+| Situation | Judgement |
 | --- | --- |
-| Tudo idêntico ao esperado, sem ajuda externa | **V2 aprovado** |
-| Precisou de um arquivo, comando ou explicação que não está neste roteiro | V2 reprovado por documentação; o roteiro é corrigido e o teste repete |
-| Um veredito diferente do esperado | V2 reprovado; investiga-se se é ambiente ou defeito real — os dois são resultados válidos |
-| Falha só na primeira tentativa da suíte rápida e sucesso na repetição | Aprovado com nota: intermitência registrada para investigação |
+| Everything identical to what is expected, with no outside help | **V2 approved** |
+| A file, command or explanation that is not in this guide was needed | V2 failed on documentation; the guide is corrected and the test repeats |
+| A verdict different from the expected one | V2 failed; whether it is environment or a real defect is investigated — both are valid results |
+| Failure only on the first attempt of the fast suite, success on the repeat | Approved with a note: intermittency recorded for investigation |
 
-Nenhum destes resultados é ruim para o projeto. O V2 existe para descobrir a
-distância entre "funciona na máquina de quem escreveu" e "funciona a partir do
-que está publicado", e qualquer distância encontrada é o que ele mede.
+None of these results is bad for the project. V2 exists to find the distance between
+"it works on the machine of whoever wrote it" and "it works from what is published",
+and any distance found is what it measures.

@@ -1,180 +1,172 @@
-# V3a — bancada multi-máquina: tudo provado menos que são duas máquinas
+# V3a — two-machine bench: everything proved except that there are two machines
 
-18/09/2026. Fatia funcional sobre Reticulum 1.5.4/LXMF 1.1.1, em duas máquinas
-Windows distintas na mesma rede local. O [V2 aprovado](V2_REPRODUCTION.md) deu o
-pré-requisito: uma segunda máquina com o ambiente provado.
+18/09/2026. A functional slice over Reticulum 1.5.4/LXMF 1.1.1, on two distinct Windows
+machines on the same local network. The [approved V2](V2_REPRODUCTION.md) supplied the
+prerequisite: a second machine with a proved environment.
 
-## O que esta fatia resolve
+## What this slice settles
 
-Todos os marcos de G0 a V1 carregam a mesma ressalva: *mesmo host, mesmo sistema
-operacional, mesmo sistema de arquivos, mesmo domínio de falha*. V3a a retira,
-mas só se resolver um problema que o host único escondia.
+Every milestone from G0 to V1 carries the same caveat: *same host, same operating
+system, same file system, same failure domain*. V3a removes it, but only if it solves a
+problem the single host was hiding.
 
-Num host só, o supervisor dirigia os nós por arquivos que compartilhava com eles.
-Entre máquinas isso deixa de ser inocente: **o que carrega comandos durante a
-janela também carrega conectividade**, e uma alegação de isolamento feita sobre um
-canal de controle vivo não prova nada. É a mesma classe de erro do controle `dark`
-do G4, que por um tempo passava por acidente.
+On one host the supervisor drove the nodes through files it shared with them. Across
+machines that stops being innocent: **whatever carries commands during the window also
+carries connectivity**, and an isolation claim made over a live control channel proves
+nothing. It is the same class of error as G4's `dark` control, which for a while passed
+by accident.
 
-## Contrato
+## Contract
 
-Cada máquina recebe, **antes** da janela, um cronograma fixo e com hash, e o
-executa do próprio disco. Não recebe mais nada.
+Each machine receives, **before** the window, a fixed and hashed schedule, and executes
+it from its own disk. It receives nothing else.
 
-| Peça | O que garante |
+| Piece | What it guarantees |
 | --- | --- |
-| `v3_schedule.py` | Passos ordenados, dentro da janela, com ação e argumentos fechados. Qualquer edição muda o hash |
-| `v3_bench.py` | Identidades cunhadas antes, endereços derivados sem subir nó: nenhum passo descobre nada durante a janela |
-| `v3_agent.py` | Espera o instante declarado, conta no próprio relógio monotônico, e lacra o diretório de controle |
-| `v3_executor.py` | Traduz um passo em ação real de nó; não tem caminho por onde algo de fora peça o que o cronograma não declarou |
+| `v3_schedule.py` | Ordered steps, inside the window, with a closed action and arguments. Any edit changes the digest |
+| `v3_bench.py` | Identities minted in advance, addresses derived without starting a node: no step discovers anything during the window |
+| `v3_agent.py` | Waits for the declared instant, counts on its own monotonic clock, and seals the control directory |
+| `v3_executor.py` | Turns a step into a real node action; there is no path by which something outside could ask for what the schedule did not declare |
 
-**Sem relógio comum.** Um marcador de partida precisaria de canal vivo para
-chegar às duas máquinas — justamente o que a janela isolada não pode ter. O plano
-declara o **instante**; cada agente espera por ele no relógio de parede, troca
-para o monotônico e grava a hora que de fato observou. O desvio combinado entre
-as máquinas fica legível na evidência, não suposto.
+**No common clock.** A start marker would need a live channel to reach both machines —
+exactly what an isolated window cannot have. The plan declares the **instant**; each
+agent waits for it on the wall clock, switches to the monotonic one, and records the
+time it actually observed. The combined skew between the machines is readable in the
+evidence, not assumed.
 
-**Surdez por construção e por verificação.** O agente nunca lê canal de comando, e
-além disso tira uma impressão digital do diretório de controle no instante em que
-a janela abre e compara ao fechar. Rodada em que alguém dirigiu uma máquina no
-meio **falha**.
+**Deaf by construction and by check.** The agent never reads a command channel, and on
+top of that it fingerprints the control directory at the instant the window opens and
+compares when it closes. A run in which somebody steered a machine mid-way **fails**.
 
-## Resultado
+## Result
 
-Duas máquinas Windows na mesma rede, relé e origem em `alpha`, destinatário em
-`beta`, objeto de 16.384 bytes:
+Two Windows machines on the same network, relay and origin on `alpha`, recipient on
+`beta`, a 16,384-byte object:
 
-| Medida | alpha | beta |
+| Measure | alpha | beta |
 | --- | --- | --- |
-| Passos executados | 8, sem falha | 5, sem falha |
-| Atraso na abertura | 0,003 s | 0,011 s |
-| Deriva máxima | 0,016 s | 0,000 s |
-| Canal de controle | lacrado | lacrado |
+| Steps executed | 8, no failure | 5, no failure |
+| Lateness at opening | 0.003 s | 0.011 s |
+| Maximum drift | 0.016 s | 0.000 s |
+| Control channel | sealed | sealed |
 
-**Desvio entre as janelas: 0,007 s.** Sete milissegundos entre duas máquinas sem
-nenhum canal vivo entre elas, só pelo instante declarado.
+**Skew between the windows: 0.007 s.** Seven milliseconds between two machines with no
+live channel between them, from the declared instant alone.
 
-**O veredito desta rodada é `v3a_pass_without_machine_evidence`**, não
-`v3a_scoped_pass`. Tudo acima está provado; a distinção entre as máquinas, não.
-Ver a seção seguinte.
+**This round's verdict is `v3a_pass_without_machine_evidence`**, not
+`v3a_scoped_pass`. Everything above is proved; the distinction between the machines is
+not. See the next section.
 
-O destinatário reconstruiu os 16.384 bytes exatos
-(`sha256 9e390712447e77dedddd75386db336f7a07fb8b1cc210eff3fff9c172b15b4e6`),
-com o pacote autenticado contra a chave da origem e o recibo local válido — a
-mesma auditoria criptográfica dos marcos anteriores.
+The recipient reconstructed the exact 16,384 bytes
+(`sha256 9e390712447e77dedddd75386db336f7a07fb8b1cc210eff3fff9c172b15b4e6`), with the
+packet authenticated against the origin's key and the local receipt valid — the same
+cryptographic audit as the earlier milestones.
 
-## O controle que decide se isto vale algo
+## The control that decides whether this is worth anything
 
-Dois agentes no mesmo host executam esses mesmos cronogramas com a mesma
-obediência. Uma alegação de V3a que não estabeleça **máquinas distintas** não vale
-mais que o G1. Por isso o auditor:
+Two agents on one host execute these same schedules just as obediently. A V3a claim
+that does not establish **distinct machines** is worth no more than G1. So the auditor:
 
-- recusa de imediato um endereço de relé em loopback;
-- exige que cada máquina tenha reportado sua identidade de host;
-- exige que os nomes sejam diferentes;
-- exige que o endereço do relé **pertença à máquina do relé e a nenhuma outra**.
+- rejects a loopback relay address outright;
+- requires each machine to have reported its host identity;
+- requires the names to differ;
+- requires the relay address to **belong to the relay machine and to no other**.
 
-Esse auditor ganhou seu lugar reprovando o ensaio de host único do próprio autor,
-antes de qualquer rodada real — e reprovou também a rodada acima. Os agentes ainda
-não gravavam `host.json`, então o `report.json` traz `evidenced: false` com a razão
-escrita nele: *distinctness rests on the non-loopback address and on the operator,
-not on this evidence*.
+That auditor earned its place by failing the author's own single-host rehearsal, before
+any real round — and it failed the round above too. The agents did not yet write
+`host.json`, so the `report.json` carries `evidenced: false` with the reason written in
+it: *distinctness rests on the non-loopback address and on the operator, not on this
+evidence*.
 
-Na prática, o que a rodada estabelece sozinha é que **o relé não estava em
-loopback** (`192.168.68.62`). Que as duas pastas rodaram em máquinas diferentes é
-observação do operador, e observação do operador é precisamente o que este
-projeto não aceita como prova. A gravação de identidade de host já está no
-`v3_agent.py`; falta uma rodada que a exerça.
+In practice, what the round establishes on its own is that **the relay was not on
+loopback** (`192.168.68.62`). That the two folders ran on different machines is the
+operator's observation, and the operator's observation is precisely what this project
+does not accept as proof. Host identity recording is now in `v3_agent.py`; what is
+missing is a round that exercises it.
 
-## Rodadas e verificações
+## Rounds and checks
 
-A primeira tentativa em duas máquinas **não produziu rodada pareada**, e o motivo
-era um defeito de desenho: a pasta da bancada não era de uso único. Cada nova
-tentativa encontrava os diretórios de nó da anterior, o `Daemon` se recusava a
-lançar neles, e a rodada morria no passo 0 com `node already launched` — um erro
-sobre um nó que nada dizia do problema real. Na tentativa que a segunda máquina
-acompanhou, o relé nunca subiu, e o destinatário passou a janela buscando num
-endereço onde não havia ninguém. Preparar ou executar numa pasta já usada passou a
-ser recusado, com mensagem que nomeia causa e remédio.
+The first attempt on two machines **produced no paired round**, and the reason was a
+design defect: the bench folder was not single use. Each new attempt found the previous
+one's node directories, the `Daemon` refused to launch into them, and the round died at
+step 0 with `node already launched` — an error about a node that said nothing about the
+real problem. In the attempt the second machine followed, the relay never came up, and
+the recipient spent the window fetching from an address where nobody was. Preparing or
+executing in an already-used folder is now refused, with a message naming cause and
+remedy.
 
-A segunda tentativa falhou por rede, e o diagnóstico mostrou o valor de separar
-hipóteses: `Initial connection ... could not be established: timed out` no
-destinatário, enquanto o relé guardava a mensagem e esperava. A rede era Pública
-no Windows e a porta estava bloqueada. O teste que eu havia proposto para checar
-isso estava mal formulado — mandava testar a porta com a bancada parada, quando
-nada escutava nela — e produzia `False` mesmo com o firewall correto. Um ouvinte
-temporário separou as duas coisas em segundos.
+The second attempt failed on the network, and the diagnosis showed the value of
+separating hypotheses: `Initial connection ... could not be established: timed out` on
+the recipient, while the relay held the message and waited. The network was Public in
+Windows and the port was blocked. The test I had proposed for checking this was badly
+formed — it told you to test the port with the bench stopped, when nothing listens on
+it — and produced `False` even with a correct firewall. A temporary listener separated
+the two in seconds.
 
-- Testes V3 rápidos no ambiente fixado: **21 passaram**.
-- `unittest discover -s window/tests` no ambiente fixado: **207 passaram,
-  8 opt-in pulados**. Esse número era da árvore de então; a suíte hoje tem **166**, porque o trabalho
-  anterior ao Dethron saiu da árvore na preparação para publicação.
-- Cada fonte do V3a tem menos de 200 linhas.
+- Fast V3 tests in the pinned environment: **21 passed**.
+- `unittest discover -s window/tests` in the pinned environment: **207 passed, 8 opt-in
+  skipped**. That number was measured on the tree of the time; the suite today holds
+  **166**, because the pre-Dethron work left the tree when the repository was prepared
+  for publication.
+- Every V3a source file is under 200 lines.
 
-## Limites
+## Limits
 
-Duas máquinas, um sistema operacional, uma rede sem fio doméstica, um objeto de
-16 KiB, uma rodada. Não é estimativa estatística. Ethernet e Wi-Fi não foram
-comparados como meios distintos, e nenhum enlace não-IP participou: **isto não é
-G6 e não diz nada sobre diversidade física** — essa é a fatia V3c, com enlace
-serial, que também passará a servir de base de tempo.
+Two machines, one operating system, one domestic wireless network, one 16 KiB object,
+one round. This is not a statistical estimate. Ethernet and Wi-Fi were not compared as
+distinct media, and no non-IP link took part: **this is not G6 and says nothing about
+physical diversity** — that is the V3c slice, over a serial link, which also comes to
+serve as the time base.
 
-O canal de controle é uma pasta copiada à mão entre as máquinas, declarada e
-excluída da janela pelo lacre. As máquinas compartilham a mesma infraestrutura de
-rede e a mesma energia, então falhas correlacionadas continuam possíveis. O
-auditor prova que ninguém dirigiu as máquinas durante a janela; não prova que um
-operador hostil não poderia ter preparado a bancada de má-fé.
+The control channel is a folder copied by hand between the machines, declared and
+excluded from the window by the seal. The machines share the same network
+infrastructure and the same power, so correlated failures remain possible. The auditor
+proves nobody steered the machines during the window; it does not prove a hostile
+operator could not have prepared the bench in bad faith.
 
-## Evidência
+## Evidence
 
-[`evidence/v3a-network-20260918/`](evidence/v3a-network-20260918/) traz o
-relatório, o plano com hash e o `evidence.jsonl` de cada máquina.
+[`evidence/v3a-network-20260918/`](evidence/v3a-network-20260918/) holds the report,
+the hashed plan, and each machine's `evidence.jsonl`.
 
-## Reprodução
+## Reproduction
 
-Preparar duas máquinas do zero: [V3_SETUP.md](V3_SETUP.md), com o teste de rede que
-separa firewall de bancada e a leitura do relatório.
+To prepare two machines from scratch: [V3_SETUP.md](V3_SETUP.md), including the network
+test that separates a firewall from a bench, and how to read the report.
 
-A partir da raiz, nas duas máquinas, com o ambiente fixado em
-[G0](G0_REFERENCE.md#reprodução). Na máquina do relé, descubra o IP local com
-`ipconfig` e use uma pasta **nova** a cada rodada:
+From the repository root, on both machines, with the environment pinned as in
+[G0](G0_REFERENCE.md#reproduction). On the relay machine, find the local address with
+`ipconfig` and use a **new** folder for every round:
 
 ```powershell
-window/.venv-gateway/Scripts/python.exe window/run_v3_bench.py C:\dethron\bench3 <IP-DO-RELE> 600
+window/.venv-gateway/Scripts/python.exe window/run_v3_bench.py C:\dethron\bench3 <RELAY-IP> 600
 ```
 
-Copie `C:\dethron\bench3\control` para a outra máquina, no mesmo caminho. Então,
-em cada uma:
+Copy `C:\dethron\bench3\control` to the other machine, to the same path. Then, on each:
 
 ```powershell
 window/.venv-gateway/Scripts/python.exe window/run_v3_agent.py C:\dethron\bench3 alpha
 window/.venv-gateway/Scripts/python.exe window/run_v3_agent.py C:\dethron\bench3 beta
 ```
 
-A porta 45810 precisa aceitar entrada na máquina do relé. Ao terminar, traga a
-pasta da outra máquina para junto da primeira e gere o veredito:
+Port 45810 must accept inbound connections on the relay machine. When both finish,
+bring the other machine's folder next to the first one and produce the verdict:
 
 ```powershell
 window/.venv-gateway/Scripts/python.exe window/run_v3_report.py C:\dethron\bench3
 ```
 
-## Decisão e próximo passo
+## Decision and next step
 
-A evidência de G0–V1 sustenta em duas pastas que não compartilham processo nem
-diretório, com ninguém dirigindo-as durante a janela, e o objeto atravessou uma
-rede real entre endereços não-loopback. Esta rodada, sozinha, não estabelece que
-são duas máquinas.
+The evidence from G0 to V1 holds on two folders that share neither process nor
+directory, with nobody steering them during the window, and the object crossed a real
+network between non-loopback addresses. This round, on its own, does not establish that
+there are two machines.
 
-**O [V3c](V3C_BENCH.md) estabeleceu**, numa rodada posterior que gravou as
-identidades de host: `v3c_scoped_pass`, com processadores de fabricantes
-diferentes e nenhum endereço em comum. A ressalva do host único sai de G0–V1 por
-aquela evidência, não por esta.
+**[V3c](V3C_BENCH.md) did establish it**, in a later round that recorded the host
+identities: `v3c_scoped_pass`, with processors from different vendors and no address in
+common. The single-host caveat leaves G0–V1 on that evidence, not on this one.
 
-Refazer esta rodada até `v3a_scoped_pass` continua possível — [V3_SETUP.md](V3_SETUP.md)
-— mas deixou de ser necessário: o que ela provaria já está provado, sobre um meio
-mais difícil.
-
-O **V3b** — segundo meio físico via cabo Ethernet — foi descartado: Wi-Fi e
-Ethernet carregam os dois IP, então a rodada custaria o mesmo trabalho para
-provar diversidade de cabo, não diversidade de meio. O que o V3b tinha de
-próprio, o controle do desplugue, o V3c herda.
+Repeating this round until `v3a_scoped_pass` remains possible —
+[V3_SETUP.md](V3_SETUP.md) — but it is no longer necessary: what it would prove is
+already proved, over a harder medium.

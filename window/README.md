@@ -1,50 +1,50 @@
-# Marcos e harness
+# Milestones and harness
 
-Cada marco tem um documento com contrato, resultado, **controles que precisam
-falhar**, limites e reprodução. A [evidência citada](evidence/README.md) está
-publicada: dá para recalcular em vez de acreditar.
+Each milestone has a document stating its contract, its result, the **controls that
+must fail**, its limits and how to reproduce it. The [cited evidence](evidence/README.md)
+is published: you can recompute instead of believe.
 
-| Marco | O que estabelece |
+| Milestone | What it establishes |
 | --- | --- |
-| [G0](G0_REFERENCE.md) | Integração real com Reticulum/LXMF; mensagens sobrevivem ao crash dos propagadores |
-| [G1](G1_INTEGRATION.md) | Caixa postal persistente, recibos, protocolo fechado |
-| [G2](G2_PARTS.md) | Partes complementares e reconstrução. **Encerrado sem vantagem geral** — o registro diz isso |
-| [G3](G3_GENERATIONS.md) | Gerações de nós e supervisores; nós sobrevivem a quem os criou |
-| [G4](G4_INDEPENDENCE.md) | Entrega com a pilha IP cortada, com o controle que reprova quando o corte não aconteceu |
-| [V1](V1_CUSTODY.md) | Custódia assinada: prova de entrada e pendência localizável. E o [recibo de volta](V1_RECEIPT_RETURN.md) a uma origem que nunca esteve online com o destino |
-| [V2](V2_REPRODUCTION.md) | Roteiro de reprodução em máquina independente, com executor único |
-| [V3a](V3A_BENCH.md) | Bancada em duas máquinas, janelas isoladas, encontro por instante declarado |
-| [V3c](V3C_BENCH.md) | **Um objeto atravessou por um meio que não carrega IP**, com o destinatário provado sem nenhuma interface IP |
+| [G0](G0_REFERENCE.md) | Real integration with Reticulum/LXMF; messages survive the propagation nodes crashing |
+| [G1](G1_INTEGRATION.md) | Persistent mailbox, receipts, a closed protocol |
+| [G2](G2_PARTS.md) | Complementary parts and reconstruction. **Closed with no general advantage** — the record says so |
+| [G3](G3_GENERATIONS.md) | Generations of nodes and supervisors; nodes outlive whoever created them |
+| [G4](G4_INDEPENDENCE.md) | Delivery with the IP stack cut, plus the control that fails when the cut did not happen |
+| [V1](V1_CUSTODY.md) | Signed custody: proof of entry and localizable pendency. And the [receipt returning](V1_RECEIPT_RETURN.md) to an origin that was never online with the destination |
+| [V2](V2_REPRODUCTION.md) | A reproduction guide for an independent machine, with a single runner |
+| [V3a](V3A_BENCH.md) | Two-machine bench, isolated windows, rendezvous by declared instant |
+| [V3c](V3C_BENCH.md) | **An object crossed over a medium that carries no IP**, with the recipient proved to hold no IP interface |
 
-Para montar duas máquinas do zero: [preparação passo a passo](V3_SETUP.md).
+To prepare two machines from scratch: [step by step](V3_SETUP.md).
 
-## Estrutura
+## Layout
 
-| Caminho | O que é |
+| Path | What it is |
 | --- | --- |
-| `dethron_gateway/` | A biblioteca: protocolo, wire, custódia, partes, reconstrução, caixa postal |
-| `g1_*`–`g4_*`, `v1_*` | Laboratórios e auditores de cada marco |
-| `v2_*` | Executor de reprodução e diagnóstico |
-| `v3_*` | Bancada multi-máquina: cronograma, agente, executor, auditor, sonda serial |
-| `run_*.py` | Os pontos de entrada. Nada mais é feito para ser chamado à mão |
-| `tests/` | 166 testes; 8 são reproduções reais, que só rodam sob demanda |
-| `evidence/` | Os artefatos que os documentos citam |
-| `upstream/` | Um defeito encontrado no LXMF, com reprodução e correção |
+| `dethron_gateway/` | The library: protocol, wire, custody, parts, reconstruction, mailbox |
+| `g1_*`–`g4_*`, `v1_*` | Each milestone's laboratory and auditor |
+| `v2_*` | Reproduction runner and diagnosis |
+| `v3_*` | Multi-machine bench: schedule, agent, executor, auditor, serial probe |
+| `run_*.py` | The entry points. Nothing else is meant to be called by hand |
+| `tests/` | 166 tests; 8 are real reproductions that only run on demand |
+| `evidence/` | The artifacts the documents cite |
+| `upstream/` | A defect found in LXMF, with a reproduction and a fix |
 
-## Rodar
+## Running
 
 ```powershell
 python -m venv window/.venv-gateway
 window/.venv-gateway/Scripts/python.exe -m pip install -r window/requirements-gateway.txt
 ```
 
-A suíte, a partir da raiz:
+The suite, from the repository root:
 
 ```powershell
 window/.venv-gateway/Scripts/python.exe window/run_v2_reproduction.py --fast-only
 ```
 
-Esperado: `ran=166 skipped=8 PASS`. Os 8 pulados são as reproduções reais, que
-levam cerca de uma hora e rodam com `run_v2_reproduction.py` sem `--fast-only`.
+Expected: `ran=166 skipped=8 PASS`. The 8 skipped are the real reproductions, which
+take about an hour and run with `run_v2_reproduction.py` without `--fast-only`.
 
-Cada fonte tem menos de 200 linhas, por convenção do projeto.
+Every source file is under 200 lines, by project convention.

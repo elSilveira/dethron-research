@@ -1,38 +1,39 @@
-# Preparar duas máquinas para a bancada V3
+# Preparing two machines for the V3 bench
 
-Do zero até uma rodada completa. Uma das máquinas será **alpha** (relé e origem), a
-outra **beta** (destinatário). Tanto faz qual é qual, desde que você não troque no meio.
+From nothing to a complete round. One machine will be **alpha** (relay and origin), the
+other **beta** (recipient). It does not matter which is which, as long as you do not
+swap them half way.
 
-Tempo: cerca de 20 minutos de preparação por máquina, uma vez só, e 10 minutos por
-rodada depois disso.
+Time: about 20 minutes of preparation per machine, once, and 10 minutes per round after
+that.
 
-## O que cada máquina precisa
+## What each machine needs
 
-| Item | Exigência | Como conferir |
+| Item | Requirement | How to check |
 | --- | --- | --- |
-| Sistema | Windows 10 ou 11 | — |
-| Python | **3.10.x**, no PATH como `python` | `python --version` |
-| Git | qualquer versão recente | `git --version` |
-| Caminho | **curto e sem espaços**: use `C:\dethron` | — |
-| Rede | as duas na mesma rede local, enxergando uma à outra | passo 6 |
-| Espaço | ~300 MB | — |
+| System | Windows 10 or 11 | — |
+| Python | **3.10.x**, on PATH as `python` | `python --version` |
+| Git | any recent version | `git --version` |
+| Path | **short and without spaces**: use `C:\dethron` | — |
+| Network | both on the same local network, able to see each other | step 6 |
+| Disk | ~300 MB | — |
 
-Instale o Python pelo instalador de [python.org](https://www.python.org/downloads/release/python-31011/)
-marcando **"Add python.exe to PATH"**. O atalho da Microsoft Store não serve: ele não
-cria ambientes virtuais corretamente.
+Install Python from the [python.org](https://www.python.org/downloads/release/python-31011/)
+installer, ticking **"Add python.exe to PATH"**. The Microsoft Store shortcut will not
+do: it does not create virtual environments correctly.
 
 ---
 
-# Parte 1 — preparação, nas DUAS máquinas
+# Part 1 — preparation, on BOTH machines
 
-## 1. Clonar
+## 1. Clone
 
 ```
 git clone https://github.com/elSilveira/dethron.git C:\dethron
 cd C:\dethron
 ```
 
-## 2. Criar o ambiente
+## 2. Create the environment
 
 ```
 python --version
@@ -40,144 +41,147 @@ python -m venv window\.venv-gateway
 window\.venv-gateway\Scripts\python.exe -m pip install -r window\requirements-gateway.txt
 ```
 
-**Esperado:** `Python 3.10.x` e o `pip` terminando sem `ERROR`.
+**Expected:** `Python 3.10.x`, and `pip` finishing without `ERROR`.
 
-## 3. Conferir
+## 3. Check
 
 ```
 window\.venv-gateway\Scripts\python.exe window\run_v2_reproduction.py --fast-only
 ```
 
-**Esperado:** `fast full  ran=166 skipped=8 PASS` e `V2 PASS`.
+**Expected:** `fast full  ran=166 skipped=8 PASS` and `V2 PASS`.
 
-Se aparecer `PROBLEM: repository path too long`, o clone está num caminho comprido
-demais — mova para `C:\dethron`.
+If you get `PROBLEM: repository path too long`, the clone sits on too long a path —
+move it to `C:\dethron`.
 
 ---
 
-# Parte 2 — descobrir os endereços
+# Part 2 — finding the addresses
 
-## 4. Na máquina ALPHA
+## 4. On the ALPHA machine
 
 ```
 ipconfig
 ```
 
-Anote o **Endereço IPv4** da rede local, algo como `192.168.x.x`. Ele será o
-**IP-ALPHA** em todos os passos seguintes.
+Write down the local network's **IPv4 Address**, something like `192.168.x.x`. It is
+**ALPHA-IP** in every step that follows.
 
-## 5. Liberar a porta na ALPHA
+## 5. Open the port on ALPHA
 
-PowerShell **como administrador**:
+PowerShell **as administrator**:
 
 ```powershell
 New-NetFirewallRule -DisplayName "Dethron V3" -Direction Inbound -Protocol TCP -LocalPort 45810-45812 -Action Allow -Profile Any
 ```
 
-## 6. Confirmar que a BETA alcança a ALPHA
+## 6. Confirm that BETA reaches ALPHA
 
-Na **alpha**, deixe um ouvinte temporário:
+On **alpha**, leave a temporary listener running:
 
 ```
-window\.venv-gateway\Scripts\python.exe -c "import socket;s=socket.socket();s.bind(('0.0.0.0',45810));s.listen(1);print('ouvindo 60s');s.settimeout(60);print('CONECTOU:',s.accept()[1])"
+window\.venv-gateway\Scripts\python.exe -c "import socket;s=socket.socket();s.bind(('0.0.0.0',45810));s.listen(1);print('listening 60s');s.settimeout(60);print('CONNECTED:',s.accept()[1])"
 ```
 
-Na **beta**, enquanto isso:
+On **beta**, while that runs:
 
 ```powershell
-Test-NetConnection IP-ALPHA -Port 45810
+Test-NetConnection ALPHA-IP -Port 45810
 ```
 
-**Esperado:** `TcpTestSucceeded : True` na beta, e `CONECTOU:` na alpha.
+**Expected:** `TcpTestSucceeded : True` on beta, and `CONNECTED:` on alpha.
 
-Se der `False`, nada mais adiante vai funcionar. Causas comuns: a regra do passo 5 não
-foi criada, a rede está como **Pública** com entrada bloqueada
-(`Get-NetConnectionProfile`), ou o roteador isola os clientes entre si — nesse último
-caso, use cabo.
+If it says `False`, nothing further will work. Common causes: the rule from step 5 was
+not created, the network is **Public** with inbound blocked
+(`Get-NetConnectionProfile`), or the router isolates clients from each other — in that
+last case, use a cable.
 
-> Testar essa porta **sem** o ouvinte rodando dá `False` mesmo com tudo correto, porque
-> nada escuta nela fora do experimento. O ouvinte é o que torna o teste válido.
+> Testing that port **without** the listener running gives `False` even when everything
+> is correct, because nothing listens on it outside the experiment. The listener is what
+> makes the test valid.
 
 ---
 
-# Parte 3 — uma rodada
+# Part 3 — one round
 
-Cada rodada usa uma **pasta nova**. Não reaproveite: a bancada é de uso único, e
-tentar reusá-la é recusado com uma mensagem explicando por quê.
+Every round uses a **new folder**. Do not reuse one: a bench is single use, and trying
+to reuse it is refused with a message explaining why.
 
-## 7. Na ALPHA, preparar
+## 7. On ALPHA, prepare
 
-Trocando `IP-ALPHA` pelo endereço do passo 4:
+Replacing `ALPHA-IP` with the address from step 4:
 
 ```
-window\.venv-gateway\Scripts\python.exe window\run_v3_bench.py C:\dethron\bench1 IP-ALPHA 600
+window\.venv-gateway\Scripts\python.exe window\run_v3_bench.py C:\dethron\bench1 ALPHA-IP 600
 ```
 
-Ele imprime a **hora em que a janela abre** — 600 segundos de folga — e cria
+It prints **the time the window opens** — 600 seconds of lead — and creates
 `C:\dethron\bench1\control`.
 
-## 8. Copiar para a BETA
+## 8. Copy to BETA
 
-Copie a pasta `C:\dethron\bench1\control` inteira para a beta, no mesmo caminho:
+Copy the whole `C:\dethron\bench1\control` folder to beta, to the same path:
 `C:\dethron\bench1\control`.
 
-Pen drive, pasta compartilhada, e-mail: tanto faz. **Não precisa de rede compartilhada** —
-as máquinas não trocam comandos durante o experimento, só combinam o instante de início.
+USB stick, shared folder, e-mail: it does not matter. **No shared network is needed** —
+the machines exchange no commands during the experiment, they only agree on the
+starting instant.
 
-## 9. Iniciar as duas, antes da hora impressa
+## 9. Start both, before the printed time
 
-Na **alpha**:
+On **alpha**:
 ```
 window\.venv-gateway\Scripts\python.exe window\run_v3_agent.py C:\dethron\bench1 alpha
 ```
 
-Na **beta**:
+On **beta**:
 ```
 window\.venv-gateway\Scripts\python.exe window\run_v3_agent.py C:\dethron\bench1 beta
 ```
 
-As duas ficam esperando e imprimem quanto falta. Na hora marcada elas abrem juntas e
-executam sozinhas por 4 minutos. **Não mexa em nada**, principalmente na pasta
-`control`, que fica lacrada.
+Both wait and print how long is left. At the appointed time they open together and run
+on their own for 4 minutes. **Touch nothing**, above all not the `control` folder, which
+is sealed.
 
-**Esperado no fim, nas duas:** `"verdict": "v3_agent_complete"`.
+**Expected at the end, on both:** `"verdict": "v3_agent_complete"`.
 
-Se a alpha morrer no passo 0, pare tudo: a pasta já foi usada. Use `bench2`.
+If alpha dies at step 0, stop everything: the folder has been used already. Use
+`bench2`.
 
-## 10. Juntar e gerar o veredito
+## 10. Bring together and produce the verdict
 
-Copie `C:\dethron\bench1\beta` da beta para a **alpha**, ficando ao lado da pasta
-`alpha`. Então, na alpha:
+Copy `C:\dethron\bench1\beta` from beta to **alpha**, next to the `alpha` folder. Then,
+on alpha:
 
 ```
 window\.venv-gateway\Scripts\python.exe window\run_v3_report.py C:\dethron\bench1
 ```
 
-**Esperado:** `"verdict": "v3a_scoped_pass"`.
+**Expected:** `"verdict": "v3a_scoped_pass"`.
 
-O relatório fica em `C:\dethron\bench1\report.json`.
+The report lands in `C:\dethron\bench1\report.json`.
 
 ---
 
-## Como ler o relatório
+## Reading the report
 
-| Campo | O que significa |
+| Field | What it means |
 | --- | --- |
-| `machines[].control_unchanged` | A pasta de controle ficou lacrada: ninguém dirigiu a máquina durante a janela |
-| `machines[].max_drift` | Quanto cada passo atrasou em relação ao horário declarado |
-| `rendezvous.skew_seconds` | Quanto as duas janelas abriram fora de sincronia, sem canal vivo entre elas |
-| `delivery.completed` | O destinatário reconstruiu os bytes exatos e emitiu recibo |
-| `distinct_machines.evidenced` | As máquinas provaram ser distintas, por nome e pelo dono do endereço do relé |
+| `machines[].control_unchanged` | The control folder stayed sealed: nobody steered the machine during the window |
+| `machines[].max_drift` | How late each step ran against its declared time |
+| `rendezvous.skew_seconds` | How far apart the two windows opened, with no live channel between them |
+| `delivery.completed` | The recipient reconstructed the exact bytes and issued a receipt |
+| `distinct_machines.evidenced` | The machines proved distinct, by name and by who owns the relay address |
 
-Qualquer um deles falhando reprova a rodada, e o relatório diz qual e por quê.
+Any one of them failing fails the round, and the report says which and why.
 
-## Quando algo falha
+## When something fails
 
-O `report.json` traz `verdict: inconclusive` e o erro. Os erros mais comuns:
+`report.json` carries `verdict: inconclusive` and the error. The most common ones:
 
-| Erro | Causa |
+| Error | Cause |
 | --- | --- |
-| `missing authenticated parts: []` | O objeto não chegou. Veja o `evidence.jsonl` da beta: se o `fetch` ficou com `sync=240`, ela não alcançou o relé — volte ao passo 6 |
-| `node already launched` | Pasta de bancada reutilizada. Use uma nova |
-| `the recipient reached the relay over loopback` | Você usou `127.0.0.1` em vez do IP real |
-| `the relay address ... belongs to ...` | O `IP-ALPHA` não é da máquina que rodou a alpha |
+| `missing authenticated parts: []` | The object never arrived. Look at beta's `evidence.jsonl`: if `fetch` was left with `sync=240`, it did not reach the relay — go back to step 6 |
+| `node already launched` | Bench folder reused. Use a new one |
+| `the recipient reached the relay over loopback` | You used `127.0.0.1` instead of the real address |
+| `the relay address ... belongs to ...` | `ALPHA-IP` does not belong to the machine that ran alpha |
