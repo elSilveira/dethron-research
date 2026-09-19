@@ -40,7 +40,8 @@ This is a harness with evidence, not a product. Plainly:
 - **There is no client.** Nodes are driven by benches. Nobody installs this and sends
   a message.
 - **Scale was never measured.** One message, one relay, one recipient, 16 KiB.
-- **Windows only.** It has never run on Linux or Android.
+- **Two platforms.** Windows and Ubuntu 24.04 are exercised by the published library;
+  the evidence in this repository was produced on Windows alone.
 - **Laboratory keys.** There is no key exchange and no contact discovery.
 - **No written threat model.** The tests cover cases; the document is missing.
 
