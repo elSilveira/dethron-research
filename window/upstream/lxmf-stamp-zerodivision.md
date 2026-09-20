@@ -19,6 +19,23 @@ needed to apply it.
 
 Anyone maintaining a fork is welcome to take this. No attribution is asked for.
 
+## Where it was sent, 20/09/2026
+
+| Where | What happened |
+| --- | --- |
+| [Reticulum-Community/LXMF#1](https://github.com/Reticulum-Community/LXMF/pull/1) | Pull request open. The patch was rebuilt against that fork's older base and re-proved on it: `ZeroDivisionError` in 17 of 20 runs at peering cost 1 without the guard, 0 of 20 with it |
+| [rns.recipes forum](https://rns.recipes/forum/general/lxmf-propagation-node-peering-can-silently-never-start-zerodivisionerror-in-stamp-generation-2) | Posted as a defect report alone, with no mention of this project |
+| `markqvist/LXMF` | **Deliberately not sent.** See above |
+
+The forum post says nothing about Dethron on purpose. A defect report that arrives
+carrying a project is an advertisement wearing a bug report's clothes, and this community
+would be right to read it that way.
+
+What this establishes is narrow: the defect is published where someone maintaining a fork
+can find it. It establishes nothing about whether anyone wants it. The community fork has
+been dormant since April 2026, with issues disabled and no forks of its own, so the pull
+request may never be read.
+
 ## Re-verified 20/09/2026
 
 Against `markqvist/LXMF` `master` at `795fdaa` (pushed 2026-07-20; upstream has not moved
