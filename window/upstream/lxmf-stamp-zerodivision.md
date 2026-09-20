@@ -1,12 +1,41 @@
 # Upstream report: `generate_stamp` discards a valid stamp with `ZeroDivisionError`
 
-Written for the LXMF maintainer, so the report below is in English and assumes no
-knowledge of this project. File at <https://github.com/markqvist/LXMF/issues>, or
-open the pull request described in [`pull-request.md`](pull-request.md).
+Written for whoever maintains an LXMF fork, so the report below is in English and
+assumes no knowledge of this project. Reproduction script:
+[`repro_lxmf_stamp.py`](repro_lxmf_stamp.py); the change itself is in
+[`pull-request.md`](pull-request.md).
 
-Confirmed present in **LXMF 1.1.1** — the latest release on PyPI at the time of
-writing — and in `master` at commit `795fdaa`. Reproduction script:
-[`repro_lxmf_stamp.py`](repro_lxmf_stamp.py).
+Confirmed present in **LXMF 1.1.1** — the latest release on PyPI — and in
+`markqvist/LXMF` `master` at commit `795fdaa`.
+
+## Where this goes, and where it does not
+
+**Not to `markqvist/LXMF`.** Its `MIRROR.md` says the author is stepping back from all
+public-facing interaction, that there will be no responses to issues or discussions, and
+that this is not a temporary break. The pull request form is still technically open, and
+that is not an invitation: a good patch is still one more demand on someone who asked, in
+plain words, to be left alone. The defect is published here instead, with everything
+needed to apply it.
+
+Anyone maintaining a fork is welcome to take this. No attribution is asked for.
+
+## Re-verified 20/09/2026
+
+Against `markqvist/LXMF` `master` at `795fdaa` (pushed 2026-07-20; upstream has not moved
+since this was first written), with `rns 1.5.4`, on Windows 11 and Python 3.10.11:
+
+| | Section B of the reproduction, clock frozen |
+| --- | --- |
+| Unpatched `795fdaa` | `ZeroDivisionError: float division by zero` |
+| With the change below | `no exception` |
+
+Section C of the same run shows why this is a defect rather than a cosmetic slip: the
+stamp had already been found. `job_simple` returns it after 2 rounds, value 3 — the work
+was complete, and a logging line threw the result away.
+
+The patch in [`0001-guard-rate-calculations.patch`](0001-guard-rate-calculations.patch)
+still applies cleanly to `795fdaa` and guards all four rate calculations — three in
+`LXStamper.py`, one in `LXMPeer.py`.
 
 ---
 
