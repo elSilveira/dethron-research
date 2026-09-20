@@ -18,6 +18,9 @@ is published: you can recompute instead of believe.
 
 To prepare two machines from scratch: [step by step](V3_SETUP.md).
 
+Published on 20/09/2026, and [what would refute it](ADOPTION.md) written down before
+the answer was known.
+
 ## Layout
 
 | Path | What it is |
